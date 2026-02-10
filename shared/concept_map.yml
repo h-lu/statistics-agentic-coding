@@ -1,0 +1,357 @@
+# 全书概念图谱
+#
+# 记录每个核心概念的首次引入周和计划复现周（回顾桥目标）。
+# syllabus-planner 规划时检查新概念数是否超预算。
+# chapter-writer 写回顾桥时参考本文件。
+# validate_week.py 用本文件做自动检查。
+#
+# 字段说明：
+#   concept_zh: 中文概念名
+#   concept_en: 英文概念名（可选）
+#   introduced: 首次引入的周（week_XX）
+#   revisited:  计划复现的周列表（回顾桥目标，不要求全部命中，至少命中一半）
+#   bloom_level: 首次引入时的 Bloom 层次（remember/understand/apply/analyze/evaluate/create）
+
+# ─── Week 01 ───
+- concept_zh: print 函数
+  concept_en: print()
+  introduced: week_01
+  revisited: [week_02, week_03, week_05]
+  bloom_level: remember
+
+- concept_zh: 变量
+  concept_en: variable
+  introduced: week_01
+  revisited: [week_02, week_03, week_04, week_06]
+  bloom_level: understand
+
+- concept_zh: input 函数
+  concept_en: input()
+  introduced: week_01
+  revisited: [week_02, week_04, week_06]
+  bloom_level: understand
+
+- concept_zh: f-string
+  concept_en: f-string
+  introduced: week_01
+  revisited: [week_04, week_09, week_12]
+  bloom_level: understand
+
+# ─── Week 02 ───
+- concept_zh: 条件判断
+  concept_en: if/elif/else
+  introduced: week_02
+  revisited: [week_03, week_05, week_06, week_09]
+  bloom_level: understand
+
+- concept_zh: for 循环
+  concept_en: for loop
+  introduced: week_02
+  revisited: [week_04, week_05, week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: while 循环
+  concept_en: while loop
+  introduced: week_02
+  revisited: [week_05, week_06, week_12]
+  bloom_level: apply
+
+- concept_zh: 布尔表达式
+  concept_en: boolean expression
+  introduced: week_02
+  revisited: [week_04, week_06, week_08]
+  bloom_level: understand
+
+# ─── Week 03 ───
+- concept_zh: 函数定义
+  concept_en: function definition
+  introduced: week_03
+  revisited: [week_04, week_05, week_06, week_07, week_08, week_11]
+  bloom_level: apply
+
+- concept_zh: 参数与返回值
+  concept_en: parameters and return values
+  introduced: week_03
+  revisited: [week_06, week_07, week_08, week_11]
+  bloom_level: apply
+
+- concept_zh: 作用域
+  concept_en: scope
+  introduced: week_03
+  revisited: [week_07]
+  bloom_level: understand
+
+- concept_zh: 函数分解
+  concept_en: functional decomposition
+  introduced: week_03
+  revisited: [week_07, week_11, week_12]
+  bloom_level: analyze
+
+# ─── Week 04 ───
+- concept_zh: 列表
+  concept_en: list
+  introduced: week_04
+  revisited: [week_05, week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: 字典
+  concept_en: dict
+  introduced: week_04
+  revisited: [week_05, week_06, week_10, week_11]
+  bloom_level: apply
+
+- concept_zh: 遍历模式
+  concept_en: iteration patterns
+  introduced: week_04
+  revisited: [week_05, week_09]
+  bloom_level: apply
+
+- concept_zh: 数据驱动设计
+  concept_en: data-driven design
+  introduced: week_04
+  revisited: [week_10, week_11]
+  bloom_level: analyze
+
+# ─── Week 05 ───
+- concept_zh: 文件读写
+  concept_en: file I/O
+  introduced: week_05
+  revisited: [week_06, week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: pathlib
+  concept_en: pathlib
+  introduced: week_05
+  revisited: [week_07, week_10, week_12]
+  bloom_level: apply
+
+- concept_zh: 编码
+  concept_en: encoding
+  introduced: week_05
+  revisited: [week_09]
+  bloom_level: understand
+
+- concept_zh: with 语句
+  concept_en: with statement
+  introduced: week_05
+  revisited: [week_06, week_10]
+  bloom_level: apply
+
+# ─── Week 06 ───
+- concept_zh: 异常处理
+  concept_en: try/except
+  introduced: week_06
+  revisited: [week_07, week_08, week_10, week_12]
+  bloom_level: analyze
+
+- concept_zh: 输入校验
+  concept_en: input validation
+  introduced: week_06
+  revisited: [week_09, week_10, week_12]
+  bloom_level: analyze
+
+- concept_zh: LBYL vs EAFP
+  concept_en: LBYL vs EAFP
+  introduced: week_06
+  revisited: [week_10]
+  bloom_level: evaluate
+
+- concept_zh: 异常类型
+  concept_en: exception types
+  introduced: week_06
+  revisited: [week_08, week_10]
+  bloom_level: analyze
+
+# ─── Week 07 ───
+- concept_zh: import 与模块
+  concept_en: import and modules
+  introduced: week_07
+  revisited: [week_08, week_10, week_11, week_12]
+  bloom_level: analyze
+
+- concept_zh: 包结构
+  concept_en: package structure
+  introduced: week_07
+  revisited: [week_12]
+  bloom_level: analyze
+
+- concept_zh: __name__ 守卫
+  concept_en: __name__ guard
+  introduced: week_07
+  revisited: [week_12]
+  bloom_level: understand
+
+- concept_zh: 重构
+  concept_en: refactoring
+  introduced: week_07
+  revisited: [week_11, week_14]
+  bloom_level: analyze
+
+# ─── Week 08 ───
+- concept_zh: pytest 断言
+  concept_en: pytest assert
+  introduced: week_08
+  revisited: [week_09, week_10, week_11, week_13]
+  bloom_level: evaluate
+
+- concept_zh: fixture
+  concept_en: fixture
+  introduced: week_08
+  revisited: [week_10, week_11]
+  bloom_level: apply
+
+- concept_zh: 参数化测试
+  concept_en: parameterized test
+  introduced: week_08
+  revisited: [week_09, week_10]
+  bloom_level: evaluate
+
+- concept_zh: TDD 循环
+  concept_en: TDD cycle
+  introduced: week_08
+  revisited: [week_11, week_13]
+  bloom_level: create
+
+# ─── Week 09 ───
+- concept_zh: 字符串方法
+  concept_en: string methods
+  introduced: week_09
+  revisited: [week_10, week_12]
+  bloom_level: apply
+
+- concept_zh: 正则表达式
+  concept_en: regular expression
+  introduced: week_09
+  revisited: [week_10, week_12]
+  bloom_level: apply
+
+- concept_zh: re 模块
+  concept_en: re module
+  introduced: week_09
+  revisited: [week_12]
+  bloom_level: apply
+
+- concept_zh: 边界用例思维
+  concept_en: boundary case thinking
+  introduced: week_09
+  revisited: [week_10, week_11]
+  bloom_level: analyze
+
+- concept_zh: split/join
+  concept_en: split/join
+  introduced: week_09
+  revisited: [week_10]
+  bloom_level: apply
+
+# ─── Week 10 ───
+- concept_zh: JSON 读写
+  concept_en: JSON I/O
+  introduced: week_10
+  revisited: [week_11, week_12]
+  bloom_level: apply
+
+- concept_zh: YAML 基础
+  concept_en: YAML basics
+  introduced: week_10
+  revisited: [week_12]
+  bloom_level: apply
+
+- concept_zh: 序列化与反序列化
+  concept_en: serialization/deserialization
+  introduced: week_10
+  revisited: [week_11, week_12]
+  bloom_level: apply
+
+- concept_zh: 数据契约
+  concept_en: data contract
+  introduced: week_10
+  revisited: [week_11, week_13]
+  bloom_level: evaluate
+
+- concept_zh: schema 验证
+  concept_en: schema validation
+  introduced: week_10
+  revisited: [week_11]
+  bloom_level: evaluate
+
+# ─── Week 11 ───
+- concept_zh: dataclass
+  concept_en: dataclass
+  introduced: week_11
+  revisited: [week_12, week_14]
+  bloom_level: create
+
+- concept_zh: 字段默认值
+  concept_en: field defaults
+  introduced: week_11
+  revisited: [week_12]
+  bloom_level: apply
+
+- concept_zh: 类型提示
+  concept_en: type hints
+  introduced: week_11
+  revisited: [week_12, week_14]
+  bloom_level: apply
+
+- concept_zh: 状态管理
+  concept_en: state management
+  introduced: week_11
+  revisited: [week_12, week_14]
+  bloom_level: create
+
+# ─── Week 12 ───
+- concept_zh: argparse
+  concept_en: argparse
+  introduced: week_12
+  revisited: [week_14]
+  bloom_level: create
+
+- concept_zh: 子命令
+  concept_en: subcommands
+  introduced: week_12
+  revisited: [week_14]
+  bloom_level: create
+
+- concept_zh: 退出码
+  concept_en: exit codes
+  introduced: week_12
+  revisited: [week_14]
+  bloom_level: apply
+
+- concept_zh: logging
+  concept_en: logging
+  introduced: week_12
+  revisited: [week_14]
+  bloom_level: apply
+
+# ─── Week 13 ───
+- concept_zh: agent team 模式
+  concept_en: agent team pattern
+  introduced: week_13
+  revisited: [week_14]
+  bloom_level: create
+
+- concept_zh: review checklist
+  concept_en: review checklist
+  introduced: week_13
+  revisited: [week_14]
+  bloom_level: evaluate
+
+- concept_zh: 失败驱动迭代
+  concept_en: failure-driven iteration
+  introduced: week_13
+  revisited: [week_14]
+  bloom_level: create
+
+# ─── Week 14 ───
+- concept_zh: release notes
+  concept_en: release notes
+  introduced: week_14
+  revisited: []
+  bloom_level: create
+
+- concept_zh: tag 发布
+  concept_en: tag release
+  introduced: week_14
+  revisited: []
+  bloom_level: create
