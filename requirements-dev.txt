@@ -1,0 +1,6 @@
+# Dev / tooling dependencies for the textbook factory.
+
+-r requirements.txt
+pytest
+pyyaml
+

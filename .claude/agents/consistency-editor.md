@@ -15,7 +15,7 @@ tools: [Read, Grep, Glob, Edit, Write, Bash]
    - 代码块都标注了语言（```python / ```bash / ```text）
    - 内部链接可点击（引用的文件路径正确）
    - 包含 DoD 提及
-   - 包含 `## PyHelper 进度` 小节
+   - 包含 `## StatLab 进度` 小节
 
 2. `TERMS.yml`：
    - 每个 term 的 `term_zh` / `definition_zh` / `first_seen` 齐全

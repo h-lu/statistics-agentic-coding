@@ -1,6 +1,6 @@
 ---
 name: example-engineer
-description: 产出示例代码 + 反例 + PyHelper 超级线代码，并确保能通过 pytest（或至少不破坏现有 tests）。
+description: 产出示例代码 + 反例 + StatLab 超级线代码，并确保能通过 pytest（或至少不破坏现有 tests）。
 model: sonnet
 tools: [Read, Grep, Glob, Edit, Write, Bash]
 ---
@@ -11,8 +11,8 @@ tools: [Read, Grep, Glob, Edit, Write, Bash]
 
 1. 读 `shared/writing_exemplars.md`：理解本书的写作标准。示例代码在正文中出现时，前后必须有足够的叙事上下文——不能只是"代码 + 一句话解释"。
 2. 确认本章的贯穿案例是什么：你的示例应该尽量与贯穿案例相关或互补。
-3. 读 `shared/book_project.md`：了解本周 PyHelper 超级线的推进点。
-4. 如果不是 week_01，读上一周的 PyHelper 代码（`examples/` 中最后编号的 pyhelper 文件），确保本周在其基础上增量修改。
+3. 读 `shared/book_project.md`：了解本周 StatLab 超级线的推进点。
+4. 如果不是 week_01，读上一周的 StatLab 代码/报告生成入口，确保本周在其基础上增量修改。
 
 ## 硬约束
 
@@ -33,27 +33,46 @@ tools: [Read, Grep, Glob, Edit, Write, Bash]
 
 ```python
 """
-示例：用 print() 输出 Hello World。
+示例：生成数据卡中的“规模与缺失概览”片段（Markdown）。
 
-运行方式：python3 chapters/week_01/examples/01_hello.py
-预期输出：Hello, World!
+运行方式：python3 chapters/week_01/examples/01_data_card.py
+预期输出：stdout 输出一段 Markdown（行列数、缺失率前几列等）。
 """
-print("Hello, World!")
+from __future__ import annotations
+
+import pandas as pd
+
+
+def main() -> None:
+    df = pd.read_csv("data.csv")  # 示例：路径由本周贯穿案例决定
+    out = []
+    out.append(f"- 行数: {len(df)}")
+    out.append(f"- 列数: {df.shape[1]}")
+    miss = (df.isna().mean().sort_values(ascending=False) * 100).round(1).head(5)
+    out.append("")
+    out.append("缺失率 Top 5：")
+    for k, v in miss.items():
+        out.append(f"- {k}: {v}%")
+    print("\\n".join(out))
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 ## 命名约定
 
-- 文件名：`NN_描述.py`（如 `01_hello.py`、`02_variables.py`）
+- 文件名：`NN_描述.py`（如 `01_data_card.py`、`02_summary_stats.py`）
 - 编号与 CHAPTER.md 小节顺序对应
-- **PyHelper 超级线代码**放在最后编号（如 `05_pyhelper.py`），Week 07+ 可放在 `examples/pyhelper/` 目录
+- **StatLab 超级线代码**放在最后编号（如 `99_statlab.py`），如果需要多文件可放在 `examples/statlab/` 目录
 
-## PyHelper 超级线代码（新增！）
+## StatLab 超级线代码（新增！）
 
-每周必须产出一个 PyHelper 示例文件：
-- Week 01-06：单文件 `examples/NN_pyhelper.py`
-- Week 07+：目录 `examples/pyhelper/`（多文件）
-- **必须在上周代码基础上增量修改**，不从头重写
-- 代码必须用到本周新学的概念
+每周必须产出一个 StatLab 示例入口（脚本或最小模块），用于生成 `report.md`（或报告的一部分）：
+- 简单情况：单文件 `examples/99_statlab.py`
+- 复杂情况：目录 `examples/statlab/`（多文件）
+- **必须在上周基础上增量修改**，不从头重写
+- 代码必须用到本周新学的概念，并把关键结果写进报告
 - 从 `shared/book_project.md` 读取本周推进计划
 
 ## starter_code/solution.py（新增！）

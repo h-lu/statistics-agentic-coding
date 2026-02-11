@@ -38,8 +38,17 @@ def _strip_week_prefix(week: str, title: str) -> str:
     week_num_match = re.match(r"week_(\d{2})", week)
     if week_num_match:
         week_num = week_num_match.group(1)
-        # Match 'Week 01：', 'Week 01:', etc. with optional leading '#'
-        m = re.match(rf"^#?\s*Week\s+{re.escape(week_num)}\s*[:：]\s*(.+)$", t, re.IGNORECASE)
+        # Match common chapter heading styles:
+        # - "Week 01：标题"
+        # - "week_01：标题" (project convention)
+        # - "week 01: 标题"
+        m = re.match(
+            rf"^#?\s*week(?:[_\s]+){re.escape(week_num)}\s*[:：]\s*(.+)$",
+            t,
+            re.IGNORECASE,
+        )
+        if not m:
+            m = re.match(rf"^#?\s*Week\s+{re.escape(week_num)}\s*[:：]\s*(.+)$", t, re.IGNORECASE)
         return _norm_title(m.group(1)) if m else _norm_title(t)
     return _norm_title(t)
 

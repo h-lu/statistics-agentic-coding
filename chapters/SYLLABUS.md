@@ -2,15 +2,23 @@
 
 > **核心理念**：AI 可以帮你跑统计检验，但不懂业务场景和数据背后的意义，只会得到错误的结论。
 > 
-> **设计灵感**：> - 顶级高校：MIT 6.419 Statistical Learning, Stanford STATS 200, Harvard STAT 110> - 统计学大佬观点：>   - **Judea Pearl**（图灵奖得主）："数据本身不说话，因果推断才是科学的核心">   - **Andrew Gelman**（贝叶斯统计权威）："模型的检查比模型的拟合更重要">   - **David Donoho**："数据科学是统计学的延续，不是替代"
->   - **Bradley Efron**（Bootstrap发明者）："在AI时代，统计推断的基本原理比以往更重要"
->   - **吴恩达**："数据-centric AI时代，统计思维是核心竞争力"
+> **设计参考**：
+> - 课程结构参考（按“从直觉到推断，再到建模与因果”的学习曲线）：
+>   - MITx MicroMasters `6.419x Data Analysis: Statistical Modeling and Computation in Applications`（数据分析与计算视角）：[MIT Open Learning](https://openlearning.mit.edu/news/mitx-micromasters-program-statistics-and-data-science-announces-new-data-analysis-elective)
+>   - Stanford `STATS 200: Introduction to Statistical Inference`（推断的数学框架）：[Stanford course site](https://web.stanford.edu/class/stats200/index.html)
+>   - Harvard `STAT 110: Probability`（概率直觉与计数法）：[STAT 110](https://stat110.hsites.harvard.edu/)
+> - 观点参考（用于课程叙事主线）：
+>   - **Judea Pearl**：数据本身不说话，因果推断让数据说话
+>   - **Andrew Gelman**：模型的检查比模型的拟合更重要
+>   - **David Donoho**：数据科学是统计学的延续，不是替代
+>   - **Bradley Efron**：不确定性量化与重采样的重要性
+>   - **吴恩达**：数据-centric AI，数据质量优先
 
 ---
 
 ## 课程定位
 
-- **目标学生**：有一定 Python 基础，需要数据分析能力但非统计专业
+- **目标学生**：已具备基础 Python 能力（本课程不讲 Python 入门），需要数据分析能力但非统计专业
 - **课程时长**：16 周
 - **技术栈**：Python + pandas + numpy + scipy + statsmodels + scikit-learn + matplotlib/seaborn
 - **项目形式**：个人/小组数据分析报告 + 期末数据故事展示
@@ -20,22 +28,22 @@
 
 ## 设计理念：AI 时代的统计素养
 
-### 统计学大关于 AI 的核心观点
+### 统计学大家对 AI 的核心观点（观点概括，避免无出处引语）
 
 **Judea Pearl（因果推断先驱）**：
-> "机器学习和统计学沉迷于相关性，但科学的核心是因果关系。没有因果思维，AI 只是高级的模式匹配。"
+- 观点概括：相关性不等于因果性；要回答“如果做了/没做会怎样”，需要显式的因果假设与识别策略（如因果图）。
 
-**Andrew Gelman（哥伦比亚大学，贝叶斯统计权威）**：
-> "模型的检查比模型的拟合更重要。AI 可以生成漂亮的模型，但只有通过严格的模型诊断，我们才能知道它是否可靠。"
+**Andrew Gelman（哥伦比亚大学，贝叶斯统计）**：
+- 观点概括：模型拟合之后更重要的是模型检查与诊断；不要迷信单一分数或单一模型。
 
-**David Donoho（斯坦福大学，'50 Years of Data Science' 作者）**：
-> "数据科学不是新学科，它是统计学的自然延续。在 AI 时代，统计推断的基本原理比以往任何时候都更重要。"
+**David Donoho（斯坦福大学，数据科学教育推动者）**：
+- 观点概括：数据科学与统计学高度重叠；关键能力不只在建模，还在数据准备、探索、可视化与可复现分析流程。
 
-**Bradley Efron（斯坦福大学，Bootstrap 发明者）**：
-> "大数据并没有让统计学过时，反而让统计推断的假设前提变得更加关键。没有统计思维，大数据只是大混乱。"
+**Bradley Efron（Bootstrap 贡献者）**：
+- 观点概括：在复杂数据与复杂模型下，不确定性量化仍然是核心；重采样思想为很多场景提供了工程上可行的近似。
 
-**吴恩达（Landing AI, Coursera）**：
-> "数据-centric AI 时代，80% 的工作是数据准备和验证，只有 20% 是建模。统计思维是数据工程师的核心竞争力。"
+**吴恩达（Data-centric AI）**：
+- 观点概括：很多真实项目的瓶颈在数据质量与数据流程（收集、标注、清洗、验证），而不在“再换一个更大模型”。
 
 ### 本课程的回应
 
@@ -260,6 +268,7 @@
 - 混淆矩阵解读
 - 类别不平衡问题
 - 交叉验证：K-fold、留一法
+- 数据泄漏与防御：用 Pipeline/ColumnTransformer 把预处理封装进交叉验证
 
 **重点强调**：
 - 不同评估指标适用于不同场景
@@ -387,32 +396,33 @@
 - 从"会跑代码"到"会提问题"的转变
 
 **最终提交**：
-1. 完整分析报告（Jupyter Notebook）
-2. 数据集和清洗脚本
+1. 终稿分析报告（`report.md` / `report.html`）
+2. 数据集引用方式 + 清洗/分析脚本（可一键复现）
 3. 展示材料（PPT/海报）
-4. AI 使用日志
+4. AI 使用日志（含审查清单与改动记录）
 
 ---
 
-## 贯穿项目：数据因果探索者
+## 贯穿项目：StatLab —— 可复现分析报告流水线
 
 ### 项目设计理念
 
-基于 Judea Pearl 的因果思维，项目强调：
-- 不只是发现相关性
-- 更要思考因果关系
-- 使用因果图明确假设
+你每周不是“做一题”，而是在同一份项目上持续迭代，最后交付一份**可复现、可审计**的分析报告：
 
-### 项目阶段
+- **一键复现**：从原始数据到 `report.md` / `report.html`，用脚本生成，不靠手工复制粘贴。
+- **决策可追溯**：清洗、建模、检验的关键选择要留下理由（写进报告或日志）。
+- **human-in-the-loop**：AI 可以加速，但你要负责提出问题、检查假设、解释结论。
 
-| 阶段 | 周次 | 里程碑 |
-|------|------|--------|
-| 选题与数据 | 01-02 | 数据集获取、初步探索 |
-| EDA | 03-04 | EDA 报告、假设生成 |
-| 推断 | 05-08 | 统计检验、Bootstrap、置信区间 |
-| 建模 | 09-12 | 预测模型、模型解释 |
-| 因果 | 13-15 | 因果图、因果推断尝试 |
-| 展示 | 16 | 期末展示 |
+### 项目阶段（与周次对应）
+
+| 阶段 | 周次 | StatLab 里程碑（报告导向） |
+|------|------|----------------------------|
+| 选题与数据 | 01-02 | 数据卡 + 初版描述统计报告 |
+| EDA | 03-04 | 清洗决策记录 + EDA 叙事 + 假设清单 |
+| 推断 | 05-08 | 检验/区间/重采样，报告写清“不确定性” |
+| 建模 | 09-12 | 回归/分类/评估/解释，避免数据泄漏 |
+| 因果与扩展 | 13-15 | 因果图 + 贝叶斯视角 + 计算专题 |
+| 展示 | 16 | 终稿报告（含展示版） |
 
 ---
 
@@ -469,13 +479,13 @@
 - Pearl, J. (2018). *The Book of Why*. 
 - Gelman, A., et al. (2013). *Bayesian Data Analysis*.
 - Efron, B. & Hastie, T. (2016). *Computer Age Statistical Inference*.
-- Donoho, D. (2017). "50 Years of Data Science"
+- Donoho, D. (2017). "50 Years of Data Science". DOI: https://doi.org/10.1080/10618600.2017.1384734
 
 ### 课程参考
-- Harvard STAT 110 (Joe Blitzstein)
-- MIT 6.419 Statistical Learning
-- Stanford STATS 200
-- CMU 36-700/705 Probability & Statistics
+- Harvard STAT 110 (Joe Blitzstein): https://stat110.hsites.harvard.edu/
+- MITx 6.419x Data Analysis (Statistical Modeling and Computation in Applications): https://www.edx.org/learn/data-analysis/massachusetts-institute-of-technology-data-analysis-statistical-modeling-and-computation-in-applications
+- Stanford STATS 200: https://web.stanford.edu/class/stats200/index.html
+- CMU 36-700 (example course site): https://www.stat.cmu.edu/~siva/teaching/700/
 
 ### AI 与统计
 - 吴恩达 Data-centric AI
@@ -483,4 +493,4 @@
 
 ---
 
-**最后更新**：2025 年 2 月
+**最后更新**：2026-02-11

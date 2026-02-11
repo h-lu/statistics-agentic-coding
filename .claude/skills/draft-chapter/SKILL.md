@@ -16,7 +16,7 @@ disable-model-invocation: true
 
 ## 目标
 
-- `CHAPTER.md`：叙事流畅、有贯穿案例 + PyHelper 超级线、循环角色出场、回顾桥达标、读起来像真人教材（不是模板填空）
+- `CHAPTER.md`：叙事流畅、有贯穿案例 + StatLab 超级线、循环角色出场、回顾桥达标、读起来像真人教材（不是模板填空）
 - `QA_REPORT.md`：写入 StudentQA 的四维评分 + 阻塞项/建议项
 
 ## 核心原则
@@ -43,7 +43,7 @@ date '+%Y-%m-%d' > shared/current_date.txt
 - **必须设计本章的贯穿案例**：一个渐进式小项目，每节推进一步，章末可运行
 - **必须规划 2 个 AI 小专栏的位置和主题**（第 1 个在前段，第 2 个在中段；含建议搜索词）
 - **必须做认知负荷检查**：新概念数在预算内，回顾桥设计达标
-- **必须规划 PyHelper 超级线推进**
+- **必须规划 StatLab 超级线推进**
 - **必须规划循环角色出场位置**
 - **必须规划章首导入**：选择一句与本章主题相关的引言格言，并草拟时代脉搏段落的方向
 - 写入 `chapters/week_XX/CHAPTER.md`
@@ -51,12 +51,12 @@ date '+%Y-%m-%d' > shared/current_date.txt
 
 ### 第 1.5 步：Context7 技术查证
 
-在写正文之前，使用 **Context7 MCP** 查证本章涉及的 Python 官方文档和 API 最佳实践：
+在写正文之前，使用 **Context7 MCP** 查证本章涉及的统计/数据分析相关库的最佳实践（pandas、scipy、statsmodels、scikit-learn 等）：
 
-1. 从第 1 步的规划中提取本章涉及的 Python 特性、标准库模块、第三方库
-2. 调用 `resolve-library-id` 定位相关库（如 `python`、`pytest` 等）
+1. 从第 1 步的规划中提取本章涉及的库与关键 API
+2. 调用 `resolve-library-id` 定位相关库（如 `pandas`、`scikit-learn` 等）
 3. 调用 `query-docs` 查询具体的最佳实践和 API 用法
-4. 将查证结果传递给第 2 步的 chapter-writer，确保代码示例符合当前 Python 最佳实践
+4. 将查证结果传递给第 2 步的 chapter-writer，确保代码示例符合当前最佳实践（尤其是避免数据泄漏、保证可复现）
 
 **搜索工具分工**：
 - **Context7**：查证官方文档 API 用法（标准答案）
@@ -69,11 +69,11 @@ date '+%Y-%m-%d' > shared/current_date.txt
 
 - **必须先读 `shared/writing_exemplars.md` + `shared/characters.yml`**
 - **必须写章首导入**：在章标题之后、学习目标之前写入引言格言 + 时代脉搏段落（200-300 字，场景化引入 AI/技术趋势与本章关联）。详见 `shared/style_guide.md` 的"章首导入"章节
-- **必须基于第 1.5 步的 Context7 查证结果**确保代码示例使用当前 Python 最佳实践
+- **必须基于第 1.5 步的 Context7 查证结果**确保代码示例使用当前最佳实践
 - 以贯穿案例为主线，用"场景 → 困惑 → 解法 → 深化"的叙事弧线写每一节
 - 使用循环角色（小北/阿码/老潘）增强代入感，每章至少 2 次出场
 - 写回顾桥：在新场景中自然引用前几周概念
-- 写 PyHelper 进度小节
+- 写 StatLab 进度小节
 - 严禁所有节使用相同的子标题模式
 - 严禁用 bullet list 堆砌做小结
 - **所有写作元数据（每节的 Bloom/叙事入口/建议示例等）必须用 `<!-- ... -->` 注释包裹**

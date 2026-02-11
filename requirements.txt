@@ -1,0 +1,13 @@
+# Runtime dependencies for examples and the StatLab analysis workflow.
+#
+# Keep this list small and broadly compatible. Pin versions only when needed
+# for reproducibility across machines.
+
+numpy
+pandas
+scipy
+statsmodels
+scikit-learn
+matplotlib
+seaborn
+

@@ -34,7 +34,7 @@ python3 scripts/validate_week.py --week week_XX --mode release
   - 叙事流畅度 >= 3 / 趣味性 >= 3 / 知识覆盖 >= 3 / 认知负荷 >= 3
 - 任一维度 <= 2 = 阻塞项
 - 禁止每节都用相同的子标题模式
-- 每章必须有贯穿案例（渐进式小项目）+ PyHelper 超级线推进
+- 每章必须有贯穿案例（渐进式分析任务）+ StatLab 超级线推进
 - 循环角色（小北/阿码/老潘）每章至少出场 2 次
 - 新概念数不超预算，回顾桥数量达标
 - 禁止连续 6+ 条 bullet list；小结不能全部用 bullet list
@@ -75,7 +75,7 @@ echo "当前日期已写入 shared/current_date.txt: $(cat shared/current_date.t
 - 设计本章贯穿案例（渐进式小项目）
 - 规划 2 个 AI 小专栏的位置和主题（第 1 个在前段，第 2 个在中段；含建议搜索词）
 - 做认知负荷检查：新概念数在预算内，回顾桥设计达标
-- 规划 PyHelper 超级线推进
+- 规划 StatLab 超级线推进
 - 规划循环角色出场位置
 - **规划章首导入**：选择引言格言、草拟时代脉搏段落方向
 - 产出写入 `chapters/week_XX/CHAPTER.md`（大纲阶段）
@@ -109,7 +109,7 @@ echo "当前日期已写入 shared/current_date.txt: $(cat shared/current_date.t
 - 以贯穿案例为主线，用"场景 → 困惑 → 解法 → 深化"的叙事弧线写每一节
 - 使用循环角色增强代入感，每章至少 2 次出场
 - 写回顾桥：在新场景中自然引用前几周概念
-- 写 PyHelper 进度小节
+- 写 StatLab 进度小节
 - 严禁所有节使用相同子标题模式；严禁 bullet list 堆砌做小结
 - **所有写作元数据必须用 `<!-- ... -->` 注释包裹**，不能出现在渲染正文中
 
@@ -202,7 +202,7 @@ python3 scripts/validate_week.py --week week_XX --mode drafting
 
 同时调用以下 3 个 subagent（**可以并行**）：
 
-1. **`example-engineer`**：产出 `examples/` + PyHelper 示例代码 + 讲解段落
+1. **`example-engineer`**：产出 `examples/` + StatLab 示例代码 + 讲解段落
 2. **`test-designer`**：产出 `tests/` pytest 用例矩阵
 3. **`exercise-factory`**：产出 `ASSIGNMENT.md` + `RUBRIC.md` + AI 协作练习
 

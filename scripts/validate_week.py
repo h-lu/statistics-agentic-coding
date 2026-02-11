@@ -271,18 +271,20 @@ def _check_qa_blocking(errors: list[str], qa_report_path: Path) -> None:
             break
 
 
-def _check_pyhelper_section(errors: list[str], chapter_path: Path, mode: str) -> None:
-    """In release mode, CHAPTER.md must contain a PyHelper progress section."""
+def _check_statlab_section(errors: list[str], chapter_path: Path, mode: str) -> None:
+    """In release mode, CHAPTER.md must contain a StatLab progress section."""
     if mode != "release":
         return
     try:
         text = chapter_path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return
-    if "PyHelper" not in text and "pyhelper" not in text:
-        add_error(errors, "CHAPTER.md missing PyHelper progress section (required by CLAUDE.md)")
+    # We don't enforce exact heading text, just a strong signal that the
+    # cross-week project line is present in the narrative.
+    if "StatLab" not in text and "statlab" not in text:
+        add_error(errors, "CHAPTER.md missing StatLab progress section (required by CLAUDE.md)")
     else:
-        verbose("PyHelper mention found in CHAPTER.md")
+        verbose("StatLab mention found in CHAPTER.md")
 
 
 def _check_characters(errors: list[str], chapter_path: Path, root: Path, mode: str) -> None:
@@ -346,13 +348,15 @@ def _check_concept_budget(errors: list[str], root: Path, week: str, mode: str) -
 
     n = week_number(week)
 
-    # Determine budget from phase
-    if n <= 5:
+    # Determine budget from the 16-week course phases (see CLAUDE.md)
+    if n <= 4:
         budget = 4
-    elif n <= 10:
+    elif n <= 12:
         budget = 5
-    else:
+    elif n <= 15:
         budget = 4
+    else:
+        budget = 3
 
     # Count concepts introduced this week
     week_concepts = [
@@ -500,7 +504,7 @@ def main() -> int:
             _check_solution_customized(errors, week_dir / "starter_code" / "solution.py", args.mode)
 
         # --- Pedagogical checks (release only) ---
-        _check_pyhelper_section(errors, week_dir / "CHAPTER.md", args.mode)
+        _check_statlab_section(errors, week_dir / "CHAPTER.md", args.mode)
         _check_characters(errors, week_dir / "CHAPTER.md", root, args.mode)
         try:
             _check_concept_budget(errors, root, week, args.mode)

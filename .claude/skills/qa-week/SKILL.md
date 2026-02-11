@@ -28,7 +28,7 @@ disable-model-invocation: true
 3. 把 QA 结果收敛到 `QA_REPORT.md`：
    - 四维评分写在顶部
    - 阻塞项清零（不允许存在 `- [ ]`）
-4. 最终 release 级验证（含 ANCHORS.yml、PyHelper、角色、概念预算检查）：
+4. 最终 release 级验证（含 ANCHORS.yml、StatLab、角色、概念预算检查）：
    ```bash
    python3 scripts/validate_week.py --week week_XX --mode release
    ```

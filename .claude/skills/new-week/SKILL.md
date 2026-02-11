@@ -11,14 +11,14 @@ disable-model-invocation: true
 ## 用法
 
 ```
-/new-week 01 从零到可运行：Hello Python + 工程基线
+/new-week 01 从数据到问题：你的第一份数据卡
 ```
 
 ## 步骤
 
 1. 运行脚本生成周目录与模板：
    ```bash
-   python3 scripts/new_week.py --week 01 --title "从零到可运行：Hello Python + 工程基线"
+   python3 scripts/new_week.py --week 01 --title "从数据到问题：你的第一份数据卡"
    ```
 2. 打开并快速检查生成的文件（至少确认标题与 week 号正确）：
    - `chapters/week_XX/CHAPTER.md`

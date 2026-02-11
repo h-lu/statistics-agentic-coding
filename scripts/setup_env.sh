@@ -23,7 +23,8 @@ python -m pip install -U pip --quiet
 python -m pip install -r "$REPO_ROOT/requirements-dev.txt" --quiet
 
 echo "[setup] installed packages:"
-python -m pip list --format=columns | head -20
+# Avoid `head` here: with `pipefail` it can trigger a broken pipe error and fail the script.
+python -m pip list --format=columns | sed -n '1,20p'
 
 echo ""
 echo "[setup] done.  Activate with:"

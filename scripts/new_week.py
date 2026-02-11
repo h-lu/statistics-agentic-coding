@@ -2,7 +2,7 @@
 """Initialize a week_XX chapter-package directory with templates.
 
 Usage:
-    python3 scripts/new_week.py --week 01 --title "从零到可运行：Hello Python + 工程基线"
+    python3 scripts/new_week.py --week 01 --title "从数据到问题：你的第一份数据卡"
 """
 from __future__ import annotations
 
@@ -221,14 +221,14 @@ python3 -m pytest chapters/{week}/tests -q
 {prev_week_hint}## 学习目标
 
 <!-- 写 3-5 条可验证、可考核的学习目标。示例：
-- 能用 print() 输出文本到终端
-- 能创建变量并赋值（整数、字符串）
-- 能运行 pytest 并解读测试结果
+- 能为一个数据集写出最小数据卡（来源/字段/缺失概览）
+- 能用 pandas 计算并解释至少 2 个描述性统计量
+- 能生成一个可复现的 `report.md` 片段，并说明结论边界
 -->
 
 ## 先修要求
 
-{"- 无（本周是起点）" if n == 1 else f"- 已完成 week_{n-1:02d} 的学习目标"}
+{"- 已具备基础 Python 能力（本课程不讲 Python 入门）" if n == 1 else f"- 已完成 week_{n-1:02d} 的学习目标"}
 - 能运行 `pytest`（本书用它做自动验证）
 
 ## 本周 DoD（Definition of Done）
@@ -245,12 +245,12 @@ python3 scripts/validate_week.py --week {week} --mode release
 
 <!-- === 正文从这里开始 === -->
 
-## PyHelper 进度
+## StatLab 进度
 
-<!-- 本周对 PyHelper（全书贯穿项目）的改进。
+<!-- 本周对 StatLab（全书贯穿项目：可复现分析报告流水线）的改进。
      参考 shared/book_project.md 了解本周推进点。
-     代码放在 examples/ 最后编号（如 05_pyhelper.py）。
-     必须在上周代码基础上增量修改。 -->
+     建议在 examples/ 里提供本周可运行的脚本/笔记，并能生成 report.md（或 report.md 的一部分）。
+     必须在上周基础上增量修改。 -->
 
 ## 小结
 
@@ -363,16 +363,15 @@ Starter code for {week}: {title}
 
 Contract:
 - Implement solve(text: str) -> str
+- Treat ``text`` as the raw input (e.g., CSV/TSV text, or a short JSON string).
+- Return a string that can be written to stdout (often a Markdown snippet/report).
 - tests assert against this file only
 """
 from __future__ import annotations
 
 
 def solve(text: str) -> str:
-    """Transform input text and return output text.
-
-    Replace this implementation with week-specific logic.
-    """
+    """Transform input text and return output text (often Markdown)."""
 
     # Default: identity transform (keeps smoke test passing).
     return text
@@ -393,11 +392,11 @@ if __name__ == "__main__":
 示例占位文件 — {week}: {title}
 
 运行方式：python3 chapters/{week}/examples/00_placeholder.py
-预期输出：Hello from {week}!
+预期输出：Placeholder example for {week}.
 
 请将此文件替换为本周的真实示例（由 ExampleEngineer 产出）。
 """
-print("Hello from {week}!")
+print("Placeholder example for {week}. Replace this file with real examples.")
 '''
 
     test_smoke_py = f'''from __future__ import annotations

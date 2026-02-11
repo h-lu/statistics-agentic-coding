@@ -1,7 +1,7 @@
 ---
 name: scaffold-book
-description: 当需要一次性生成 week_01..week_14 的章包目录与模板（不写正文内容）时，批量调用 new_week 脚手架。
-argument-hint: "[--start 1] [--end 14] [--force]"
+description: 当需要一次性生成 week_01..week_16 的章包目录与模板（不写正文内容）时，批量调用 new_week 脚手架。
+argument-hint: "[--start 1] [--end 16] [--force]"
 allowed-tools: Bash, Read, Grep, Glob
 disable-model-invocation: true
 ---
@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 ```bash
 /scaffold-book
-/scaffold-book --start 2 --end 14
+/scaffold-book --start 2 --end 16
 /scaffold-book --force
 ```
 
@@ -24,6 +24,5 @@ disable-model-invocation: true
 ## 执行
 
 ```bash
-python3 scripts/scaffold_book.py --start 1 --end 14
+python3 scripts/scaffold_book.py --start 1 --end 16
 ```
-

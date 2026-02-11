@@ -1,10 +1,10 @@
 # ============================================================================
-# 《Python 程序设计（Agentic Coding）》教材工厂 — 快捷命令
+# 《统计学与 Agentic 数据分析》教材工厂 — 快捷命令
 #
 # 常用：
 #   make help                                 # 查看所有命令
 #   make setup                                # 一键环境搭建
-#   make scaffold                             # 批量创建 14 周目录
+#   make scaffold                             # 批量创建 16 周目录
 #   make new W=01 T="你的第一个程序"           # 创建新周
 #   make draft W=01                           # 写正文初稿（完整流水线）
 #   make polish W=01                          # 深度润色
@@ -30,7 +30,7 @@ help: ## 显示所有可用命令
 setup: ## 一键创建 venv 并安装依赖
 	bash $(SCRIPTS)/setup_env.sh
 
-scaffold: ## 批量创建 week_01..week_14 目录（从 TOC.md 读标题）
+scaffold: ## 批量创建 week_01..week_16 目录（从 TOC.md 读标题）
 	$(PYTHON) $(SCRIPTS)/scaffold_book.py
 
 # ---------------------------------------------------------------------------

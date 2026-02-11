@@ -27,7 +27,7 @@ git commit -m "init: scaffold textbook factory"
 添加远端（用你自己的 Gitea 地址替换）：
 
 ```bash
-git remote add origin git@your-gitea-host:OWNER/python-agentic-textbook.git
+git remote add origin git@your-gitea-host:OWNER/statistics-agentic-coding.git
 git branch -M main
 git push -u origin main
 ```

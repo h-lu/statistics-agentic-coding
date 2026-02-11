@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Scaffold week_01..week_14 directories and templates from TOC.
+"""Scaffold week_01..week_16 directories and templates from TOC.
 
 Usage:
     python3 scripts/scaffold_book.py
-    python3 scripts/scaffold_book.py --start 2 --end 14
+    python3 scripts/scaffold_book.py --start 2 --end 16
     python3 scripts/scaffold_book.py --force
 """
 from __future__ import annotations
@@ -50,9 +50,9 @@ def _run_new_week(root: Path, week: str, title: str, *, force: bool) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Scaffold week_01..week_14 directories and templates from TOC.")
+    parser = argparse.ArgumentParser(description="Scaffold week_01..week_16 directories and templates from TOC.")
     parser.add_argument("--start", type=int, default=1, help="Start week number (default: 1)")
-    parser.add_argument("--end", type=int, default=14, help="End week number (default: 14)")
+    parser.add_argument("--end", type=int, default=16, help="End week number (default: 16)")
     parser.add_argument(
         "--force",
         action="store_true",
@@ -91,8 +91,12 @@ def main() -> int:
             break
 
     # Restore current_week so scaffolding doesn't disrupt your writing session.
+    # If there was no current_week before scaffolding, remove the file we created.
     if original_current_week:
         current_week_path.write_text(original_current_week + "\n", encoding="utf-8")
+    else:
+        if current_week_path.exists():
+            current_week_path.unlink()
 
     if rc == 0:
         print(f"[scaffold-book] OK: weeks {args.start:02d}..{args.end:02d}")
