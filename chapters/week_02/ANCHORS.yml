@@ -1,0 +1,36 @@
+# Week 02 锚点表
+
+# 第1节：集中趋势
+- id: w02_01
+  claim: 均值受极端值影响，中位数更稳健
+  evidence: examples/01_central_tendency.py 第50-80行
+  verification: 运行脚本，观察有/无极端值时均值与中位数的变化
+
+# 第2节：离散程度
+- id: w02_02
+  claim: 标准差衡量整体波动，IQR衡量中间50%波动
+  evidence: examples/02_dispersion_demo.py 第35-70行
+  verification: 运行脚本，对比同一数据的std与IQR
+
+# 第3节：分布可视化
+- id: w02_03
+  claim: 直方图显示分布形状（对称/偏态/双峰）
+  evidence: examples/03_distribution_plots.py 第45-80行
+  verification: 运行脚本，观察不同数据的直方图形态
+
+# 第4节：可视化诚实性
+- id: w02_04
+  claim: 截断Y轴会夸大差异，诚实图Y轴应从0开始
+  evidence: examples/04_honest_visualization.py 第25-90行
+  verification: 运行脚本，对比左右两图视觉效果
+
+# StatLab：生成描述统计报告
+- id: w02_sl_01
+  claim: 在report.md中追加描述统计章节
+  evidence: examples/02_statlab_update.py 第35-90行
+  verification: 运行后检查report.md新增内容
+
+- id: w02_sl_02
+  claim: 生成的图表保存到figures目录
+  evidence: examples/02_statlab_update.py 第75-85行
+  verification: 运行后验证figures目录被创建

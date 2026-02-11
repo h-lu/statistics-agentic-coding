@@ -35,12 +35,42 @@
 # ─── Week 02 ───
 - term_zh: 集中趋势
   term_en: central tendency
-  definition_zh: 描述数据“典型水平”的统计量族（如均值、中位数、众数）。
+  definition_zh: 描述数据"典型水平"的统计量族（如均值、中位数、众数）。
+  first_seen: week_02
+
+- term_zh: 均值
+  term_en: mean
+  definition_zh: 所有数值之和除以数量，受极端值影响。
+  first_seen: week_02
+
+- term_zh: 中位数
+  term_en: median
+  definition_zh: 排序后位于中间位置的值，对极端值稳健。
+  first_seen: week_02
+
+- term_zh: 众数
+  term_en: mode
+  definition_zh: 数据集中出现频率最高的值。
   first_seen: week_02
 
 - term_zh: 离散程度
   term_en: dispersion
-  definition_zh: 描述数据“波动大小”的统计量族（如方差、标准差、四分位距 IQR）。
+  definition_zh: 描述数据"波动大小"的统计量族（如方差、标准差、四分位距 IQR）。
+  first_seen: week_02
+
+- term_zh: 标准差
+  term_en: standard deviation
+  definition_zh: 各数据点与均值的平均偏离程度，对异常值敏感。
+  first_seen: week_02
+
+- term_zh: 方差
+  term_en: variance
+  definition_zh: 标准差的平方，衡量数据离散程度。
+  first_seen: week_02
+
+- term_zh: 四分位距
+  term_en: IQR
+  definition_zh: Q3 减 Q1，描述中间 50% 数据的宽度，对异常值稳健。
   first_seen: week_02
 
 - term_zh: 分布可视化
@@ -48,15 +78,50 @@
   definition_zh: 用图形展示数据分布形状与离群点的方法（如直方图、密度图、箱线图）。
   first_seen: week_02
 
+- term_zh: 直方图
+  term_en: histogram
+  definition_zh: 将数据分成多个区间，统计每个区间频数的图形。
+  first_seen: week_02
+
+- term_zh: 箱线图
+  term_en: boxplot
+  definition_zh: 基于五数概括（最小值、Q1、中位数、Q3、最大值）的分布图，能直观显示异常值。
+  first_seen: week_02
+
+- term_zh: 密度图
+  term_en: density plot / KDE
+  definition_zh: 用核密度估计平滑展示数据分布形状的图形。
+  first_seen: week_02
+
 - term_zh: 可视化诚实性
   term_en: honest visualization
-  definition_zh: 图表不能用误导性的刻度、截断或编码制造错觉，必须让读者“看到的就是你想表达的真实范围”。
+  definition_zh: 图表不能用误导性的刻度、截断或编码制造错觉，必须让读者"看到的就是你想表达的真实范围"。
+  first_seen: week_02
+
+- term_zh: 截断 Y 轴
+  term_en: truncated y-axis
+  definition_zh: Y 轴不从 0 开始的图表，会夸大小差异，是最常见的误导性可视化做法。
   first_seen: week_02
 
 # ─── Week 03 ───
 - term_zh: 缺失值机制
   term_en: missingness mechanisms
   definition_zh: 缺失是否与观测值/未观测值相关的机制分类（常用：MCAR/MAR/MNAR），影响该用什么处理策略。
+  first_seen: week_03
+
+- term_zh: MCAR
+  term_en: Missing Completely at Random
+  definition_zh: 完全随机缺失，缺失与任何观测值或未观测值都无关。
+  first_seen: week_03
+
+- term_zh: MAR
+  term_en: Missing at Random
+  definition_zh: 随机缺失，缺失与观测到的数据有关，但与缺失值本身无关。
+  first_seen: week_03
+
+- term_zh: MNAR
+  term_en: Missing Not at Random
+  definition_zh: 非随机缺失，缺失与缺失值本身有关。
   first_seen: week_03
 
 - term_zh: 异常值检测与处理
@@ -69,9 +134,29 @@
   definition_zh: 对数值特征做标准化或归一化等变换，使其处于可比较尺度，避免模型被量纲支配。
   first_seen: week_03
 
+- term_zh: 标准化
+  term_en: standardization
+  definition_zh: 将数据变换为均值为0、标准差为1的分布，适用于近似正态的数据。
+  first_seen: week_03
+
+- term_zh: 归一化
+  term_en: normalization
+  definition_zh: 将数据线性缩放到[0,1]区间，适用于有明确边界的数据。
+  first_seen: week_03
+
 - term_zh: 特征编码
   term_en: encoding
   definition_zh: 将类别型变量转换为数值表示的方法（如 one-hot、label），以便进入模型或统计计算。
+  first_seen: week_03
+
+- term_zh: One-hot编码
+  term_en: one-hot encoding
+  definition_zh: 把k个类别变成k个二元列（0/1），适合nominal类别（无顺序关系）。
+  first_seen: week_03
+
+- term_zh: 清洗决策日志
+  term_en: cleaning log
+  definition_zh: 记录数据清洗过程中所有决策（问题、策略、理由、替代方案）的文档，确保可复现和可审计。
   first_seen: week_03
 
 # ─── Week 04 ───

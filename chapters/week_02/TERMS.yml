@@ -1,0 +1,24 @@
+# Week 02 术语表
+#
+# 本周新术语（4 个，预算上限 4 个）
+# 这些术语会被合入 shared/glossary.yml
+
+- term_zh: 集中趋势
+  term_en: central tendency
+  definition_zh: 描述数据"典型水平"的指标，包括均值、中位数、众数。选择哪个指标取决于数据类型和是否存在极端值。
+  first_seen: week_02
+
+- term_zh: 离散程度
+  term_en: dispersion
+  definition_zh: 描述数据波动大小或分散程度的指标，包括标准差、IQR、方差、极差等。
+  first_seen: week_02
+
+- term_zh: 分布可视化
+  term_en: distribution plots
+  definition_zh: 用图形展示数据分布形状的方法，包括直方图、密度图、箱线图等，帮助"看见"数据的整体形态。
+  first_seen: week_02
+
+- term_zh: 可视化诚实性
+  term_en: honest visualization
+  definition_zh: 在数据可视化中避免误导性设计（如截断 Y 轴、面积误导），确保图表诚实地传达信息。
+  first_seen: week_02

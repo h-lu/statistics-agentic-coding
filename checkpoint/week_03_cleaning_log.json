@@ -1,0 +1,73 @@
+{
+  "dataset_name": "用户消费分析",
+  "start_time": "2026-02-11T19:38:29.482547",
+  "stats": {
+    "initial_rows": 500,
+    "final_rows": 497,
+    "missing_filled": 91,
+    "outliers_found": 5,
+    "rows_removed": 3
+  },
+  "entries": [
+    {
+      "step": 1,
+      "operation": "删除",
+      "target": "total_spend < 0",
+      "reason": "消费金额不应为负数，判断为数据录入错误",
+      "method": "删除包含负数消费的行",
+      "rows_affected": 3,
+      "notes": "负数记录无法确定原始值，选择删除而非修正",
+      "timestamp": "2026-02-11T19:38:29.482834"
+    },
+    {
+      "step": 2,
+      "operation": "标记",
+      "target": "total_spend > 50000",
+      "reason": "高消费用户为真实 VIP，不应删除",
+      "method": "添加 outlier_category 列标记为 VIP",
+      "rows_affected": 5,
+      "notes": "VIP 用户将在后续分析中单独考虑",
+      "timestamp": "2026-02-11T19:38:29.483608"
+    },
+    {
+      "step": 3,
+      "operation": "填充",
+      "target": "age",
+      "reason": "缺失率较低（~5%），MCAR 机制，中位数稳健",
+      "method": "中位数填充 (48)",
+      "rows_affected": 25,
+      "notes": "",
+      "timestamp": "2026-02-11T19:38:29.483852"
+    },
+    {
+      "step": 4,
+      "operation": "填充",
+      "target": "income",
+      "reason": "MAR 机制（与老用户相关），分组填充保留地域差异",
+      "method": "按城市分组，使用中位数填充",
+      "rows_affected": 66,
+      "notes": "替代方案：删除法（损失 25% 样本）",
+      "timestamp": "2026-02-11T19:38:29.484085"
+    },
+    {
+      "step": 5,
+      "operation": "变换",
+      "target": "['age', 'income', 'total_spend']",
+      "reason": "消除量纲影响，使不同特征可比",
+      "method": "StandardScaler (z-score)",
+      "rows_affected": 497,
+      "notes": "变换参数已保存，可用于新数据转换",
+      "timestamp": "2026-02-11T19:38:29.488051"
+    },
+    {
+      "step": 6,
+      "operation": "编码",
+      "target": "city",
+      "reason": "城市为名义分类变量，需转换为数值",
+      "method": "OneHotEncoder",
+      "rows_affected": 497,
+      "notes": "生成 4 个二元特征",
+      "timestamp": "2026-02-11T19:38:29.489547"
+    }
+  ]
+}
