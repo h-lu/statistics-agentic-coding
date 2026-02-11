@@ -1,631 +1,393 @@
 # 全书术语表（term_zh 唯一）
 #
 # 约定：
-# - 这里的 term_zh 是校验脚本的主键
+# - term_zh 是校验脚本的主键
 # - term_en 可选
-# - definition_zh 必填
-#
-# 示例条目结构与 week_XX/TERMS.yml 一致，方便合并
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen 必须是 week_01..week_16 之一
 
-- term_zh: 锚点
-  term_en: anchor
-  definition_zh: 用于把"主张"与"可验证证据"绑定在一起的记录。
+- term_zh: StatLab
+  term_en: StatLab
+  definition_zh: 本书贯穿项目的代号：一条可复现的统计分析报告流水线，每周增量迭代输出 report.md（可选导出 report.html）。
   first_seen: week_01
 
-- term_zh: print 函数
-  term_en: print function
-  definition_zh: Python 内置函数，用于将信息输出到屏幕。可以输出多个内容，自动用空格分隔。
+# ─── Week 01 ───
+- term_zh: 统计三问
+  term_en: description/inference/prediction
+  definition_zh: 统计分析最常见的三类目标：描述数据是什么样、推断总体是什么样、预测未来或未知样本。
   first_seen: week_01
 
-- term_zh: 变量
-  term_en: variable
-  definition_zh: 给数据取的名字，用于存储和复用信息。通过赋值语句 = 创建。
+- term_zh: 数据类型
+  term_en: data types
+  definition_zh: 数据在统计意义上的分类方式（如连续、离散、分类型），决定了该用什么指标和方法。
   first_seen: week_01
 
-- term_zh: 赋值
-  term_en: assignment
-  definition_zh: 使用 = 符号将右边的值存储到左边的变量名中。注意这不是数学上的等于。
+- term_zh: pandas DataFrame
+  term_en: DataFrame
+  definition_zh: pandas 的表格型数据结构，通常用于承载数据集并进行清洗、统计与建模前处理。
   first_seen: week_01
 
-- term_zh: input 函数
-  term_en: input function
-  definition_zh: Python 内置函数，用于获取用户的键盘输入。返回的永远是字符串类型。
+- term_zh: 数据卡
+  term_en: data card
+  definition_zh: 用于说明数据集来源、字段含义、规模、缺失情况与限制的“数据说明书”，帮助读者审计分析前提。
   first_seen: week_01
 
-- term_zh: f-string
-  term_en: formatted string literal
-  definition_zh: Python 3.6+ 推荐的字符串格式化方式，在字符串前加 f，用 {} 嵌入变量或表达式。
-  first_seen: week_01
-
-- term_zh: 字符串
-  term_en: string
-  definition_zh: 文本数据类型，用引号（单引号或双引号）包裹。Python 中用 str 表示。
-  first_seen: week_01
-
-- term_zh: 条件判断
-  term_en: conditional statement
-  definition_zh: 使用 if/elif/else 让程序根据不同条件执行不同代码块的控制结构。
+# ─── Week 02 ───
+- term_zh: 集中趋势
+  term_en: central tendency
+  definition_zh: 描述数据“典型水平”的统计量族（如均值、中位数、众数）。
   first_seen: week_02
 
-- term_zh: while 循环
-  term_en: while loop
-  definition_zh: 当指定条件为真时重复执行代码块的循环结构，可能执行零次或多次。
+- term_zh: 离散程度
+  term_en: dispersion
+  definition_zh: 描述数据“波动大小”的统计量族（如方差、标准差、四分位距 IQR）。
   first_seen: week_02
 
-- term_zh: for 循环
-  term_en: for loop
-  definition_zh: 遍历序列或可迭代对象的循环结构，通常与 range() 配合实现指定次数的迭代。
+- term_zh: 分布可视化
+  term_en: distribution plots
+  definition_zh: 用图形展示数据分布形状与离群点的方法（如直方图、密度图、箱线图）。
   first_seen: week_02
 
-- term_zh: range 函数
-  term_en: range function
-  definition_zh: Python 内置函数，生成整数序列，常用于 for 循环。range(5) 产生 0,1,2,3,4（左闭右开）。
+- term_zh: 可视化诚实性
+  term_en: honest visualization
+  definition_zh: 图表不能用误导性的刻度、截断或编码制造错觉，必须让读者“看到的就是你想表达的真实范围”。
   first_seen: week_02
 
-- term_zh: 布尔表达式
-  term_en: boolean expression
-  definition_zh: 结果为 True 或 False 的表达式，通常使用比较运算符（==, !=, <, > 等）构建。
-  first_seen: week_02
-
-- term_zh: 缩进
-  term_en: indentation
-  definition_zh: Python 使用缩进（通常是 4 个空格）来表示代码块层级，缩进错误会导致 IndentationError。
-  first_seen: week_02
-
-- term_zh: break 语句
-  term_en: break statement
-  definition_zh: 用于立即退出当前循环，跳转到循环之后的代码。
-  first_seen: week_02
-
-- term_zh: continue 语句
-  term_en: continue statement
-  definition_zh: 用于跳过当前循环的剩余代码，直接进入下一次迭代。
-  first_seen: week_02
-
-- term_zh: 无限循环
-  term_en: infinite loop
-  definition_zh: 永远不会结束的循环，通常是因为循环条件永远为真或缺少 break 语句。按 Ctrl+C 可以强制停止。
-  first_seen: week_02
-
-- term_zh: 左闭右开区间
-  term_en: half-open interval
-  definition_zh: 数学上写成 [a, b)，包含 a 但不包含 b。Python 的 range() 函数使用这种区间设计，range(5) 生成 0,1,2,3,4。
-  first_seen: week_02
-
-- term_zh: 逻辑运算符
-  term_en: logical operators
-  definition_zh: 用于组合多个布尔表达式的运算符。and（且）两边都真才真，or（或）一边真就真，not（非）取反。
-  first_seen: week_02
-
-- term_zh: 函数
-  term_en: function
-  definition_zh: 给一段代码起名字，可以反复调用的代码块。用 def 语句定义。
+# ─── Week 03 ───
+- term_zh: 缺失值机制
+  term_en: missingness mechanisms
+  definition_zh: 缺失是否与观测值/未观测值相关的机制分类（常用：MCAR/MAR/MNAR），影响该用什么处理策略。
   first_seen: week_03
 
-- term_zh: 函数定义
-  term_en: function definition
-  definition_zh: 使用 def 语句创建函数的过程。定义只是"写菜谱"，调用才是"做菜"。
+- term_zh: 异常值检测与处理
+  term_en: outliers
+  definition_zh: 识别并处理与主体分布显著不同的数据点的过程，需结合统计规则与业务语义判断。
   first_seen: week_03
 
-- term_zh: 函数调用
-  term_en: function call
-  definition_zh: 使用函数名加括号（如 foo()）来执行函数代码。调用时括号不能省略。
+- term_zh: 特征缩放
+  term_en: feature scaling
+  definition_zh: 对数值特征做标准化或归一化等变换，使其处于可比较尺度，避免模型被量纲支配。
   first_seen: week_03
 
-- term_zh: 参数
-  term_en: parameter
-  definition_zh: 定义函数时写的"占位符"变量，用于接收调用时传入的值。
-  first_seen: week_03
-
-- term_zh: 实参
-  term_en: argument
-  definition_zh: 调用函数时传入的"实际值"。
-  first_seen: week_03
-
-- term_zh: 返回值
-  term_en: return value
-  definition_zh: 函数执行后交还给调用者的值。用 return 语句返回。return 和 print 不同：print 是给人看，return 是给程序用。
-  first_seen: week_03
-
-- term_zh: 作用域
-  term_en: scope
-  definition_zh: 变量"在哪里能用"的规则。局部变量只能在函数内部用，全局变量处处可见。
-  first_seen: week_03
-
-- term_zh: 局部变量
-  term_en: local variable
-  definition_zh: 在函数内部定义的变量，只能在函数内访问。函数结束后，局部变量会被清空。
-  first_seen: week_03
-
-- term_zh: 全局变量
-  term_en: global variable
-  definition_zh: 在函数外部定义的变量，处处可见。工程上应避免使用，因为会让代码行为难以预测。
-  first_seen: week_03
-
-- term_zh: 函数分解
-  term_en: functional decomposition
-  definition_zh: 把一个大问题拆成多个小函数的思维方式。每个函数只做一件事，职责单一。
-  first_seen: week_03
-
-- term_zh: 重构
-  term_en: refactoring
-  definition_zh: 改善代码内部结构但不改变外部行为的过程。比如把一个大函数拆成多个小函数、把重复代码提取成函数、给变量和函数起更好的名字。重构让代码更易读、易维护、易测试。
-  first_seen: week_03
-
-- term_zh: docstring
-  term_en: docstring
-  definition_zh: 函数内部的第一行字符串，用三引号包裹，用于说明函数的功能。
-  first_seen: week_03
-
-# Week 04 新增术语
-# 本周新增 4 个核心概念，均需合入 shared/glossary.yml
-
-- term_zh: 列表
-  term_en: list
-  definition_zh: Python 的有序容器，可以存储多个值。通过索引访问（索引从 0 开始），支持增删改查、切片、排序等操作。列表是可变对象。
-  first_seen: week_04
-
-- term_zh: 索引
-  term_en: index
-  definition_zh: 列表或字符串中位置的编号，从 0 开始。可以用 `scores[0]` 访问第一个元素，用 `scores[-1]` 访问最后一个元素。访问不存在的索引会报 IndexError。
-  first_seen: week_04
-
-- term_zh: 字典
-  term_en: dict
-  definition_zh: Python 的键值对容器，通过键（key）快速查找对应的值（value）。用 `scores["小北"]` 语法访问，键必须是不可变类型（如字符串、数字）。字典是可变对象。
-  first_seen: week_04
-
-- term_zh: 键值对
-  term_en: key-value pair
-  definition_zh: 字典中的基本单元，由"键"（key）和"值"（value）组成。例如字典中"小北"对应 85，"小北"是键，85 是值。键必须唯一，值可以重复。
-  first_seen: week_04
-
-- term_zh: 遍历
-  term_en: iteration
-  definition_zh: 用循环逐个访问容器中的元素。常用 `for item in list:` 遍历列表，用 `for key, value in dict.items():` 遍历字典。
-  first_seen: week_04
-
-- term_zh: 切片
-  term_en: slice
-  definition_zh: 获取列表或字符串的一部分。用 `[start:end]` 语法，左闭右开（包含 start，不包含 end）。如 `scores[:3]` 获取前 3 个元素，`scores[-3:]` 获取后 3 个元素。
-  first_seen: week_04
-
-- term_zh: 可变对象
-  term_en: mutable object
-  definition_zh: 可以被修改的对象。列表和字典是可变的——可以原地修改内容（如 `scores.append(95)`）。字符串和数字是不可变的——修改后会创建新对象。
-  first_seen: week_04
-
-- term_zh: 数据驱动设计
-  term_en: data-driven design
-  definition_zh: 一种编程思维方式，把"逻辑"和"数据"分开。用数据结构（列表、字典）来驱动程序行为，而不是在代码里硬编码各种条件判断。数据变了，代码不用变。
-  first_seen: week_04
-
-# Week 05 新增术语
-# 本周新增 8 个核心概念，均需合入 shared/glossary.yml
-
-- term_zh: 文件
-  term_en: file
-  definition_zh: 存储在硬盘上的数据单位，程序可以读取和写入。文件可以长期保存数据，即使程序关闭或电脑断电，数据也不会丢失。
-  first_seen: week_05
-
-- term_zh: 文件读写
-  term_en: file I/O
-  definition_zh: 程序与文件交互的过程。读取（read）是从文件获取数据到内存，写入（write）是从内存保存数据到文件。
-  first_seen: week_05
-
-- term_zh: with 语句
-  term_en: with statement
-  definition_zh: Python 的上下文管理器语法，用于自动管理资源（如文件）。`with open(...) as f:` 会确保文件在使用后自动关闭，即使发生错误也是如此。
-  first_seen: week_05
-
-- term_zh: 编码
+- term_zh: 特征编码
   term_en: encoding
-  definition_zh: 把文字转换成计算机能存储的二进制数据的规则。UTF-8 是最通用的编码标准，支持所有语言（包括中文）。读写文件时统一使用 UTF-8 可以避免乱码。
+  definition_zh: 将类别型变量转换为数值表示的方法（如 one-hot、label），以便进入模型或统计计算。
+  first_seen: week_03
+
+# ─── Week 04 ───
+- term_zh: 相关系数
+  term_en: correlation
+  definition_zh: 衡量两个变量关联强度的统计量（如 Pearson/Spearman），不等价于因果关系。
+  first_seen: week_04
+
+- term_zh: 分组比较
+  term_en: group comparison
+  definition_zh: 按组汇总并比较统计量的分析方式，用于发现组间差异或模式（如 groupby、透视表）。
+  first_seen: week_04
+
+- term_zh: 多变量关系
+  term_en: multivariate relationships
+  definition_zh: 同时考虑多个变量时的结构与关系（可能出现交互、混杂等现象），是从相关走向因果的前置思维。
+  first_seen: week_04
+
+- term_zh: 假设生成
+  term_en: hypothesis generation
+  definition_zh: 在 EDA 中提出可检验的猜想或问题，为后续的统计推断与建模提供方向。
+  first_seen: week_04
+
+# ─── Week 05 ───
+- term_zh: 条件概率
+  term_en: conditional probability
+  definition_zh: 在事件 B 已发生的条件下事件 A 发生的概率，记作 P(A|B)。
   first_seen: week_05
 
-- term_zh: pathlib
-  term_en: pathlib
-  definition_zh: Python 3.4+ 引入的现代化路径处理库，用对象而不是字符串表示路径。提供 `Path.home()`、`Path.cwd()`、`/` 运算符、`read_text()`、`write_text()` 等方法，让路径操作跨平台兼容。
+- term_zh: 贝叶斯定理
+  term_en: Bayes' rule
+  definition_zh: 连接先验、似然与后验的公式，用于在获得新证据后更新信念。
   first_seen: week_05
 
-- term_zh: 持久化
-  term_en: persistence
-  definition_zh: 把数据从内存（RAM）保存到硬盘等长期存储设备的过程。内存断电会丢失数据，硬盘的数据可以永久保存。
+- term_zh: 常见分布
+  term_en: common distributions
+  definition_zh: 统计建模中常用的概率分布族（如正态、二项、泊松），用于刻画随机变量的规律。
   first_seen: week_05
 
-- term_zh: 追加模式
-  term_en: append mode
-  definition_zh: 文件写入模式的一种，用 `"a"` 表示。追加模式会在文件末尾添加新内容，而不是覆盖原有内容。适合日记、日志等需要累积数据的场景。
+- term_zh: 中心极限定理
+  term_en: CLT
+  definition_zh: 在一定条件下，样本均值的分布在样本量足够大时近似正态，是很多推断方法的基础直觉。
   first_seen: week_05
 
-- term_zh: 缓冲
-  term_en: buffering
-  definition_zh: 文件写入时，数据先存在内存的"缓冲区"里，等缓冲区满了或调用 `close()` 时才真正写到硬盘。忘记 `close()` 会导致数据丢失。
+- term_zh: 抽样分布与模拟
+  term_en: sampling distribution
+  definition_zh: 统计量在重复抽样下的分布；用模拟可以直观理解随机性和推断的可靠性。
   first_seen: week_05
 
-# Week 06 新增术语
-# 本周新增 5 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: 异常
-  term_en: exception
-  definition_zh: 程序运行时的"非正常状态"——比如除以零、访问不存在的列表索引、打开不存在的文件。Python 会用"抛出异常"（raise exception）的方式告诉你：出问题了。
+# ─── Week 06 ───
+- term_zh: 原假设与备择假设
+  term_en: null/alternative hypothesis
+  definition_zh: 假设检验的两种对立陈述：原假设 H0（默认成立）与备择假设 H1（希望支持）。
   first_seen: week_06
 
-- term_zh: Traceback
-  term_en: Traceback
-  definition_zh: 异常的"诊断报告"，它会告诉你出错的是哪一行文件、错误的类型、错误的原因。
+- term_zh: p-value
+  term_en: p-value
+  definition_zh: 在 H0 为真时，观测到当前或更极端数据的概率；它不是“结论为真”的概率。
   first_seen: week_06
 
-- term_zh: try/except 结构
-  term_en: try/except statement
-  definition_zh: Python 提供的"捕获异常"结构——"尝试执行某段代码，如果出错了，执行另一段代码而不是崩溃"。
+- term_zh: t 检验
+  term_en: t-test
+  definition_zh: 基于 t 分布的均值差异检验方法，常用于小样本或方差未知的场景。
   first_seen: week_06
 
-- term_zh: 异常类型
-  term_en: exception types
-  definition_zh: Python 内置的异常类别，常见的有 ValueError（值不合法）、TypeError（类型不匹配）、ZeroDivisionError（除以零）、KeyError（字典键不存在）、IndexError（索引越界）、FileNotFoundError（文件不存在）等。
+- term_zh: 第一类/第二类错误
+  term_en: Type I/II errors
+  definition_zh: 第一类错误是把真的 H0 错误拒绝（假阳性），第二类错误是把假的 H0 错误接受（假阴性）。
   first_seen: week_06
 
-- term_zh: ValueError
-  term_en: ValueError
-  definition_zh: 当函数接收到正确类型但不合法的值时抛出。比如 int("abc") 会抛出 ValueError，因为 "abc" 无法转换为数字。
+- term_zh: 效应量
+  term_en: effect size
+  definition_zh: 衡量差异或关联“有多大”的指标，用于避免只谈统计显著而忽略实际意义。
   first_seen: week_06
 
-- term_zh: TypeError
-  term_en: TypeError
-  definition_zh: 当操作或函数接收到不正确类型的参数时抛出。比如 "2" + 3 会抛出 TypeError，因为字符串和数字不能直接相加。
-  first_seen: week_06
-
-- term_zh: ZeroDivisionError
-  term_en: ZeroDivisionError
-  definition_zh: 当除法或取模运算的第二个参数为零时抛出。比如 10 / 0 会抛出 ZeroDivisionError。
-  first_seen: week_06
-
-- term_zh: KeyError
-  term_en: KeyError
-  definition_zh: 当尝试访问字典中不存在的键时抛出。比如 scores["小北"] 在字典里没有 "小北" 这个键时会抛出 KeyError。
-  first_seen: week_06
-
-- term_zh: IndexError
-  term_en: IndexError
-  definition_zh: 当尝试访问列表或元组中不存在的索引时抛出。比如 numbers[10] 在列表只有 5 个元素时会抛出 IndexError。
-  first_seen: week_06
-
-- term_zh: FileNotFoundError
-  term_en: FileNotFoundError
-  definition_zh: 当尝试打开不存在的文件时抛出。比如 open("不存在.txt") 在文件不存在时会抛出 FileNotFoundError。
-  first_seen: week_06
-
-- term_zh: else 子句
-  term_en: else clause
-  definition_zh: 在 try/except 结构中，else 会在 try 块没有抛出任何异常时执行。它让代码的意图更清晰——"没出错时做什么"。
-  first_seen: week_06
-
-- term_zh: finally 子句
-  term_en: finally clause
-  definition_zh: 在 try/except 结构中，finally 无论是否抛出异常都会执行。最常见的用途是资源释放——比如关闭文件、释放网络连接、清理临时文件。
-  first_seen: week_06
-
-- term_zh: raise 语句
-  term_en: raise statement
-  definition_zh: 主动抛出异常的语句。它让你不仅能"捕获"异常，还能"创建"异常——告诉调用者"这里有问题，你来处理"。
-  first_seen: week_06
-
-- term_zh: 输入校验
-  term_en: input validation
-  definition_zh: 在程序接受用户输入之前，先检查输入是否合法。如果输入不合法，要么拒绝并提示用户重新输入，要么抛出异常。
-  first_seen: week_06
-
-- term_zh: 防御性编程
-  term_en: defensive programming
-  definition_zh: 一种编程思想——不是"防止用户犯错"，而是"假设用户一定会犯错"，然后让程序能优雅地处理这些错误。你不是在"防守"，而是在"容错"。
-  first_seen: week_06
-
-- term_zh: LBYL
-  term_en: Look Before You Leap
-  definition_zh: 先看再跳，一种编程风格。在做操作之前先检查条件是否满足。比如用 if 判断分母是否为零再执行除法。
-  first_seen: week_06
-
-- term_zh: EAFP
-  term_en: Easier to Ask Forgiveness than Permission
-  definition_zh: 先尝试再道歉，一种 Python 社区偏爱的编程风格。先尝试执行操作，失败了再捕获异常处理。比如用 try 访问字典键，失败时用 except KeyError 捕获。
-  first_seen: week_06
-
-- term_zh: 竞态条件
-  term_en: race condition
-  definition_zh: 当两个操作检查和执行之间有时间差时，系统的状态可能发生变化，导致原本的检查失效。比如检查文件存在后，在打开之前文件被删除了。
-  first_seen: week_06
-
-- term_zh: 快乐路径
-  term_en: happy path
-  definition_zh: 一切正常时的执行流程。大多数教程只展示快乐路径，但实际编程需要考虑各种异常情况。
-  first_seen: week_06
-
-# Week 07 新增术语
-# 本周新增 9 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: 模块
-  term_en: module
-  definition_zh: 一个包含 Python 定义和语句的文件，文件名就是模块名（去掉 .py 后缀）。模块是用来组织代码的方式，让你能把相关功能放在一起，并在其他程序中复用。
+# ─── Week 07 ───
+- term_zh: ANOVA
+  term_en: analysis of variance
+  definition_zh: 方差分析，用于比较多组均值是否存在系统性差异。
   first_seen: week_07
 
-- term_zh: import 语句
-  term_en: import statement
-  definition_zh: 用于导入模块的语句。常见形式有：`import module`（导入整个模块）、`from module import name`（导入模块中的特定名称）、`import module as alias`（给模块起别名）。
+- term_zh: 卡方检验
+  term_en: chi-square test
+  definition_zh: 用于检验分类变量是否独立或是否符合期望分布的检验方法。
   first_seen: week_07
 
-- term_zh: 模块搜索路径
-  term_en: module search path
-  definition_zh: Python 在导入模块时查找文件的路径列表，存储在 `sys.path` 中。包括当前目录、标准库目录、PYTHONPATH 环境变量指定的目录等。
+- term_zh: 多重比较校正
+  term_en: multiple comparisons correction
+  definition_zh: 在进行多次检验时控制整体错误率的做法（如 Bonferroni、FDR）。
   first_seen: week_07
 
-- term_zh: __name__ 守卫
-  term_en: __name__ guard
-  definition_zh: 使用 `if __name__ == "__main__":` 来判断当前文件是被直接运行还是被导入。直接运行时 `__name__` 的值是 `"__main__"`，被导入时是模块名。这让模块既能作为程序运行，也能被其他代码导入使用。
+- term_zh: 辛普森悖论
+  term_en: Simpson's paradox
+  definition_zh: 分组后趋势与总体趋势相反的现象，提示可能存在混杂变量。
   first_seen: week_07
 
-- term_zh: 包
-  term_en: package
-  definition_zh: 包含多个模块的目录，必须有一个 `__init__.py` 文件（可以是空文件）。包让你能用层级结构组织模块，比如 `package.module`。导入包时会自动执行 `__init__.py`。
+- term_zh: 相关与因果
+  term_en: correlation vs causation
+  definition_zh: 相关性描述共同变化，因果性描述干预会改变结果；两者不能混用。
   first_seen: week_07
 
-- term_zh: __init__.py
-  term_en: __init__.py
-  definition_zh: 包的标识文件，放在包目录下。它可以是空文件，也可以包含包的初始化代码。Python 3.3+ 支持没有 `__init__.py` 的"命名空间包"，但显式创建仍然是最佳实践。
-  first_seen: week_07
-
-- term_zh: 相对导入
-  term_en: relative import
-  definition_zh: 在包内部导入模块时，使用相对于当前模块的路径。比如 `from . import sibling`（导入同级模块）或 `from .submodule import func`（导入子模块）。相对导入只能在包内使用，不能在顶层脚本中使用。
-  first_seen: week_07
-
-- term_zh: 绝对导入
-  term_en: absolute import
-  definition_zh: 使用完整的包路径导入模块，比如 `from mypackage.submodule import func`。绝对导入更清晰，是 Python 推荐的导入方式。
-  first_seen: week_07
-
-- term_zh: 循环导入
-  term_en: circular import
-  definition_zh: A 模块导入 B 模块，B 模块又导入 A 模块，形成循环。这会导致导入失败或意外行为。解决方法包括：重构代码提取共同依赖、延迟导入（在函数内导入）、重新设计模块结构。
-  first_seen: week_07
-
-# Week 08 新增术语
-# 本周新增 9 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: 自动化测试
-  term_en: automated testing
-  definition_zh: 用代码来测试代码的方法。测试代码调用被测代码，用断言验证结果是否符合预期。自动化测试能快速、重复地验证代码正确性，防止回归 bug。
+# ─── Week 08 ───
+- term_zh: 置信区间
+  term_en: confidence interval
+  definition_zh: 频率学派的区间估计方法，表示在重复抽样下以一定比例覆盖真值的区间构造规则。
   first_seen: week_08
 
-- term_zh: pytest
-  term_en: pytest
-  definition_zh: Python 最流行的测试框架，使用简单的 assert 语句进行断言，自动发现以 test_ 开头的测试函数，提供丰富的插件生态。
+- term_zh: Bootstrap
+  term_en: bootstrap
+  definition_zh: 通过对样本进行有放回重采样来估计统计量不确定性的重采样方法。
   first_seen: week_08
 
-- term_zh: 断言
-  term_en: assertion
-  definition_zh: 用 assert 语句验证某个条件是否为真。如果条件为假，断言失败，测试报错。例如 `assert result == 5` 验证 result 是否等于 5。
+- term_zh: 置换检验
+  term_en: permutation test
+  definition_zh: 通过随机打乱标签构造零分布，用于检验差异是否显著的分布无关方法。
   first_seen: week_08
 
-- term_zh: fixture
-  term_en: fixture
-  definition_zh: pytest 中用于准备测试数据和环境的机制。通过 @pytest.fixture 装饰器定义，测试函数通过参数声明使用。fixture 可以设置测试前的准备和测试后的清理。
+- term_zh: 贝叶斯可信区间
+  term_en: credible interval
+  definition_zh: 贝叶斯框架下的区间估计，表示参数在该区间内的后验概率达到某个水平。
   first_seen: week_08
 
-- term_zh: 参数化测试
-  term_en: parametrized testing
-  definition_zh: 使用 @pytest.mark.parametrize 装饰器，用同一套测试逻辑测试多组不同的输入数据。能减少重复代码，提高边界情况覆盖率。
+- term_zh: 不确定性量化
+  term_en: uncertainty quantification
+  definition_zh: 用区间、分布或风险指标刻画结论的不确定性，而不仅输出点估计。
   first_seen: week_08
 
-- term_zh: TDD
-  term_en: Test-Driven Development
-  definition_zh: 测试驱动开发，一种先写测试再写实现的开发方式。核心循环是"红-绿-重构"：先写测试看到失败（红），写最少代码让测试通过（绿），在测试保护下重构代码。
-  first_seen: week_08
-
-- term_zh: 红-绿-重构
-  term_en: Red-Green-Refactor
-  definition_zh: TDD 的核心循环。红：写测试并看到它失败；绿：写最少代码让测试通过；重构：在测试保护下改进代码结构。
-  first_seen: week_08
-
-- term_zh: 边界情况
-  term_en: edge case
-  definition_zh: 程序在极端或异常输入下的行为。比如空列表、负数索引、超长字符串、特殊字符等。测试边界情况能发现普通测试遗漏的 bug。
-  first_seen: week_08
-
-- term_zh: 回归测试
-  term_en: regression testing
-  definition_zh: 修改代码后重新运行测试，确保原有功能没有被破坏。自动化测试让回归测试变得快速可靠。
-  first_seen: week_08
-
-# Week 09 新增术语
-# 本周新增 5 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: 字符串方法
-  term_en: string method
-  definition_zh: Python 字符串对象内置的函数，如 strip()、split()、join()、find() 等，用于处理和转换文本数据。
+# ─── Week 09 ───
+- term_zh: 线性回归
+  term_en: linear regression
+  definition_zh: 用线性函数刻画自变量与因变量关系的模型，常用于解释与预测。
   first_seen: week_09
 
-- term_zh: 正则表达式
-  term_en: regular expression
-  definition_zh: 一种描述文本模式的语法，用特殊字符组合定义匹配规则，用于在字符串中查找、替换符合特定模式的内容。
+- term_zh: 最小二乘法
+  term_en: ordinary least squares
+  definition_zh: 通过最小化残差平方和来估计回归系数的方法。
   first_seen: week_09
 
-- term_zh: re 模块
-  term_en: re module
-  definition_zh: Python 标准库中用于正则表达式操作的模块，提供 search()、match()、findall()、sub() 等函数。
+- term_zh: 残差诊断
+  term_en: residual diagnostics
+  definition_zh: 通过残差图、QQ 图等检查回归模型假设是否合理的过程。
   first_seen: week_09
 
-- term_zh: 原始字符串
-  term_en: raw string
-  definition_zh: 在字符串前加 r 前缀（如 r"..."），使反斜杠不被当作转义字符，常用于正则表达式模式。
+- term_zh: 多重共线性
+  term_en: multicollinearity
+  definition_zh: 自变量之间高度相关导致系数不稳定、解释困难的现象。
   first_seen: week_09
 
-- term_zh: 分组捕获
-  term_en: capturing group
-  definition_zh: 在正则表达式中用圆括号 () 包裹的部分，匹配成功后可以通过 group() 方法单独提取该部分的内容。
+- term_zh: 回归假设
+  term_en: regression assumptions
+  definition_zh: 回归模型常见假设集合（如线性、独立性、同方差等），决定结论是否可信。
   first_seen: week_09
 
-# Week 10 新增术语
-# 本周新增 8 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: JSON
-  term_en: JSON (JavaScript Object Notation)
-  definition_zh: 一种轻量级的数据交换格式，基于 JavaScript 语法的子集，但独立于语言。使用文本格式存储和表示数据，支持对象、数组、字符串、数字、布尔值和 null。
+# ─── Week 10 ───
+- term_zh: 逻辑回归
+  term_en: logistic regression
+  definition_zh: 用逻辑函数建模二分类概率的模型，是经典的可解释分类方法。
   first_seen: week_10
 
-- term_zh: json 模块
-  term_en: json module
-  definition_zh: Python 标准库中用于处理 JSON 数据的模块。提供 dump/dumps（序列化）和 load/loads（反序列化）函数。
+- term_zh: 混淆矩阵
+  term_en: confusion matrix
+  definition_zh: 汇总分类模型在不同预测结果上的计数表，用于计算精确率、召回率等指标。
   first_seen: week_10
 
-- term_zh: 序列化
-  term_en: serialization
-  definition_zh: 把内存中的数据结构（如字典、列表）转换成可存储或传输的格式（如 JSON 字符串）的过程。对应的逆操作叫反序列化。
+- term_zh: ROC-AUC
+  term_en: ROC-AUC
+  definition_zh: ROC 曲线下面积，衡量分类器在不同阈值下的整体区分能力。
   first_seen: week_10
 
-- term_zh: 反序列化
-  term_en: deserialization
-  definition_zh: 把存储或传输的格式（如 JSON 字符串）转换回内存中的数据结构（如字典、列表）的过程。是序列化的逆操作。
+- term_zh: 交叉验证
+  term_en: cross-validation
+  definition_zh: 通过多次划分训练/验证集合估计模型泛化性能的方法（如 K-fold）。
   first_seen: week_10
 
-- term_zh: 数据契约
-  term_en: data contract
-  definition_zh: 数据生产者和消费者之间达成的协议，规定了数据的格式、结构和验证规则。让不同系统或模块可以安全地交换数据。
+- term_zh: 数据泄漏
+  term_en: data leakage
+  definition_zh: 在训练过程中不当使用了验证/测试信息，导致评估结果虚高且不可复现的错误。
   first_seen: week_10
 
-- term_zh: Schema 验证
-  term_en: schema validation
-  definition_zh: 根据 Schema（数据结构说明书）验证数据是否符合预期格式的过程。可以用 jsonschema 等工具实现声明式验证。
+- term_zh: Pipeline
+  term_en: pipeline
+  definition_zh: 将预处理与模型串联成一个整体，并在交叉验证中在每个折内独立拟合预处理步骤，以避免数据泄漏的工程实践。
   first_seen: week_10
 
-- term_zh: JSONDecodeError
-  term_en: JSONDecodeError
-  definition_zh: 当 JSON 字符串格式不正确时，json 模块抛出的异常类型。通常是因为缺少引号、多了一个逗号、用了单引号而非双引号等语法错误。
+- term_zh: ColumnTransformer
+  term_en: ColumnTransformer
+  definition_zh: 在 scikit-learn 中对不同列应用不同预处理（数值缩放、类别 one-hot 等）的组合器，常与 Pipeline 配合使用。
   first_seen: week_10
 
-- term_zh: 数据迁移
-  term_en: data migration
-  definition_zh: 将数据从一个系统或格式转移到另一个系统或格式的过程。通常涉及版本兼容性处理、数据验证和错误处理。
-  first_seen: week_10
-
-# Week 11 新增术语
-# 本周新增 4 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: dataclass
-  term_en: dataclass
-  definition_zh: Python 3.7+ 提供的数据类装饰器，用于快速定义主要用于存储数据的类。自动生成 __init__()、__repr__()、__eq__() 等方法，适合做数据建模而非完整的 OOP。
+# ─── Week 11 ───
+- term_zh: 决策树
+  term_en: decision tree
+  definition_zh: 通过一系列规则划分特征空间的模型，常用于解释性较强的分类/回归。
   first_seen: week_11
 
-- term_zh: 字段默认值
-  term_en: field default
-  definition_zh: dataclass 中字段的默认值。简单类型（如字符串、数字）直接用等号赋值，可变类型（如列表、字典）要用 field(default_factory=...)。
+- term_zh: 随机森林
+  term_en: random forest
+  definition_zh: 由多棵决策树组成的集成模型，通常具有更好的泛化性能。
   first_seen: week_11
 
-- term_zh: 类型提示
-  term_en: type hints
-  definition_zh: Python 3.5+ 的语法特性，用于标注变量、参数、返回值的类型。类型提示是可选的，Python 解释器不会强制检查，但 IDE 和静态类型检查工具（如 mypy）可以用它来发现潜在错误。
+- term_zh: 特征工程
+  term_en: feature engineering
+  definition_zh: 基于领域知识与数据结构构造、选择或变换特征以提升模型表现的过程。
   first_seen: week_11
 
-- term_zh: 状态管理
-  term_en: state management
-  definition_zh: 对数据状态进行建模和控制的过程。包括定义合法的状态值、状态转换规则、以及防止非法状态转换。良好的状态管理让程序行为可预测、可调试。
+- term_zh: 超参数调优
+  term_en: hyperparameter tuning
+  definition_zh: 搜索模型的超参数组合以优化验证集性能的过程（如网格搜索、随机搜索）。
   first_seen: week_11
 
-# Week 12 新增术语
-# 本周新增 8 个核心概念（在预算内），均需合入 shared/glossary.yml
+- term_zh: 过拟合与欠拟合
+  term_en: overfitting/underfitting
+  definition_zh: 过拟合是模型记住噪声导致泛化差，欠拟合是模型过于简单导致无法捕捉规律。
+  first_seen: week_11
 
-- term_zh: argparse
-  term_en: argparse
-  definition_zh: Python 标准库中的命令行参数解析模块，用于自动处理命令行参数、生成帮助信息、验证参数类型。能创建位置参数、可选参数、子命令等复杂的 CLI 接口。
+# ─── Week 12 ───
+- term_zh: 可解释 AI
+  term_en: explainable AI
+  definition_zh: 用于解释模型预测依据的技术与方法集合，帮助人理解模型在“看什么”。
   first_seen: week_12
 
-- term_zh: 位置参数
-  term_en: positional argument
-  definition_zh: 命令行中按位置顺序传递的参数，不需要参数名前缀。例如 `git add .` 中的 `.` 就是位置参数。argparse 中用 `add_argument("name")` 定义。
+- term_zh: 模型偏见
+  term_en: bias
+  definition_zh: 由于数据或算法导致某些群体系统性受损或结果不公的现象。
   first_seen: week_12
 
-- term_zh: 可选参数
-  term_en: optional argument
-  definition_zh: 命令行中可选的参数，通常以 `-` 或 `--` 开头。例如 `ls -l` 中的 `-l`。argparse 中用 `add_argument("-v", "--verbose")` 定义。
+- term_zh: 公平性指标
+  term_en: fairness metrics
+  definition_zh: 用于量化模型公平性的指标（如机会均等、统计均等），不同指标对应不同价值取向。
   first_seen: week_12
 
-- term_zh: 子命令
-  term_en: subcommand
-  definition_zh: 命令行工具中的独立命令，如 `git add`、`git commit` 中的 add 和 commit。argparse 中用 `add_subparsers()` 实现。
+- term_zh: 差分隐私
+  term_en: differential privacy
+  definition_zh: 通过噪声机制限制个体信息泄露风险的隐私保护框架。
   first_seen: week_12
 
-- term_zh: 退出码
-  term_en: exit code
-  definition_zh: 程序结束时返回给操作系统的数字状态码。0 表示成功，非零表示失败。脚本和 CI/CD 工具依赖退出码判断命令是否执行成功。
+- term_zh: 伦理审查清单
+  term_en: ethics checklist
+  definition_zh: 在上线或传播结论前用于自检风险的清单（偏差、公平性、隐私、可复现性等）。
   first_seen: week_12
 
-- term_zh: logging
-  term_en: logging
-  definition_zh: Python 标准库中的日志记录模块，用于记录程序运行时的信息。支持不同日志级别（DEBUG/INFO/WARNING/ERROR/CRITICAL）和多种输出目标（控制台、文件）。
-  first_seen: week_12
-
-- term_zh: 日志级别
-  term_en: log level
-  definition_zh: 日志消息的优先级，从低到高为 DEBUG < INFO < WARNING < ERROR < CRITICAL。设置日志级别后，只有等于或高于该级别的消息才会被输出。
-  first_seen: week_12
-
-- term_zh: 互斥参数
-  term_en: mutually exclusive arguments
-  definition_zh: 不能同时使用的命令行参数。argparse 中用 `add_mutually_exclusive_group()` 创建，如 `--verbose` 和 `--quiet` 不能同时出现。
-  first_seen: week_12
-
-# Week 13 新增术语
-# 本周新增 6 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: agent team 模式
-  term_en: agent team pattern
-  definition_zh: 多个 AI agent 各司其职、协作完成任务的编程模式。每个 agent 负责单一职责（reader/writer/tester/reviewer），通过 dataclass 传递消息，人类作为技术负责人主导设计和审查。
+# ─── Week 13 ───
+- term_zh: 因果三层级
+  term_en: ladder of causation
+  definition_zh: 因果推断的三层问题：关联、干预与反事实，层级越高要求越强。
   first_seen: week_13
 
-- term_zh: review checklist
-  term_en: review checklist
-  definition_zh: 用于审查 AI 生成代码质量的检查清单。包含具体的检查项（如"有 try/except"、"有 logging"、"函数有 docstring"），优先检查边界情况和错误处理。
+- term_zh: 因果图
+  term_en: DAG
+  definition_zh: 用有向无环图表达变量间因果假设的工具，用于明确混杂与识别策略。
   first_seen: week_13
 
-- term_zh: 失败驱动迭代
-  term_en: failure-driven iteration
-  definition_zh: 从测试失败到修复的完整循环。tester/reviewer 发现问题 → writer 修复 → 再次测试，最多迭代 N 次（如 3 次）。失败不是终点，是改进的起点。
+- term_zh: 后门准则
+  term_en: backdoor criterion
+  definition_zh: 在因果图中选择调整变量集合以阻断所有后门路径，从而识别因果效应的规则。
   first_seen: week_13
 
-- term_zh: human-in-the-loop
-  term_en: human-in-the-loop
-  definition_zh: 人类参与决策循环的 AI 协作模式。人类负责设计、决策和审查，AI 负责执行和验证。不是"AI 代替人类"，而是"AI 成为团队成员"。
+- term_zh: 混杂变量
+  term_en: confounder
+  definition_zh: 同时影响处理变量与结果变量、从而造成虚假关联的变量。
   first_seen: week_13
 
-- term_zh: 信任但验证
-  term_en: trust but verify
-  definition_zh: AI 编程的正确态度。可以信任 AI 生成的骨架代码，但必须验证错误处理、边界情况、安全性。使用 review checklist 逐项检查。
-  first_seen: week_13
-
-- term_zh: vibe coding
-  term_en: vibe coding
-  definition_zh: 用自然语言描述意图，AI 生成实现代码，开发者审查和调整的编程方式。核心是"基于意图的编程"而非"基于语法的编程"。但仍需审查 AI 代码质量。
-  first_seen: week_13
-
-# Week 14 新增术语
-# 本周新增 4 个核心概念（在预算内），均需合入 shared/glossary.yml
-
-- term_zh: release notes
-  term_en: release notes
-  definition_zh: 版本发布说明，告诉用户"这个版本改了什么""有什么新功能""如何升级"。和 README 不同：README 是"如何用"，release notes 是"改了什么"。
+# ─── Week 14 ───
+- term_zh: 先验
+  term_en: prior
+  definition_zh: 在观察数据之前对参数的信念分布，用于贝叶斯更新。
   first_seen: week_14
 
-- term_zh: tag 发布
-  term_en: tag release
-  definition_zh: Git 中给某个 commit 打上"版本号"标签（如 v1.0.0），让用户可以方便地回到特定版本。tag 使用语义化版本规范（主版本.次版本.修订号）。
+- term_zh: 后验
+  term_en: posterior
+  definition_zh: 结合先验与数据证据后的参数分布，是贝叶斯推断的核心输出。
   first_seen: week_14
 
-- term_zh: 代码收敛
-  term_en: code convergence
-  definition_zh: 发布前整理代码的过程——删除冗余、统一风格、补全测试、优化结构。不是写新功能，而是让代码更易读、易维护、易扩展。
+- term_zh: MCMC
+  term_en: Markov chain Monte Carlo
+  definition_zh: 通过马尔可夫链采样近似复杂后验分布的方法族。
   first_seen: week_14
 
-- term_zh: 语义化版本
-  term_en: Semantic Versioning
-  definition_zh: 版本号规范：主版本.次版本.修订号（如 v1.0.0）。主版本：不兼容的 API 变更；次版本：向后兼容的新功能；修订号：向后兼容的 bug 修复。
+- term_zh: 层次模型
+  term_en: hierarchical model
+  definition_zh: 用多层结构共享信息、刻画组间差异的模型形式，常用于复杂数据的稳健推断。
   first_seen: week_14
+
+# ─── Week 15 ───
+- term_zh: 降维
+  term_en: dimensionality reduction
+  definition_zh: 将高维数据映射到低维表示以便可视化或计算的技术（如 PCA）。
+  first_seen: week_15
+
+- term_zh: 聚类
+  term_en: clustering
+  definition_zh: 在无监督条件下根据相似性将样本分组的方法族（如 K-means、层次聚类）。
+  first_seen: week_15
+
+- term_zh: 在线/流式统计
+  term_en: streaming statistics
+  definition_zh: 在数据持续到来时增量更新统计量或模型的分析方式。
+  first_seen: week_15
+
+- term_zh: A/B 测试
+  term_en: A/B testing
+  definition_zh: 通过随机分组比较两个方案效果的实验方法，是因果推断在产品场景中的典型应用。
+  first_seen: week_15
+
+# ─── Week 16 ───
+- term_zh: 数据故事
+  term_en: data storytelling
+  definition_zh: 用问题-证据-不确定性-结论边界的结构把分析讲清楚，让非技术读者也能理解与质疑。
+  first_seen: week_16
+
+- term_zh: 可复现分析
+  term_en: reproducible analysis
+  definition_zh: 让同一份数据与代码在不同机器上得到一致结论的交付标准（依赖、随机性、数据版本都可追溯）。
+  first_seen: week_16
+
+- term_zh: 结论边界
+  term_en: limitations
+  definition_zh: 明确你的结论在什么条件下成立、不能推广到什么场景，以及最可能出错的地方。
+  first_seen: week_16
