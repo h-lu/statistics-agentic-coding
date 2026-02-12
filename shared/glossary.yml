@@ -304,28 +304,68 @@
 
 # ─── Week 07 ───
 - term_zh: ANOVA
-  term_en: analysis of variance
-  definition_zh: 方差分析，用于比较多组均值是否存在系统性差异。
+  term_en: Analysis of Variance
+  definition_zh: 方差分析，一种通过分解总变异（组间+组内）来检验多组均值是否相等的方法。
   first_seen: week_07
 
-- term_zh: 卡方检验
-  term_en: chi-square test
-  definition_zh: 用于检验分类变量是否独立或是否符合期望分布的检验方法。
+- term_zh: F 统计量
+  term_en: F-statistic
+  definition_zh: ANOVA 中的检验统计量，等于组间均方除以组内均方（MSB/MSW），衡量"信号/噪音"比。
+  first_seen: week_07
+
+- term_zh: F 分布
+  term_en: F-distribution
+  definition_zh: 两个独立卡方分布除以各自自由度之比的分布，是 F 统计量在 H0 为真时的抽样分布。
+  first_seen: week_07
+
+- term_zh: 家族错误率
+  term_en: Family-wise Error Rate
+  definition_zh: 多次检验中至少出现一次假阳性的概率，记作 FWER = 1 - (1-α)^m。
   first_seen: week_07
 
 - term_zh: 多重比较校正
-  term_en: multiple comparisons correction
-  definition_zh: 在进行多次检验时控制整体错误率的做法（如 Bonferroni、FDR）。
+  term_en: Multiple comparison correction
+  definition_zh: 控制多次检验假阳性率的方法，包括 Bonferroni、Tukey HSD、FDR 等。
   first_seen: week_07
 
-- term_zh: 辛普森悖论
-  term_en: Simpson's paradox
-  definition_zh: 分组后趋势与总体趋势相反的现象，提示可能存在混杂变量。
+- term_zh: 事后检验
+  term_en: Post-hoc test
+  definition_zh: ANOVA 显著后，找出具体哪些组对之间存在差异的配对比较方法。
   first_seen: week_07
 
-- term_zh: 相关与因果
-  term_en: correlation vs causation
-  definition_zh: 相关性描述共同变化，因果性描述干预会改变结果；两者不能混用。
+- term_zh: Tukey HSD
+  term_en: Tukey's Honestly Significant Difference
+  definition_zh: 一种基于学生化极差分布的事后检验方法，专门用于 ANOVA 后的多重比较校正。
+  first_seen: week_07
+
+- term_zh: Bonferroni 校正
+  term_en: Bonferroni correction
+  definition_zh: 最简单的多重比较校正方法，将显著性阈值从 α 降为 α/m（m 为检验次数）。
+  first_seen: week_07
+
+- term_zh: 假发现率
+  term_en: False Discovery Rate
+  definition_zh: 在所有被拒绝的 H0 中，假阳性的期望比例，FDR 方法在大规模检验中比 Bonferroni 更高效。
+  first_seen: week_07
+
+- term_zh: η²
+  term_en: eta-squared
+  definition_zh: ANOVA 的效应量指标，等于组间平方和除以总平方和（SSB/SST），表示"变异中有多大比例由组间差异解释"。
+  first_seen: week_07
+
+- term_zh: 卡方检验
+  term_en: Chi-square test
+  definition_zh: 一种基于观测频数与期望频数差异的统计检验，常用于分类变量的关联检验。
+  first_seen: week_07
+
+- term_zh: 列联表
+  term_en: Contingency table
+  definition_zh: 两个或多个分类变量的交叉频数表，是卡方检验的输入数据形式。
+  first_seen: week_07
+
+- term_zh: Cramér's V
+  term_en: Cramér's V
+  definition_zh: 卡方检验的效应量指标，用于衡量两个分类变量关联的强度，取值范围 0-1。
   first_seen: week_07
 
 # ─── Week 08 ───
