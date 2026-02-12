@@ -1,0 +1,62 @@
+# Week 06 术语表
+#
+# 约定：
+# - term_zh 是校验脚本的主键
+# - term_en 可选
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen 必须是 week_01..week_16 之一
+
+- term_zh: 原假设与备择假设
+  term_en: null/alternative hypothesis
+  definition_zh: 假设检验的两种对立陈述：原假设 H0（默认成立）与备择假设 H1（希望支持）。
+  first_seen: week_06
+
+- term_zh: p-value
+  term_en: p-value
+  definition_zh: 在 H0 为真时，观测到当前或更极端数据的概率；它不是"结论为真"的概率。
+  first_seen: week_06
+
+- term_zh: t 检验
+  term_en: t-test
+  definition_zh: 基于 t 分布的均值差异检验方法，常用于小样本或方差未知的场景。
+  first_seen: week_06
+
+- term_zh: 第一类/第二类错误
+  term_en: Type I/II errors
+  definition_zh: 第一类错误是把真的 H0 错误拒绝（假阳性），第二类错误是把假的 H0 错误接受（假阴性）。
+  first_seen: week_06
+
+- term_zh: 效应量
+  term_en: effect size
+  definition_zh: 衡量差异或关联"有多大"的指标，用于避免只谈统计显著而忽略实际意义。
+  first_seen: week_06
+
+- term_zh: 显著性水平
+  term_en: significance level
+  definition_zh: 记作 α，是第一类错误的概率上限，通常设为 0.05。
+  first_seen: week_06
+
+- term_zh: 统计功效
+  term_en: statistical power
+  definition_zh: 记作 1-β，是当 H0 为假时正确拒绝它的概率，即检测出真实差异的能力。
+  first_seen: week_06
+
+- term_zh: Cohen's d
+  term_en: Cohen's d
+  definition_zh: 一种标准化效应量指标，用均值差除以合并标准差来衡量，0.2/0.5/0.8 对应小/中/大效应。
+  first_seen: week_06
+
+- term_zh: Welch's t 检验
+  term_en: Welch's t-test
+  definition_zh: 不假设方差相等的 t 检验变体，当两组方差不齐时更稳健。
+  first_seen: week_06
+
+- term_zh: Shapiro-Wilk 检验
+  term_en: Shapiro-Wilk test
+  definition_zh: 检验数据是否来自正态分布的方法，对中小样本更推荐。
+  first_seen: week_06
+
+- term_zh: Levene 检验
+  term_en: Levene's test
+  definition_zh: 检验两组或多组方差是否相等的检验方法，是 t 检验和 ANOVA 的重要前提检查。
+  first_seen: week_06

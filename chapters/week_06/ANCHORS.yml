@@ -1,0 +1,52 @@
+# Week 06 锚点列表
+#
+# 每个锚点包含：
+#   - id: 周内唯一标识符（建议用 w06_01 格式）
+#   - claim: 结论陈述（一句话）
+#   - evidence: 证据来源（章节/代码位置）
+#   - verification: 如何验证（代码/检查方法）
+
+- id: w06_01
+  claim: p 值是 P(data|H0)，不是 P(H0|data)
+  evidence: 第 2 节"p 值到底是什么？"，模拟置换检验代码
+  verification: 运行 examples/0p_value_simulation.py，观察 p 值与模拟频率的关系
+
+- id: w06_02
+  claim: t 检验需要满足前提假设（正态性、方差齐性、独立性）
+  evidence: 第 3 节"t 检验实战"，Shapiro-Wilk 和 Levene 检验代码
+  verification: 运行 examples/0ttest_example.py，检查前提假设验证输出
+
+- id: w06_03
+  claim: 第一类错误率恰好等于显著性水平 α
+  evidence: 第 4 节"第一类/第二类错误与功效"，模拟实验代码
+  verification: 运行 examples/0type12_errors.py，观察不同 α 下的第一类错误率
+
+- id: w06_04
+  claim: 降低 α 会提高 β（降低功效），两类错误是跷跷板
+  evidence: 第 4 节"α 与 β 的权衡"，权衡关系图
+  verification: 运行 examples/0type12_errors.py 中实验 3，调整 α 观察功效变化
+
+- id: w06_05
+  claim: 效应量（Cohen's d）衡量实际意义，与 p 值是独立概念
+  evidence: 第 3 节"效应量"，Cohen's d 计算代码和解释标准
+  verification: 运行 examples/0ttest_example.py，对比相同 p 值下不同样本量的效应量
+
+- id: w06_06
+  claim: AI 生成的统计报告容易忽略前提假设检查和效应量报告
+  evidence: 第 5 节"AI 生成的统计报告能信吗？"，审查清单代码
+  verification: 运行 examples/0ai_report_checklist.py，用不同质量的 AI 报告测试
+
+- id: w06_07
+  claim: 功效≥80% 是常规推荐标准，小样本可能无法达到
+  evidence: 第 4 节"功效分析"，样本量与功效关系图
+  verification: 运行 examples/0type12_errors.py 中实验 2，观察不同样本量的功效
+
+- id: w06_08
+  claim: Welch's t 检验在方差不齐时更稳健
+  evidence: 第 3 节"t 检验实战"，equal_var 参数的使用
+  verification: 对比 equal_var=True 和 False 的 t 检验结果，观察 p 值变化
+
+- id: w06_09
+  claim: 多重比较会放大假阳性风险，需要校正
+  evidence: AI 小专栏 #1"p-hacking 与可复现性危机"，引用文献
+  verification: 模拟多次检验并观察假阳性率（为 Week 07 做铺垫）
