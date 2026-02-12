@@ -582,6 +582,34 @@
   definition_zh: 让同一份数据与代码在不同机器上得到一致结论的交付标准（依赖、随机性、数据版本都可追溯）。
   first_seen: week_16
 
+- term_zh: 残差
+  term_en: residual
+  definition_zh: 观测值与模型预测值之差，用于诊断模型假设和识别异常模式。
+  first_seen: week_09
+- term_zh: 方差膨胀因子
+  term_en: VIF
+  definition_zh: 衡量多重共线性程度的指标，VIF > 10 通常表示严重共线性。
+  first_seen: week_09
+- term_zh: R²
+  term_en: R-squared
+  definition_zh: 模型解释的变异比例，取值范围 [0,1]，但不是判断模型质量的唯一指标。
+  first_seen: week_09
+- term_zh: Cook's 距离
+  term_en: Cook's distance
+  definition_zh: 衡量单个观测点对回归系数影响的指标，值越大表示该点越可能是高影响点。
+  first_seen: week_09
+- term_zh: 高影响点
+  term_en: influential point
+  definition_zh: 对回归系数有显著影响的观测点，通常通过 Cook's 距离识别。
+  first_seen: week_09
+- term_zh: QQ 图
+  term_en: Q-Q plot
+  definition_zh: 用于检验数据是否符合理论分布（如正态分布）的图形方法，通过分位数对比来判断。
+  first_seen: week_09
+- term_zh: 同方差性
+  term_en: homoscedasticity
+  definition_zh: 回归假设之一，要求残差方差在所有预测值水平下保持常数。
+  first_seen: week_09
 - term_zh: 结论边界
   term_en: limitations
   definition_zh: 明确你的结论在什么条件下成立、不能推广到什么场景，以及最可能出错的地方。

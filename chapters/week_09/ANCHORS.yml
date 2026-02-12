@@ -1,0 +1,37 @@
+# Week 09 知识锚点（ANCHORS）
+# 格式：每条锚点包含 claim（主张）、evidence（证据）、verification（验证方法）
+
+- id: w09_01
+  claim: 线性回归模型形式为 y = β₀ + β₁x + ε
+  evidence: CHAPTER.md 第 1 节"从散点图到回归线"，代码示例使用 sklearn.LinearRegression.fit() 获得 intercept_ 和 coef_
+  verification: examples/01_simple_regression.py 可运行输出系数值
+
+- id: w09_02
+  claim: 最小二乘法通过最小化残差平方和来估计系数
+  evidence: CHAPTER.md 第 2 节"为什么要平方？——最小二乘法的几何直觉"，OLS 损失函数说明
+  verification: examples/02_ols_intuition.py 手动计算与 sklearn 结果对比
+
+- id: w09_03
+  claim: 回归系数的正确解释需要加"在其他变量不变的情况下"限定词
+  evidence: CHAPTER.md 第 3 节""在其他变量不变的情况下""，遗漏变量偏差示例
+  verification: examples/03_coefficient_interpretation.py 对比简单/多元回归
+
+- id: w09_04
+  claim: VIF > 10 表示严重多重共线性
+  evidence: CHAPTER.md 第 4 节"你用了重复的变量吗？——多元回归与多重共线性"，VIF 计算示例
+  verification: examples/04_multicollinearity_vif.py 生成 VIF 表和热力图
+
+- id: w09_05
+  claim: 回归假设 LINE：线性、独立性、正态性、等方差
+  evidence: CHAPTER.md 第 5 节"模型听话吗？——残差诊断与回归假设"，四项假设检验
+  verification: examples/05_residual_diagnostics.py 执行 Shapiro-Wilk、Durbin-Watson、Breusch-Pagan 检验
+
+- id: w09_06
+  claim: Cook's 距离识别高影响点（通常阈值 > 4/n）
+  evidence: CHAPTER.md 第 6 节"谁在拽你的线？——异常点与 Cook's 距离"，Cook's 距离计算
+  verification: examples/06_cooks_distance.py 标注影响点并对比删除前后模型
+
+- id: w09_07
+  claim: AI 生成的回归报告必须包含残差诊断、VIF 检验、假设验证才能可信
+  evidence: CHAPTER.md 第 7 节"AI 生成的回归报告能信吗？——模型诊断的审查训练"，10 项审查清单
+  verification: examples/07_ai_report_checker.py 自动检查报告完整性
