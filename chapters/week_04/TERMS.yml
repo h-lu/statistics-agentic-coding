@@ -1,0 +1,36 @@
+# Week 04 术语表
+
+- term_zh: 相关系数
+  term_en: correlation coefficient
+  definition_zh: 衡量两个变量关联强度和方向的统计量，取值范围[-1, 1]，常用Pearson（线性）和Spearman（秩次）两种计算方法
+  first_seen: week_04
+
+- term_zh: Pearson相关系数
+  term_en: Pearson correlation coefficient
+  definition_zh: 衡量两个连续变量线性关系强度的指标，对异常值敏感
+  first_seen: week_04
+
+- term_zh: Spearman秩相关系数
+  term_en: Spearman's rank correlation coefficient
+  definition_zh: 基于变量秩次（排名）计算的相关性，衡量单调关系，对异常值稳健
+  first_seen: week_04
+
+- term_zh: 分组比较
+  term_en: group comparison
+  definition_zh: 按类别变量将数据分组后，对各组进行统计描述和比较，以发现组间差异
+  first_seen: week_04
+
+- term_zh: 混杂变量
+  term_en: confounding variable
+  definition_zh: 同时影响自变量和因变量的第三方变量，可能导致虚假的关联关系
+  first_seen: week_04
+
+- term_zh: 辛普森悖论
+  term_en: Simpson's paradox
+  definition_zh: 在分组比较中，各组内的趋势与总体趋势相反的现象，提示可能存在混杂变量
+  first_seen: week_04
+
+- term_zh: 可检验假设
+  term_en: testable hypothesis
+  definition_zh: 可以用数据和统计方法验证的明确陈述，通常以H0（原假设）和H1（备择假设）的形式表达
+  first_seen: week_04

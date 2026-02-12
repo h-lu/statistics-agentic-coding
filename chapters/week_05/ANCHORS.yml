@@ -1,0 +1,42 @@
+# Week 05 锚点列表
+#
+# 约定：
+# - id: 周内唯一标识符
+# - claim: 教材中声称的结论
+# - evidence: 支持该结论的证据（代码位置/数据/推理）
+# - verification: 如何验证该结论
+
+- id: w05_bayes_simulation
+  claim: 检测阳性后真正患病的概率约 50%，而不是检测准确率 99%
+  evidence: 第五章贝叶斯定理模拟实验，在 1% 发病率、99% 灵敏度和特异度下，模拟 100000 人得到 P(患病|阳性) ≈ 0.5
+  verification: 运行 examples/05_conditional_probability.py，检查模拟结果是否收敛到理论值
+
+- id: w05_normal_3sigma
+  claim: 正态分布下约 95% 的数据落在均值 ± 2σ 范围内
+  evidence: 使用 scipy.stats.norm.cdf 计算累积概率：norm.cdf(μ+2σ) - norm.cdf(μ-2σ) ≈ 0.9545
+  verification: 运行 examples/05_distributions_demo.py，检查 3σ 原则输出是否符合理论值
+
+- id: w05_clt_convergence
+  claim: 无论总体分布是什么形状，样本均值的分布在样本量足够大时近似正态分布
+  evidence: CLT 模拟实验从指数分布（偏态）抽样，样本量 n=100 时样本均值分布呈现对称钟形
+  verification: 运行 examples/05_clt_simulation.py，观察不同样本量下的样本均值分布形状变化
+
+- id: w05_bootstrap_coverage
+  claim: Bootstrap 95% 置信区间约有 95% 的概率覆盖真实参数值
+  evidence: Bootstrap 重抽样实验通过计算覆盖率验证：从已知分布抽样，构造 Bootstrap 区间，重复 1000 次统计覆盖比例
+  verification: 运行 examples/05_bootstrap_demo.py 中的覆盖率测试，检查是否接近 95%
+
+- id: w05_binomial_approximation
+  claim: 当 n 很大且 p 不接近 0 或 1 时，二项分布可由正态分布近似
+  evidence: 二项分布期望 μ=np、方差 σ²=np(1-p)，当 np>5 且 n(1-p)>5 时正态近似效果良好
+  verification: 运行 tests/test_distributions.py 中的二项分布测试，比较正态近似误差
+
+- id: w05_poisson_rare_events
+  claim: 泊松分布适用于刻画稀有事件计数，其特点是期望等于方差
+  evidence: 泊松分布 PMF 为 P(X=k) = e^(-λ) · λ^k / k!，E[X]=Var[X]=λ
+  verification: 运行 examples/05_distributions_demo.py，检查生成样本的均值和方差是否接近 λ
+
+- id: w05_sampling_distribution_se
+  claim: 均值的标准误 SE = σ / √n，样本量越大 SE 越小
+  evidence: CLT 模拟显示样本量 n=25 的标准误约为 n=100 的两倍
+  verification: 运行 tests/test_clt.py，检查不同样本量下的标准误是否按 √n 比例缩放

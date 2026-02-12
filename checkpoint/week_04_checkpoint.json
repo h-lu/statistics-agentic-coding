@@ -1,0 +1,71 @@
+{
+  "week": 4,
+  "timestamp": "2026-02-11T20:48:00.346801",
+  "findings": [
+    {
+      "id": "F1",
+      "description": "age与income的相关性分析",
+      "evidence": {
+        "correlation": 0.008029009823639358,
+        "variable_pair": [
+          "age",
+          "income"
+        ]
+      },
+      "priority": "高",
+      "timestamp": "2026-02-11T20:48:00.357128"
+    },
+    {
+      "id": "F2",
+      "description": "age与total_spend的相关性分析",
+      "evidence": {
+        "correlation": -0.04794566675646589,
+        "variable_pair": [
+          "age",
+          "total_spend"
+        ]
+      },
+      "priority": "中",
+      "timestamp": "2026-02-11T20:48:00.357185"
+    },
+    {
+      "id": "F3",
+      "description": "上海城市用户消费比深圳高 3%",
+      "evidence": {
+        "group_diff": "-3%",
+        "groups": [
+          "上海",
+          "深圳"
+        ]
+      },
+      "priority": "中",
+      "timestamp": "2026-02-11T20:48:00.357640"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "description": "user_id与age存在相关关系",
+      "H0": "user_id与age的 Pearson 相关系数 = 0",
+      "H1": "user_id与age的 Pearson 相关系数 ≠ 0",
+      "data_support": "EDA 发现 r = -0.025",
+      "proposed_test": "Pearson 相关性检验",
+      "confounders": "其他未控制的变量",
+      "priority": "高"
+    },
+    {
+      "id": "H2",
+      "description": "不同用户群体的消费行为存在差异",
+      "H0": "各用户群体的平均消费相等",
+      "H1": "至少有一组用户的平均消费不同",
+      "data_support": "分组统计显示群体间存在差异",
+      "proposed_test": "单因素方差分析 (ANOVA)",
+      "confounders": "收入、年龄、城市分布",
+      "priority": "中"
+    }
+  ],
+  "figures": [
+    "checkpoint/week_04_correlation_heatmap.png",
+    "checkpoint/week_04_group_boxplot.png"
+  ]
+}

@@ -1,0 +1,57 @@
+# Week 05 术语表
+#
+# 约定：
+# - term_zh 是校验脚本的主键
+# - term_en 可选
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen 固定为 week_05
+
+- term_zh: 条件概率
+  term_en: conditional probability
+  definition_zh: 在事件 B 已发生的条件下事件 A 发生的概率，记作 P(A|B)。与 P(B|A) 通常不相等，是医疗检测假阳性等反直觉问题的根源。
+  first_seen: week_05
+
+- term_zh: 贝叶斯定理
+  term_en: Bayes' rule
+  definition_zh: 连接先验概率、似然与后验概率的公式，用于在获得新证据后更新信念。核心形式：P(A|B) = P(B|A) × P(A) / P(B)。
+  first_seen: week_05
+
+- term_zh: 常见分布
+  term_en: common distributions
+  definition_zh: 统计建模中常用的概率分布族，包括正态分布（对称连续变量）、二项分布（成功/失败计数）、泊松分布（稀有事件计数）等。
+  first_seen: week_05
+
+- term_zh: 正态分布
+  term_en: normal distribution
+  definition_zh: 也叫高斯分布，是对称的钟形连续分布，由均值 μ 和标准差 σ 两个参数决定，满足 68-95-99.7 原则。
+  first_seen: week_05
+
+- term_zh: 二项分布
+  term_en: binomial distribution
+  definition_zh: 刻画 n 次独立二元试验中成功次数的离散分布，由试验次数 n 和单次成功概率 p 两个参数决定。
+  first_seen: week_05
+
+- term_zh: 泊松分布
+  term_en: Poisson distribution
+  definition_zh: 刻画单位时间/空间内稀有事件发生次数的离散分布，由单个参数 λ（平均发生次数）决定，特点是期望等于方差。
+  first_seen: week_05
+
+- term_zh: 中心极限定理
+  term_en: central limit theorem (CLT)
+  definition_zh: 在一定条件下（通常是样本量够大），无论总体分布是什么形状，样本均值的抽样分布都会近似正态分布。是很多推断方法的理论基础。
+  first_seen: week_05
+
+- term_zh: 抽样分布
+  term_en: sampling distribution
+  definition_zh: 某个统计量（如均值、中位数、相关系数）在重复抽样下的概率分布。抽样分布的标准差称为标准误。
+  first_seen: week_05
+
+- term_zh: 标准误
+  term_en: standard error (SE)
+  definition_zh: 统计量抽样分布的标准差，衡量统计量的波动程度。对于均值，SE = σ / √n，样本量越大 SE 越小。
+  first_seen: week_05
+
+- term_zh: Bootstrap
+  term_en: bootstrap
+  definition_zh: 通过对原始样本进行有放回重采样来估计统计量抽样分布和置信区间的计算方法，不依赖总体分布的强假设。
+  first_seen: week_05
