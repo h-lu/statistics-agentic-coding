@@ -425,6 +425,58 @@
   term_en: logistic regression
   definition_zh: 用逻辑函数建模二分类概率的模型，是经典的可解释分类方法。
   first_seen: week_10
+  first_seen: week_10
+
+- term_zh: 精确率
+  term_en: precision
+  definition_zh: 预测为正类的样本中真正为正类的比例，衡量"预测有多准"，公式为 TP/(TP+FP)。
+  first_seen: week_10
+
+- term_zh: 召回率
+  term_en: recall
+  definition_zh: 真实为正类的样本中被正确识别的比例，衡量"找得有多全"，公式为 TP/(TP+FN)。
+  first_seen: week_10
+
+- term_zh: F1 分数
+  term_en: F1-score
+  definition_zh: 精确率和召回率的调和平均，综合评估分类性能的指标，取值范围 [0, 1]。
+  first_seen: week_10
+
+- term_zh: ROC 曲线
+  term_en: ROC curve
+  definition_zh: 以假阳性率(FPR)为横轴、真阳性率(TPR)为纵轴绘制的曲线，展示分类器在不同阈值下的性能。
+  first_seen: week_10
+
+- term_zh: AUC
+  term_en: Area Under Curve
+  definition_zh: ROC 曲线下的面积，衡量分类器区分正负样本的能力，取值范围 [0, 1]，0.5 表示随机猜测。
+  first_seen: week_10
+
+- term_zh: StratifiedKFold
+  term_en: Stratified K-Fold
+  definition_zh: 保持每个折中类别比例与原始数据集一致的 K 折交叉验证方法，适用于类别不平衡场景。
+  first_seen: week_10
+
+- term_zh: 优势比
+  term_en: odds ratio
+  definition_zh: 逻辑回归系数的指数化解释，表示特征每增加一个单位，目标发生的优势(概率比)变化多少倍。
+  first_seen: week_10
+
+- term_zh: 准确率悖论
+  term_en: accuracy paradox
+  definition_zh: 在类别不平衡场景中，总是预测多数类可以获得很高的准确率，但模型实际没有学习任何有意义的模式。
+  first_seen: week_10
+
+- term_zh: 假阳性
+  term_en: False Positive (FP)
+  definition_zh: 实际为负类但被错误预测为正类的样本，也称"误报"或"第一类错误"。
+  first_seen: week_10
+
+- term_zh: 假阴性
+  term_en: False Negative (FN)
+  definition_zh: 实际为正类但被错误预测为负类的样本，也称"漏报"或"第二类错误"。
+  first_seen: week_10
+
 
 - term_zh: 混淆矩阵
   term_en: confusion matrix
@@ -477,6 +529,66 @@
   definition_zh: 搜索模型的超参数组合以优化验证集性能的过程（如网格搜索、随机搜索）。
   first_seen: week_11
 
+- term_zh: 集成学习
+  term_en: ensemble learning
+  definition_zh: 结合多个基模型的预测以提升整体性能的方法，常见策略包括 Bagging（并行）和 Boosting（串行）。
+  first_seen: week_11
+
+- term_zh: Bagging
+  term_en: Bootstrap Aggregating
+  definition_zh: 集成学习策略，通过 Bootstrap 重采样生成多个训练子集，训练多个独立模型并聚合其预测，主要用于降低方差。
+  first_seen: week_11
+
+- term_zh: 特征重要性
+  term_en: feature importance
+  definition_zh: 量化每个特征对模型预测贡献程度的指标，树模型常用基于不纯度的减少量计算，也可用置换重要性（打乱特征后的性能下降）。
+  first_seen: week_11
+
+- term_zh: 置换重要性
+  term_en: permutation importance
+  definition_zh: 特征重要性度量方法，随机打乱某特征值后观察模型性能下降程度，下降越多说明该特征越重要。
+  first_seen: week_11
+
+- term_zh: 熵
+  term_en: entropy
+  definition_zh: 信息论中的不确定性度量，决策树用它选择分裂特征（熵降低最多的分裂最优）。
+  first_seen: week_11
+
+- term_zh: Gini 不纯度
+  term_en: Gini impurity
+  definition_zh: 衡量数据集不纯程度的指标（纯度 = 1 - Gini），决策树分类问题常用的分裂标准。
+  first_seen: week_11
+
+- term_zh: CART 算法
+  term_en: Classification and Regression Trees
+  definition_zh: 经典的决策树学习算法，使用二元分裂（每次只选一个特征和一个阈值），贪婪地选择当下最优分裂。
+  first_seen: week_11
+
+- term_zh: 网格搜索
+  term_en: grid search
+  definition_zh: 超参数调优方法，穷举所有参数组合，用交叉验证评估每个组合，保证找到搜索范围内的最优解。
+  first_seen: week_11
+
+- term_zh: 随机搜索
+  term_en: randomized search
+  definition_zh: 超参数调优方法，从参数空间中随机采样指定数量的组合，比网格搜索更高效，特别适合高维搜索空间。
+  first_seen: week_11
+
+- term_zh: 过拟合
+  term_en: overfitting
+  definition_zh: 模型在训练数据上表现很好但在新数据上表现差，说明模型记住了噪声而非学习到通用模式。
+  first_seen: week_11
+
+- term_zh: 欠拟合
+  term_en: underfitting
+  definition_zh: 模型过于简单，无法捕捉数据中的真实模式，在训练集和测试集上表现都差。
+  first_seen: week_11
+
+- term_zh: 剪枝
+  term_en: pruning
+  definition_zh: 决策树的简化技术，通过限制树的生长（预剪枝）或事后删除部分子树（后剪枝）来防止过拟合。
+  first_seen: week_11
+
 - term_zh: 过拟合与欠拟合
   term_en: overfitting/underfitting
   definition_zh: 过拟合是模型记住噪声导致泛化差，欠拟合是模型过于简单导致无法捕捉规律。
@@ -508,27 +620,77 @@
   definition_zh: 在上线或传播结论前用于自检风险的清单（偏差、公平性、隐私、可复现性等）。
   first_seen: week_12
 
+# ─── Week 12 新增术语 ───
+- term_zh: SHAP
+  term_en: SHAP
+  definition_zh: 基于博弈论中 Shapley 值的可解释性方法，量化每个特征对每个预测的贡献，具有可加性和唯一性公理保证。
+  first_seen: week_12
+
+- term_zh: 数据偏见
+  term_en: historical bias
+  definition_zh: 训练数据中存在的历史歧视模式，模型会"学会"并在预测中复制这些偏见。
+  first_seen: week_12
+
+- term_zh: 算法偏见
+  term_en: algorithmic bias
+  definition_zh: 模型算法放大数据中的模式，导致某些群体性能更差或结果更不公。
+  first_seen: week_12
+
+- term_zh: 代理变量
+  term_en: proxy variable
+  definition_zh: 与敏感属性（如性别、种族）高度相关的特征，模型可能通过它间接"学到"敏感信息。
+  first_seen: week_12
+
+- term_zh: 差异影响比
+  term_en: disparate impact ratio
+  definition_zh: 不同群体通过率之比（通常少数群体/多数群体），美国 EEOC 的"80% 规则"认为 < 0.8 可能存在歧视。
+  first_seen: week_12
+
+- term_zh: 平等机会
+  term_en: equal opportunity
+  definition_zh: 要求不同群体的召回率（TPR）相等，即真正为正类的样本被正确识别的比例相同。
+  first_seen: week_12
+
+- term_zh: 均等几率
+  term_en: equalized odds
+  definition_zh: 最强的公平性定义，要求不同群体的召回率（TPR）和假阳性率（FPR）都相等。
+  first_seen: week_12
+
+- term_zh: 隐私预算
+  term_en: privacy budget (epsilon)
+  definition_zh: 差分隐私中的参数 ε，控制隐私损失上限。ε 越小隐私保护越强但数据实用性越低，多次查询的 ε 会累积。
+  first_seen: week_12
+
+- term_zh: 全局敏感度
+  term_en: global sensitivity
+  definition_zh: 删除一条记录对查询结果的最大影响，用于确定差分隐私需要添加的噪声大小。
+  first_seen: week_12
+
 # ─── Week 13 ───
 - term_zh: 因果三层级
   term_en: ladder of causation
-  definition_zh: 因果推断的三层问题：关联、干预与反事实，层级越高要求越强。
+  definition_zh: Judea Pearl 提出的因果推断三个问题层级——关联（变量相关吗）、干预（如果改变会怎样）、反事实（如果当时没做会怎样）
   first_seen: week_13
 
 - term_zh: 因果图
-  term_en: DAG
-  definition_zh: 用有向无环图表达变量间因果假设的工具，用于明确混杂与识别策略。
+  term_en: Directed Acyclic Graph
+  definition_zh: 用有向无环图表达变量间的因果假设，箭头表示因果方向
   first_seen: week_13
 
 - term_zh: 后门准则
-  term_en: backdoor criterion
-  definition_zh: 在因果图中选择调整变量集合以阻断所有后门路径，从而识别因果效应的规则。
+  term_en: Backdoor Criterion
+  definition_zh: 判断"调整哪些变量就能识别因果效应"的规则——阻断所有后门路径，但不切断因果路径
   first_seen: week_13
 
-- term_zh: 混杂变量
-  term_en: confounder
-  definition_zh: 同时影响处理变量与结果变量、从而造成虚假关联的变量。
+- term_zh: 倾向评分
+  term_en: Propensity Score
+  definition_zh: 在给定特征下，接受处理的概率
   first_seen: week_13
 
+- term_zh: 处理组平均处理效应
+  term_en: Average Treatment Effect on the Treated
+  definition_zh: 对被处理的人的平均因果效应
+  first_seen: week_13
 # ─── Week 14 ───
 - term_zh: 先验
   term_en: prior
@@ -553,22 +715,102 @@
 # ─── Week 15 ───
 - term_zh: 降维
   term_en: dimensionality reduction
-  definition_zh: 将高维数据映射到低维表示以便可视化或计算的技术（如 PCA）。
+  definition_zh: 将高维数据映射到低维表示以便可视化或计算的技术（如 PCA），目标是保留主要信息的同时减少特征数量。
+  first_seen: week_15
+
+- term_zh: 主成分分析
+  term_en: Principal Component Analysis (PCA)
+  definition_zh: 通过正交变换将原始相关变量转换为一组线性不相关的变量（主成分），按方差从大到小排序，用于降维和信息压缩。
+  first_seen: week_15
+
+- term_zh: 方差解释比例
+  term_en: explained variance ratio
+  definition_zh: 单个主成分解释的方差占总方差的比例，用于评估该主成分保留了多少原始信息。
+  first_seen: week_15
+
+- term_zh: 累积方差解释比例
+  term_en: cumulative explained variance ratio
+  definition_zh: 前k个主成分的方差解释比例之和，用于选择保留多少个主成分以达到目标信息保留率（如85%）。
+  first_seen: week_15
+
+- term_zh: 特征载荷
+  term_en: feature loadings
+  definition_zh: 原始特征在主成分上的权重系数，反映原始特征对主成分的贡献程度，帮助解释主成分的业务含义。
   first_seen: week_15
 
 - term_zh: 聚类
   term_en: clustering
-  definition_zh: 在无监督条件下根据相似性将样本分组的方法族（如 K-means、层次聚类）。
+  definition_zh: 在无标签数据中根据样本间相似性将数据分组的方法，目标是同一组（簇）内样本相似、不同组间样本差异大。
   first_seen: week_15
 
-- term_zh: 在线/流式统计
+- term_zh: K-means 聚类
+  term_en: K-means clustering
+  definition_zh: 将n个样本分成k个簇的迭代算法，通过最小化簇内平方和（WCSS）优化，使每个样本属于最近的簇中心。
+  first_seen: week_15
+
+- term_zh: 肘部法则
+  term_en: elbow method
+  definition_zh: 选择K-means最优簇数K的启发式方法，绘制簇内平方和随K变化的曲线，选择"肘部"（曲线从陡峭变平缓的转折点）作为K值。
+  first_seen: week_15
+
+- term_zh: 轮廓系数
+  term_en: silhouette score
+  definition_zh: 衡量聚类质量的指标，取值范围[-1,1]，值越接近1表示样本与自身簇越紧密、与相邻簇越分离，聚类效果越好。
+  first_seen: week_15
+
+- term_zh: 簇内平方和
+  term_en: Within-Cluster Sum of Squares (WCSS)
+  definition_zh: K-means的目标函数，衡量所有样本到其所属簇中心的距离平方和，K-means通过最小化WCSS来优化聚类。
+  first_seen: week_15
+
+- term_zh: 流式统计
   term_en: streaming statistics
-  definition_zh: 在数据持续到来时增量更新统计量或模型的分析方式。
+  definition_zh: 在数据持续到来时增量更新统计量（均值、方差等）的分析方式，每次更新复杂度O(1)，不需要遍历历史数据。
   first_seen: week_15
 
-- term_zh: A/B 测试
-  term_en: A/B testing
-  definition_zh: 通过随机分组比较两个方案效果的实验方法，是因果推断在产品场景中的典型应用。
+- term_zh: 在线均值
+  term_en: online mean
+  definition_zh: 通过维护样本计数n和总和sum，在新数据到来时以O(1)复杂度更新均值，公式为 mean_new = (sum_old + x_new) / (n_old + 1)。
+  first_seen: week_15
+
+- term_zh: Welford 算法
+  term_en: Welford's online algorithm
+  definition_zh: 一种数值稳定的在线方差计算算法，通过维护均值和平方和M2来增量更新方差，避免大数相减导致的精度损失。
+  first_seen: week_15
+
+- term_zh: 在线分位数
+  term_en: online quantile
+  definition_zh: 用近似算法（如分箱法、t-digest）在流式数据中估计分位数（如中位数、75分位数），因为分位数计算需要排序，无法精确增量更新。
+  first_seen: week_15
+
+- term_zh: A/B 测试工程化
+  term_en: A/B testing platform
+  definition_zh: 将A/B测试从手动分析升级为自动化决策平台，包括实验配置、数据收集、统计检验、决策规则、监控报警等组件。
+  first_seen: week_15
+
+- term_zh: 样本比例异常
+  term_en: Sample Ratio Mismatch (SRM)
+  definition_zh: A/B测试中各组实际样本量与预期比例不一致的异常情况，通常由随机化代码bug或某个版本在某些设备上不展示导致，会使p值失效。
+  first_seen: week_15
+
+- term_zh: 早期停止
+  term_en: early stopping
+  definition_zh: 在A/B测试未达到预定样本量时就因p值显著而提前停止实验并做决策的问题，会导致假阳性率增加（重复检验问题）。
+  first_seen: week_15
+
+- term_zh: 维度灾难
+  term_en: curse of dimensionality
+  definition_zh: 高维数据中的现象：当特征数接近或超过样本数时，传统统计方法会面临过拟合、计算爆炸、距离度量失效等问题。
+  first_seen: week_15
+
+- term_zh: 特征提取
+  term_en: feature extraction
+  definition_zh: 通过数学变换（如PCA）从原始特征创建新的"综合特征"，与特征选择不同，新特征是原始特征的线性或非线性组合。
+  first_seen: week_15
+
+- term_zh: 特征选择
+  term_en: feature selection
+  definition_zh: 从原始特征中挑选一个子集，删除不重要或冗余的特征，与特征提取不同，不创建新特征，只选择原始特征的子集。
   first_seen: week_15
 
 # ─── Week 16 ───

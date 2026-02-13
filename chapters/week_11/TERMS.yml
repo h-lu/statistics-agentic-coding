@@ -1,0 +1,85 @@
+# Week 11 术语表
+#
+# 本周新增术语建议，需由 ConsistencyEditor 同步到 shared/glossary.yml
+#
+# 约定：
+# - term_zh 是校验脚本的主键
+# - term_en 可选
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen: week_11
+
+# ─── Week 11 新增术语 ───
+- term_zh: 决策树
+  term_en: decision tree
+  definition_zh: 一种通过递归分裂将特征空间划分为矩形的机器学习模型，每个叶子节点给出预测值（回归为均值，分类为众数）。
+  first_seen: week_11
+
+- term_zh: 随机森林
+  term_en: random forest
+  definition_zh: 集成学习方法，通过 Bootstrap 采样训练多棵决策树并在预测时投票（分类）或平均（回归），降低单棵树的高方差。
+  first_seen: week_11
+
+- term_zh: 集成学习
+  term_en: ensemble learning
+  definition_zh: 结合多个基模型的预测以提升整体性能的方法，常见策略包括 Bagging（并行）和 Boosting（串行）。
+  first_seen: week_11
+
+- term_zh: Bagging
+  term_en: Bootstrap Aggregating
+  definition_zh: 集成学习策略，通过 Bootstrap 重采样生成多个训练子集，训练多个独立模型并聚合其预测，主要用于降低方差。
+  first_seen: week_11
+
+- term_zh: 特征重要性
+  term_en: feature importance
+  definition_zh: 量化每个特征对模型预测贡献程度的指标，树模型常用基于不纯度的减少量计算，也可用置换重要性（打乱特征后的性能下降）。
+  first_seen: week_11
+
+- term_zh: 超参数调优
+  term_en: hyperparameter tuning
+  definition_zh: 通过交叉验证等方法选择模型最佳超参数组合的过程，常用方法包括网格搜索（穷举）和随机搜索（随机采样）。
+  first_seen: week_11
+
+- term_zh: 置换重要性
+  term_en: permutation importance
+  definition_zh: 特征重要性度量方法，随机打乱某特征值后观察模型性能下降程度，下降越多说明该特征越重要。
+  first_seen: week_11
+
+- term_zh: 熵
+  term_en: entropy
+  definition_zh: 信息论中的不确定性度量，决策树用它选择分裂特征（熵降低最多的分裂最优）。
+  first_seen: week_11
+
+- term_zh: Gini 不纯度
+  term_en: Gini impurity
+  definition_zh: 衡量数据集不纯程度的指标（纯度 = 1 - Gini），决策树分类问题常用的分裂标准。
+  first_seen: week_11
+
+- term_zh: CART 算法
+  term_en: Classification and Regression Trees
+  definition_zh: 经典的决策树学习算法，使用二元分裂（每次只选一个特征和一个阈值），贪婪地选择当下最优分裂。
+  first_seen: week_11
+
+- term_zh: 网格搜索
+  term_en: grid search
+  definition_zh: 超参数调优方法，穷举所有参数组合，用交叉验证评估每个组合，保证找到搜索范围内的最优解。
+  first_seen: week_11
+
+- term_zh: 随机搜索
+  term_en: randomized search
+  definition_zh: 超参数调优方法，从参数空间中随机采样指定数量的组合，比网格搜索更高效，特别适合高维搜索空间。
+  first_seen: week_11
+
+- term_zh: 过拟合
+  term_en: overfitting
+  definition_zh: 模型在训练数据上表现很好但在新数据上表现差，说明模型记住了噪声而非学习到通用模式。
+  first_seen: week_11
+
+- term_zh: 欠拟合
+  term_en: underfitting
+  definition_zh: 模型过于简单，无法捕捉数据中的真实模式，在训练集和测试集上表现都差。
+  first_seen: week_11
+
+- term_zh: 剪枝
+  term_en: pruning
+  definition_zh: 决策树的简化技术，通过限制树的生长（预剪枝）或事后删除部分子树（后剪枝）来防止过拟合。
+  first_seen: week_11

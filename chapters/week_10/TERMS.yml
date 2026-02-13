@@ -1,0 +1,85 @@
+# Week 10 术语表
+
+# 涉及的本周概念：逻辑回归、混淆矩阵、ROC-AUC、交叉验证、数据泄漏
+
+# ─── Week 10 新增术语 ───
+
+- term_zh: 逻辑回归
+  term_en: logistic regression
+  definition_zh: 用逻辑函数建模二分类概率的模型，输出 0-1 之间的概率值，常用于可解释的分类任务。
+  first_seen: week_10
+
+- term_zh: 混淆矩阵
+  term_en: confusion matrix
+  definition_zh: 汇总分类模型在不同预测结果上的计数表，包含真阳性(TP)、真阴性(TN)、假阳性(FP)、假阴性(FN)四类。
+  first_seen: week_10
+
+- term_zh: 精确率
+  term_en: precision
+  definition_zh: 预测为正类的样本中真正为正类的比例，衡量"预测的有多准"，公式为 TP/(TP+FP)。
+  first_seen: week_10
+
+- term_zh: 召回率
+  term_en: recall
+  definition_zh: 真实为正类的样本中被正确识别的比例，衡量"找得有多全"，公式为 TP/(TP+FN)。
+  first_seen: week_10
+
+- term_zh: F1 分数
+  term_en: F1-score
+  definition_zh: 精确率和召回率的调和平均，综合评估分类性能的指标，取值范围 [0, 1]。
+  first_seen: week_10
+
+- term_zh: ROC 曲线
+  term_en: ROC curve
+  definition_zh: 以假阳性率(FPR)为横轴、真阳性率(TPR)为纵轴绘制的曲线，展示分类器在不同阈值下的性能。
+  first_seen: week_10
+
+- term_zh: AUC
+  term_en: Area Under Curve
+  definition_zh: ROC 曲线下的面积，衡量分类器区分正负样本的能力，取值范围 [0, 1]，0.5 表示随机猜测。
+  first_seen: week_10
+
+- term_zh: 交叉验证
+  term_en: cross-validation
+  definition_zh: 通过多次划分训练/验证集合估计模型泛化性能的方法，常用的 K-fold 折数将数据分为 K 份。
+  first_seen: week_10
+
+- term_zh: 数据泄漏
+  term_en: data leakage
+  definition_zh: 在训练过程中不当使用了验证/测试信息，导致评估结果虚高且不可复现的错误。
+  first_seen: week_10
+
+- term_zh: Pipeline
+  term_en: pipeline
+  definition_zh: 将预处理与模型串联成一个整体，并在交叉验证中在每个折内独立拟合预处理步骤，以避免数据泄漏的工程实践。
+  first_seen: week_10
+
+- term_zh: ColumnTransformer
+  term_en: ColumnTransformer
+  definition_zh: 在 scikit-learn 中对不同列应用不同预处理（数值缩放、类别 one-hot 等）的组合器。
+  first_seen: week_10
+
+- term_zh: StratifiedKFold
+  term_en: Stratified K-Fold
+  definition_zh: 保持每个折中类别比例与原始数据集一致的 K 折交叉验证方法，适用于类别不平衡场景。
+  first_seen: week_10
+
+- term_zh: 优势比
+  term_en: odds ratio
+  definition_zh: 逻辑回归系数的指数化解释，表示特征每增加一个单位，目标发生的优势（概率比）变化多少倍。
+  first_seen: week_10
+
+- term_zh: 准确率悖论
+  term_en: accuracy paradox
+  definition_zh: 在类别不平衡场景中，总是预测多数类可以获得很高的准确率，但模型实际没有学习任何有意义的模式。
+  first_seen: week_10
+
+- term_zh: 假阳性
+  term_en: False Positive (FP)
+  definition_zh: 实际为负类但被错误预测为正类的样本，也称"误报"或"第一类错误"。
+  first_seen: week_10
+
+- term_zh: 假阴性
+  term_en: False Negative (FN)
+  definition_zh: 实际为正类但被错误预测为负类的样本，也称"漏报"或"第二类错误"。
+  first_seen: week_10

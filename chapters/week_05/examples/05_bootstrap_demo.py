@@ -10,10 +10,14 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_05"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def bootstrap(
@@ -146,7 +150,7 @@ def compare_statistics_stability():
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_bootstrap_comparison.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_bootstrap_comparison.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_bootstrap_comparison.png")
     plt.close()
 
@@ -211,7 +215,7 @@ def bootstrap_correlation():
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_bootstrap_correlation.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_bootstrap_correlation.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_bootstrap_correlation.png")
     plt.close()
 
@@ -275,7 +279,7 @@ def bootstrap_mean_diff():
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_bootstrap_mean_diff.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_bootstrap_mean_diff.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_bootstrap_mean_diff.png")
     plt.close()
 

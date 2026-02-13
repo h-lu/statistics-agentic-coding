@@ -11,10 +11,14 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_05"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # =============================================================================
@@ -138,7 +142,7 @@ def mistake_2_normal_assumption_abuse():
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/mistake_2_normal_assumption.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'mistake_2_normal_assumption.png', dpi=150)
     print(f"\n[图表已保存] /tmp/mistake_2_normal_assumption.png")
     plt.close()
 

@@ -10,9 +10,13 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_05"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def demo_normal_distribution():
@@ -64,7 +68,7 @@ def demo_normal_distribution():
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_normal_distribution.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_normal_distribution.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_normal_distribution.png")
     plt.close()
 
@@ -122,7 +126,7 @@ def demo_binomial_distribution():
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_binomial_distribution.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_binomial_distribution.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_binomial_distribution.png")
     plt.close()
 
@@ -179,7 +183,7 @@ def demo_poisson_distribution():
     ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_poisson_distribution.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_poisson_distribution.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_poisson_distribution.png")
     plt.close()
 

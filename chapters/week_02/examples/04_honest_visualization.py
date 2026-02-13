@@ -9,10 +9,14 @@
 运行方式：python 04_honest_visualization.py
 """
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_02"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def setup_style():
@@ -59,8 +63,8 @@ def demonstrate_truncated_y_axis():
         axes[1].text(i, val + 0.1, f'{val}%', ha='center', fontsize=12)
 
     plt.tight_layout()
-    print("\n输出：truncated_y_axis_comparison.png")
-    plt.savefig('truncated_y_axis_comparison.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'truncated_y_axis_comparison.png'}")
+    plt.savefig(OUTPUT_DIR / 'truncated_y_axis_comparison.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("\n老潘的点评：")
@@ -108,8 +112,8 @@ def demonstrate_area_deception():
     print("• 左图：面积填充让最后一年'看起来占比很大")
     print("• 右图：线条展示的是'增长趋势'，视觉上更平衡")
 
-    print("\n输出：area_deception_comparison.png")
-    plt.savefig('area_deception_comparison.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'area_deception_comparison.png'}")
+    plt.savefig(OUTPUT_DIR / 'area_deception_comparison.png', dpi=150, bbox_inches='tight')
     plt.close()
 
 
@@ -153,8 +157,8 @@ def demonstrate_dual_axis_trick():
     print("• 但双 Y 轴给人'两个指标一起变化'的错觉")
     print("• 如果想看相关，应该画散点图，不是双 Y 轴折线")
 
-    print("\n输出：dual_axis_trick.png")
-    plt.savefig('dual_axis_trick.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'dual_axis_trick.png'}")
+    plt.savefig(OUTPUT_DIR / 'dual_axis_trick.png', dpi=150, bbox_inches='tight')
     plt.close()
 
 
@@ -190,8 +194,8 @@ def demonstrate_honest_alternatives():
         axes[1].text(i, val + 0.5, f'{val}', ha='center', fontsize=11)
 
     plt.tight_layout()
-    print("\n输出：honest_alternatives.png")
-    plt.savefig('honest_alternatives.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'honest_alternatives.png'}")
+    plt.savefig(OUTPUT_DIR / 'honest_alternatives.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("\n诚实可视化清单：")
@@ -242,11 +246,12 @@ def create_honesty_checklist():
     print(checklist)
 
     # 写入文件
-    with open('honesty_checklist.md', 'w', encoding='utf-8') as f:
+    checklist_path = OUTPUT_DIR / 'honesty_checklist.md'
+    with open(checklist_path, 'w', encoding='utf-8') as f:
         f.write("# 可视化诚实性自检清单\n\n")
         f.write(checklist)
 
-    print("\n清单已保存到 honesty_checklist.md")
+    print(f"\n清单已保存到 {checklist_path}")
 
 
 if __name__ == "__main__":

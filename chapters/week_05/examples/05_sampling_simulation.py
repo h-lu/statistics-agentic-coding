@@ -14,10 +14,14 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_05"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ============================================================================
@@ -181,7 +185,7 @@ def plot_common_distributions() -> dict:
     axes[1, 1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('common_distributions.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'common_distributions.png', dpi=150)
     print(f"\n[图表已保存] common_distributions.png")
     plt.close()
 
@@ -290,7 +294,7 @@ def demonstrate_clt(
         ax.legend()
 
     plt.tight_layout()
-    plt.savefig('clt_demo.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'clt_demo.png', dpi=150)
     print(f"\n[图表已保存] clt_demo.png")
     plt.close()
 
@@ -427,7 +431,7 @@ def demonstrate_bootstrap() -> None:
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('bootstrap_sampling_distribution.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'bootstrap_sampling_distribution.png', dpi=150)
     print(f"\n[图表已保存] bootstrap_sampling_distribution.png")
     plt.close()
 

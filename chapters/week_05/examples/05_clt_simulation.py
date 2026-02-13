@@ -11,9 +11,13 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_05"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def demonstrate_clt(
@@ -143,7 +147,7 @@ def plot_clt_results(clt_data: dict) -> None:
         axes[idx].set_visible(False)
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_clt_simulation.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_clt_simulation.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_clt_simulation.png")
     plt.close()
 
@@ -189,7 +193,7 @@ def plot_se_vs_sample_size() -> None:
                    arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_se_vs_sample_size.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_se_vs_sample_size.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_se_vs_sample_size.png")
     plt.close()
 
@@ -239,7 +243,7 @@ def demonstrate_different_populations():
         axes[1, idx].legend()
 
     plt.tight_layout()
-    plt.savefig('/tmp/demo_clt_different_populations.png', dpi=150)
+    plt.savefig(OUTPUT_DIR / 'demo_clt_different_populations.png', dpi=150)
     print(f"\n[图表已保存] /tmp/demo_clt_different_populations.png")
     plt.close()
 

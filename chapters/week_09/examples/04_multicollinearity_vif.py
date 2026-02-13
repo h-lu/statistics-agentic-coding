@@ -12,12 +12,16 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_09"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 np.random.seed(42)
 
@@ -105,7 +109,7 @@ def plot_correlation_heatmap(df: pd.DataFrame, features: list) -> None:
                 square=True, linewidths=1, cbar_kws={"shrink": 0.8})
     plt.title('特征相关矩阵（高相关预示多重共线性）', fontsize=14)
     plt.tight_layout()
-    plt.savefig('correlation_heatmap.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'correlation_heatmap.png', dpi=150, bbox_inches='tight')
     print("✅ 相关矩阵热力图已保存为 correlation_heatmap.png")
     plt.close()
 

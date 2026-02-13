@@ -1,0 +1,108 @@
+# Week 15 术语表
+#
+# 约定：
+# - term_zh 是校验脚本的主键
+# - term_en 可选
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen 必须是 week_01..week_16 之一
+
+# ─── Week 15 新增术语 ───
+- term_zh: 降维
+  term_en: dimensionality reduction
+  definition_zh: 将高维数据映射到低维表示以便可视化或计算的技术（如 PCA），目标是保留主要信息的同时减少特征数量。
+  first_seen: week_15
+
+- term_zh: 主成分分析
+  term_en: Principal Component Analysis (PCA)
+  definition_zh: 通过正交变换将原始相关变量转换为一组线性不相关的变量（主成分），按方差从大到小排序，用于降维和信息压缩。
+  first_seen: week_15
+
+- term_zh: 方差解释比例
+  term_en: explained variance ratio
+  definition_zh: 单个主成分解释的方差占总方差的比例，用于评估该主成分保留了多少原始信息。
+  first_seen: week_15
+
+- term_zh: 累积方差解释比例
+  term_en: cumulative explained variance ratio
+  definition_zh: 前k个主成分的方差解释比例之和，用于选择保留多少个主成分以达到目标信息保留率（如85%）。
+  first_seen: week_15
+
+- term_zh: 特征载荷
+  term_en: feature loadings
+  definition_zh: 原始特征在主成分上的权重系数，反映原始特征对主成分的贡献程度，帮助解释主成分的业务含义。
+  first_seen: week_15
+
+- term_zh: 聚类
+  term_en: clustering
+  definition_zh: 在无标签数据中根据样本间相似性将数据分组的方法，目标是同一组（簇）内样本相似、不同组间样本差异大。
+  first_seen: week_15
+
+- term_zh: K-means 聚类
+  term_en: K-means clustering
+  definition_zh: 将n个样本分成k个簇的迭代算法，通过最小化簇内平方和（WCSS）优化，使每个样本属于最近的簇中心。
+  first_seen: week_15
+
+- term_zh: 肘部法则
+  term_en: elbow method
+  definition_zh: 选择K-means最优簇数K的启发式方法，绘制簇内平方和随K变化的曲线，选择"肘部"（曲线从陡峭变平缓的转折点）作为K值。
+  first_seen: week_15
+
+- term_zh: 轮廓系数
+  term_en: silhouette score
+  definition_zh: 衡量聚类质量的指标，取值范围[-1,1]，值越接近1表示样本与自身簇越紧密、与相邻簇越分离，聚类效果越好。
+  first_seen: week_15
+
+- term_zh: 簇内平方和
+  term_en: Within-Cluster Sum of Squares (WCSS)
+  definition_zh: K-means的目标函数，衡量所有样本到其所属簇中心的距离平方和，K-means通过最小化WCSS来优化聚类。
+  first_seen: week_15
+
+- term_zh: 流式统计
+  term_en: streaming statistics
+  definition_zh: 在数据持续到来时增量更新统计量（均值、方差等）的分析方式，每次更新复杂度O(1)，不需要遍历历史数据。
+  first_seen: week_15
+
+- term_zh: 在线均值
+  term_en: online mean
+  definition_zh: 通过维护样本计数n和总和sum，在新数据到来时以O(1)复杂度更新均值，公式为 mean_new = (sum_old + x_new) / (n_old + 1)。
+  first_seen: week_15
+
+- term_zh: Welford 算法
+  term_en: Welford's online algorithm
+  definition_zh: 一种数值稳定的在线方差计算算法，通过维护均值和平方和M2来增量更新方差，避免大数相减导致的精度损失。
+  first_seen: week_15
+
+- term_zh: 在线分位数
+  term_en: online quantile
+  definition_zh: 用近似算法（如分箱法、t-digest）在流式数据中估计分位数（如中位数、75分位数），因为分位数计算需要排序，无法精确增量更新。
+  first_seen: week_15
+
+- term_zh: A/B 测试工程化
+  term_en: A/B testing platform
+  definition_zh: 将A/B测试从手动分析升级为自动化决策平台，包括实验配置、数据收集、统计检验、决策规则、监控报警等组件。
+  first_seen: week_15
+
+- term_zh: 样本比例异常
+  term_en: Sample Ratio Mismatch (SRM)
+  definition_zh: A/B测试中各组实际样本量与预期比例不一致的异常情况，通常由随机化代码bug或某个版本在某些设备上不展示导致，会使p值失效。
+  first_seen: week_15
+
+- term_zh: 早期停止
+  term_en: early stopping
+  definition_zh: 在A/B测试未达到预定样本量时就因p值显著而提前停止实验并做决策的问题，会导致假阳性率增加（重复检验问题）。
+  first_seen: week_15
+
+- term_zh: 维度灾难
+  term_en: curse of dimensionality
+  definition_zh: 高维数据中的现象：当特征数接近或超过样本数时，传统统计方法会面临过拟合、计算爆炸、距离度量失效等问题。
+  first_seen: week_15
+
+- term_zh: 特征提取
+  term_en: feature extraction
+  definition_zh: 通过数学变换（如PCA）从原始特征创建新的"综合特征"，与特征选择不同，新特征是原始特征的线性或非线性组合。
+  first_seen: week_15
+
+- term_zh: 特征选择
+  term_en: feature selection
+  definition_zh: 从原始特征中挑选一个子集，删除不重要或冗余的特征，与特征提取不同，不创建新特征，只选择原始特征的子集。
+  first_seen: week_15

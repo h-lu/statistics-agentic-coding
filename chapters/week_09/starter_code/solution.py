@@ -16,6 +16,7 @@ Week 09 作业参考实现
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -23,6 +24,9 @@ import seaborn as sns
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy.stats import shapiro
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_09"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 设置随机种子
 np.random.seed(42)
@@ -95,7 +99,7 @@ def part_1_simple_regression(df):
     plt.ylabel('房价 (万元)')
     plt.title('房价 vs 面积 - 简单回归')
     plt.grid(True, alpha=0.3)
-    plt.savefig('simple_regression.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'simple_regression.png', dpi=150, bbox_inches='tight')
     print("\n✅ 图表已保存: simple_regression.png")
     plt.close()
 
@@ -170,7 +174,7 @@ def part_3_residual_diagnostics(model, df):
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('residual_diagnostics.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'residual_diagnostics.png', dpi=150, bbox_inches='tight')
     print("✅ 诊断图已保存: residual_diagnostics.png")
     plt.close()
 
@@ -252,7 +256,7 @@ def part_5_cooks_distance(model, df):
     plt.title("Cook's 距离")
     plt.legend()
     plt.grid(True, alpha=0.3, axis='y')
-    plt.savefig('cooks_distance.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'cooks_distance.png', dpi=150, bbox_inches='tight')
     print("✅ Cook's 距离图已保存: cooks_distance.png")
     plt.close()
 

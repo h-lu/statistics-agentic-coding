@@ -12,11 +12,15 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_09"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # 设置随机种子以保证可复现
 np.random.seed(42)
@@ -73,7 +77,7 @@ def plot_scatter_with_regression(df: pd.DataFrame, model: LinearRegression) -> N
     plt.legend(fontsize=11)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig('regression_line.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'regression_line.png', dpi=150, bbox_inches='tight')
     print("✅ 散点图 + 回归线已保存为 regression_line.png")
     plt.close()
 

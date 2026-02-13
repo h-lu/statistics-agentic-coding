@@ -1,0 +1,27 @@
+# Week 13 术语表
+# 本文件记录 Week 13 引入的新术语
+
+- term_zh: 因果三层级
+  term_en: Causal Ladder
+  definition_zh: Judea Pearl 提出的因果推断三个问题层级——关联（变量相关吗）、干预（如果改变会怎样）、反事实（如果当时没做会怎样）
+  first_seen: week_13
+
+- term_zh: 因果图
+  term_en: Directed Acyclic Graph
+  definition_zh: 用有向无环图表达变量间的因果假设，箭头表示因果方向
+  first_seen: week_13
+
+- term_zh: 后门准则
+  term_en: Backdoor Criterion
+  definition_zh: 判断"调整哪些变量就能识别因果效应"的规则——阻断所有后门路径，但不切断因果路径
+  first_seen: week_13
+
+- term_zh: 倾向评分
+  term_en: Propensity Score
+  definition_zh: 在给定特征下，接受处理的概率
+  first_seen: week_13
+
+- term_zh: 处理组平均处理效应
+  term_en: Average Treatment Effect on the Treated
+  definition_zh: 对被处理的人的平均因果效应
+  first_seen: week_13

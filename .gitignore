@@ -9,3 +9,7 @@ dist/
 build/
 *.bak
 .cursor/
+
+# 运行时生成的图表和报告输出
+output/
+/*.png

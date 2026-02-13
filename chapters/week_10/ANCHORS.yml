@@ -1,0 +1,81 @@
+# Week 10 锚点表
+
+# 本表记录章节中的核心知识点与验证依据
+# 格式：每个锚点包含 claim（知识主张）、evidence（代码/公式/引用）、verification（如何验证）
+
+# ─── Week 10 锚点 ───
+
+- id: w10_01
+  claim: 线性回归不适合分类问题，因为其预测值可能超出 [0,1] 范围且缺乏概率解释
+  evidence: CHAPTER.md 第1节；examples/01_logistic_regression_basics.py
+  verification: 运行示例代码，观察线性回归预测值可能 <0 或 >1，对比 Sigmoid 输出
+
+- id: w10_02
+  claim: Sigmoid 函数将任意实数映射到 (0,1) 区间，可用于概率建模
+  evidence: CHAPTER.md 第1节；examples/01_logistic_regression_basics.py
+  verification: 绘制 Sigmoid 曲线，验证 sigmoid(0)=0.5, sigmoid(∞)=1
+
+- id: w10_03
+  claim: 逻辑回归系数表示"对数优势比"的变化，而非概率的直接变化
+  evidence: CHAPTER.md 第2节；examples/05_complete_pipeline.py
+  verification: 使用 exp(系数) 计算优势比，验证解释正确性
+
+- id: w10_04
+  claim: 准确率悖论指在类别不平衡场景中，高准确率可能毫无意义（如99%准确率但召回率为0）
+  evidence: CHAPTER.md 第3.1节；examples/02_confusion_matrix_demo.py
+  verification: 构建不平衡数据集（85% vs 15%），比较"预测多数类"和"真实分类器"的准确率
+
+- id: w10_05
+  claim: 混淆矩阵的四个元素(TP/TN/FP/FN)是所有分类评估指标的基础
+  evidence: CHAPTER.md 第3.2节；examples/02_confusion_matrix_demo.py
+  verification: 手动计算混淆矩阵，验证 TP+TN+FP+FN=样本总数
+
+- id: w10_06
+  claim: 精确率衡量"预测为正的样本中有多少真正为正"，召回率衡量"真正为正的样本中有多少被正确识别"
+  evidence: CHAPTER.md 第3.2节；examples/02_confusion_matrix_demo.py
+  verification: 使用 sklearn.metrics.precision_score 和 recall_score 计算，验证公式一致性
+
+- id: w10_07
+  claim: F1 分数是精确率和召回率的调和平均，在两者间取得平衡
+  evidence: CHAPTER.md 第3.2节；examples/02_confusion_matrix_demo.py
+  verification: 对比高精确率低召回率 vs 低精确率高召回率的 F1 值
+
+- id: w10_08
+  claim: ROC 曲线展示不同阈值下 TPR 与 FPR 的权衡，AUC 衡量整体区分能力（与阈值无关）
+  evidence: CHAPTER.md 第4节；examples/03_roc_auc_demo.py
+  verification: 绘制 ROC 曲线，计算 AUC，验证随机分类器 AUC≈0.5
+
+- id: w10_09
+  claim: AUC=1 表示完美分类器，AUC=0.5 表示随机猜测
+  evidence: CHAPTER.md 第4节；examples/03_roc_auc_demo.py
+  verification: 构造完美分离数据和随机分类器，对比 AUC 值
+
+- id: w10_10
+  claim: 全局 StandardScaler（在整个数据集上 fit）会导致数据泄漏，因为测试集信息泄漏到训练过程
+  evidence: CHAPTER.md 第5节；examples/04_data_leakage_comparison.py
+  verification: 对比"全局缩放"与"Pipeline内缩放"的交叉验证分数，前者虚高
+
+- id: w10_11
+  claim: Pipeline + ColumnTransformer 确保预处理在每个 CV 折内独立执行，防止数据泄漏
+  evidence: CHAPTER.md 第5节；examples/05_complete_pipeline.py
+  verification: 检查 Pipeline 结构，验证预处理步骤在 classifier 之前
+
+- id: w10_12
+  claim: StratifiedKFold 保持每个折中的类别比例，适用于类别不平衡场景
+  evidence: CHAPTER.md 第5节；examples/05_complete_pipeline.py
+  verification: 验证每个折的正/负类比例与原始数据集一致
+
+- id: w10_13
+  claim: 交叉验证分数的均值和标准差反映模型稳定性，标准差小说明模型对不同数据划分稳健
+  evidence: CHAPTER.md 第5节；examples/05_complete_pipeline.py
+  verification: 运行 cross_val_score，计算均值和标准差
+
+- id: w10_14
+  claim: 与多数类基线对比是验证模型价值的必要步骤，确保模型不是"白做的"
+  evidence: CHAPTER.md 第6节；examples/05_complete_pipeline.py
+  verification: 计算 DummyClassifier 的准确率，对比逻辑回归的改进幅度
+
+- id: w10_15
+  claim: 分类模型仅能预测关联，不能直接推断因果关系
+  evidence: CHAPTER.md 第6节 StatLab 进度
+  verification: 阅读局限性讨论部分，确认未做出因果声明

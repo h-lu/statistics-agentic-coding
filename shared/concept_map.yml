@@ -193,17 +193,12 @@
   revisited: [week_15]
   bloom_level: understand
 
-- concept_zh: 辛普森悖论
-  concept_en: Simpson's paradox
-  introduced: week_07
-  revisited: [week_13]
-  bloom_level: analyze
 
-- concept_zh: 相关与因果
-  concept_en: correlation vs causation
-  introduced: week_07
-  revisited: [week_13, week_16]
-  bloom_level: analyze
+- concept_zh: 相关系数
+  concept_en: correlation coefficient
+  introduced: week_04
+  revisited: [week_13]
+  bloom_level: understand
 
 # ─── Week 08 ───
 - concept_zh: 置信区间

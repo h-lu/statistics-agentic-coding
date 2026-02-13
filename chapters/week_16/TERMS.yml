@@ -1,0 +1,20 @@
+# Week 16 术语表
+#
+# 本周新概念（3 个，预算上限 3 个）
+# 规划：syllabus-planner
+# 日期：2026-02-13
+
+- term_zh: 数据故事
+  term_en: data storytelling
+  definition_zh: 用"问题-证据-不确定性-边界"的结构把分析讲清楚，让非技术读者也能理解与质疑。不是技术堆砌，而是结构化思维。
+  first_seen: week_16
+
+- term_zh: 可复现分析
+  term_en: reproducible analysis
+  definition_zh: 让同一份数据与代码在不同机器上得到一致结论的交付标准（依赖、随机性、数据版本都可追溯），从"代码能跑"升级为"可审计"。
+  first_seen: week_16
+
+- term_zh: 结论边界
+  term_en: limitations
+  definition_zh: 明确你的结论在什么条件下成立、不能推广到什么场景，以及最可能出错的地方（假设前提、适用场景、失效条件、未来工作）。
+  first_seen: week_16

@@ -9,10 +9,14 @@
 运行方式：python 03_distribution_plots.py
 """
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_02"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def setup_style():
@@ -52,8 +56,8 @@ def demonstrate_histogram():
     axes[1].set_ylabel('频数')
 
     plt.tight_layout()
-    print("\n输出：distribution_comparison.png")
-    plt.savefig('distribution_comparison.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'distribution_comparison.png'}")
+    plt.savefig(OUTPUT_DIR / 'distribution_comparison.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("解读：")
@@ -102,8 +106,8 @@ def demonstrate_boxplot():
         ax.text(i, mean_val + 3, f'μ={mean_val:.1f}', ha='center', fontsize=10, color='red')
 
     plt.tight_layout()
-    print("\n输出：boxplot_comparison.png")
-    plt.savefig('boxplot_comparison.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'boxplot_comparison.png'}")
+    plt.savefig(OUTPUT_DIR / 'boxplot_comparison.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("解读：")
@@ -154,8 +158,8 @@ def demonstrate_combined_plot():
                 arrowprops=dict(arrowstyle='->', color='black'), fontsize=10)
 
     plt.tight_layout()
-    print("\n输出：combined_view.png")
-    plt.savefig('combined_view.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'combined_view.png'}")
+    plt.savefig(OUTPUT_DIR / 'combined_view.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("组合解读：")
@@ -186,14 +190,14 @@ def demonstrate_rugplot():
     ax.set_yticks([])  # 隐藏 Y 轴刻度
 
     plt.tight_layout()
-    print("\n输出：rugplot_example.png")
-    plt.savefig('rugplot_example.png', dpi=150, bbox_inches='tight')
+    print(f"\n输出：{OUTPUT_DIR / 'rugplot_example.png'}")
+    plt.savefig(OUTPUT_DIR / 'rugplot_example.png', dpi=150, bbox_inches='tight')
     plt.close()
 
     print("解读：")
     print("• 地毯上的每个小竖线 = 一个数据点")
     print("• 适合小数据集，能看到'实际点在哪里'")
-    print("• 配合 KDE 曲线，能看到密度分布')
+    print("• 配合 KDE 曲线，能看到密度分布")
 
 
 if __name__ == "__main__":

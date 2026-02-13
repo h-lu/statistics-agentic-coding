@@ -1,0 +1,64 @@
+# Week 08 锚点（Anchors）
+#
+# 锚点定义：书中的核心断言，附带可验证的证据和验证方法
+# - id: 周内唯一标识符
+# - claim: 断言（一句话）
+# - evidence: 证据（数据/引用/模拟）
+# - verification: 验证方法（代码/实验/推理）
+
+- id: week_08_ci_interpretation
+  claim: "95% 置信区间是说方法的覆盖率，不是参数的概率"
+  evidence: |
+    频率学派解释：如果我们重复抽样 100 次，用同样的方法构造区间，
+    大约有 95 个区间会覆盖真值。参数是固定但未知的值，它要么
+    在区间内，要么不在——不存在 95% 这种概率。
+  verification: |
+    运行 examples/01_ci_coverage.py，模拟 100 个 95% CI，
+    观察约 95 个区间覆盖真值（μ=300）
+
+- id: week_08_bootstrap_coverage
+  claim: "Bootstrap 用重采样估计统计量的不确定性，不依赖理论分布"
+  evidence: |
+    Efron 1979 提出 Bootstrap，用"对样本的重采样"模拟"从总体中抽样"。
+    样本是总体的代表，样本内部的变异可以反映总体的变异。
+  verification: |
+    运行 examples/02_bootstrap_ci.py，比较 Bootstrap CI 与 t 公式 CI，
+    两者应接近（正态数据时），且 Bootstrap 不依赖正态假设
+
+- id: week_08_permutation_exchangeability
+  claim: "置换检验基于可交换性假设，是分布无关的检验方法"
+  evidence: |
+    在 H0 为真时，样本标签可以随机打乱。通过随机打乱标签构造
+    零分布，看真实统计量在这个分布中的位置。
+  verification: |
+    运行 examples/05_permutation_test.py，比较置换检验与 t 检验的 p 值，
+    两者应接近（正态数据时）
+
+- id: week_08_bayesian_vs_frequentist
+  claim: "贝叶斯可信区间说'参数有 95% 的概率在区间内'，与频率学派 CI 不同"
+  evidence: |
+    频率学派：参数固定，CI 是方法的覆盖率
+    贝叶斯学派：参数随机，可信区间是参数的概率
+    两者的哲学假设不同，解释也不同
+  verification: |
+    运行 examples/07_bayesian_inference.py，比较贝叶斯后验分布与
+    频率学派 CI，观察区间宽度差异和解释差异
+
+- id: week_08_ai_missing_uq
+  claim: "AI 生成的推断报告往往缺少不确定性量化"
+  evidence: |
+    2025-2026 年多份报告（Stanford HAI, S&P Global, MLQ.ai, Wharton）
+    显示 AI 报告倾向报告点估计（均值、p 值），而缺少置信区间、
+    Bootstrap 等不确定性量化
+  verification: |
+    运行 examples/08_ai_inference_review.py，输入 AI 生成的报告，
+    检查是否缺少 CI、误解释 CI、缺少稳健性检验等问题
+
+- id: week_08_effect_size_ci_importance
+  claim: "效应量的 CI 比 p 值更重要，它告诉'效应有多确定'"
+  evidence: |
+    p 值只说"显著或不显著"，效应量的 CI 说"效应在哪里"。
+    如果 CI 是 [0.05, 0.25]，即使 p<0.05，效应量也很小且不稳定。
+  verification: |
+    运行 examples/04_bootstrap_effect_size.py，观察 Cohen's d 的 95% CI，
+    判断效应量的稳定性和实际意义

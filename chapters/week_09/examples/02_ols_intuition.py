@@ -14,10 +14,14 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+
+OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_09"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 np.random.seed(42)
 
@@ -97,7 +101,7 @@ def visualize_residuals_squared(df: pd.DataFrame, model: LinearRegression) -> No
     axes[1].grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.savefig('ols_loss_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(OUTPUT_DIR / 'ols_loss_comparison.png', dpi=150, bbox_inches='tight')
     print("✅ 损失函数对比图已保存为 ols_loss_comparison.png")
     plt.close()
 
