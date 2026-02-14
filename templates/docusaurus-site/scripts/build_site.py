@@ -433,9 +433,10 @@ class ContentGenerator:
     
     def generate_week_index(self, week: WeekInfo) -> str:
         """生成周主页 index.mdx"""
+        escaped_title = self._escape_yaml_title(week.title)
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title}"',
+            f'title: "Week {week.number:02d}: {escaped_title}"',
             f'sidebar_position: {week.number}',
             f'slug: /weeks/{week.number:02d}',
             f'tags: ["week-{week.number:02d}", "{self._get_phase_tag(week.phase_label)}"]',
@@ -471,10 +472,11 @@ class ContentGenerator:
     def generate_chapter(self, week: WeekInfo) -> str:
         """生成讲义页面 chapter.mdx"""
         chapter_path = self.chapters_dir / f'week_{week.number:02d}' / 'CHAPTER.md'
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 讲义"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 讲义"',
             f'sidebar_position: 1',
             f'tags: ["week-{week.number:02d}", "chapter"]',
             '---',
@@ -499,10 +501,11 @@ class ContentGenerator:
     def generate_assignment(self, week: WeekInfo) -> str:
         """生成作业页面 assignment.mdx"""
         assignment_path = self.chapters_dir / f'week_{week.number:02d}' / 'ASSIGNMENT.md'
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 作业"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 作业"',
             f'sidebar_position: 2',
             f'tags: ["week-{week.number:02d}", "assignment"]',
             '---',
@@ -528,10 +531,11 @@ class ContentGenerator:
     def generate_rubric(self, week: WeekInfo) -> str:
         """生成评分标准页面 rubric.mdx"""
         rubric_path = self.chapters_dir / f'week_{week.number:02d}' / 'RUBRIC.md'
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 评分标准"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 评分标准"',
             f'sidebar_position: 3',
             f'tags: ["week-{week.number:02d}", "rubric"]',
             '---',
@@ -558,15 +562,16 @@ class ContentGenerator:
         """生成代码页面 code.mdx"""
         week_dir = self.chapters_dir / f'week_{week.number:02d}'
         code_files = self.code_collector.collect_files(week_dir)
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 代码"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 代码"',
             f'sidebar_position: 4',
             f'tags: ["week-{week.number:02d}", "code"]',
             '---',
             '',
-            f'# Week {week.number:02d}: {week.title} - 代码',
+            f'# Week {week.number:02d}: {escaped_title} - 代码',
             '',
             'import Tabs from "@theme/Tabs";',
             'import TabItem from "@theme/TabItem";',
@@ -661,15 +666,16 @@ class ContentGenerator:
         """生成锚点页面 anchors.mdx"""
         anchors_path = self.chapters_dir / f'week_{week.number:02d}' / 'ANCHORS.yml'
         anchors = self.yaml_parser.parse_anchors(anchors_path)
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 锚点"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 锚点"',
             f'sidebar_position: 5',
             f'tags: ["week-{week.number:02d}", "anchors"]',
             '---',
             '',
-            f'# Week {week.number:02d}: {week.title} - 锚点',
+            f'# Week {week.number:02d}: {escaped_title} - 锚点',
             '',
         ]
         
@@ -728,15 +734,16 @@ class ContentGenerator:
         """生成术语页面 terms.mdx"""
         terms_path = self.chapters_dir / f'week_{week.number:02d}' / 'TERMS.yml'
         terms = self.yaml_parser.parse_terms(terms_path)
-        
+        escaped_title = self._escape_yaml_title(week.title)
+
         lines = [
             '---',
-            f'title: "Week {week.number:02d}: {week.title} - 术语"',
+            f'title: "Week {week.number:02d}: {escaped_title} - 术语"',
             f'sidebar_position: 6',
             f'tags: ["week-{week.number:02d}", "terms"]',
             '---',
             '',
-            f'# Week {week.number:02d}: {week.title} - 术语',
+            f'# Week {week.number:02d}: {escaped_title} - 术语',
             '',
         ]
         
@@ -1175,6 +1182,17 @@ class ContentGenerator:
         
         return content
     
+    def _escape_yaml_title(self, title: str) -> str:
+        """转义 YAML 标题中的特殊字符
+
+        YAML 双引号字符串中，中文引号 "" 会导致解析问题。
+        解决方案：将中文引号替换为普通字符。
+        """
+        # 将中文引号替换为普通引号（避免 YAML 解析问题）
+        title = title.replace('"', "'")  # 左中文引号 -> 单引号
+        title = title.replace('"', "'")  # 右中文引号 -> 单引号
+        return title
+
     def _get_phase_tag(self, phase_label: str) -> str:
         """获取阶段标签"""
         if '阶段一' in phase_label:
