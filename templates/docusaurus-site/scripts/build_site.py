@@ -981,15 +981,15 @@ class ContentGenerator:
             result = []
             i = 0
             while i < len(text):
-                # 查找代码块开始
-                if text[i:i+3] == '```':
-                    # 找到代码块结束
+                # 查找代码块开始 - 必须在行首（或文件开头）
+                if text[i:i+3] == '```' and (i == 0 or text[i-1] == '\n'):
+                    # 找到代码块结束 - 查找 \n``` 后跟换行或文件结尾
                     end_idx = text.find('\n```', i + 3)
                     if end_idx == -1:
                         # 没有找到结束，保持原样
                         result.append(text[i:])
                         break
-                    # 包含结束的 ```
+                    # 包含结束的 ``` 和后面的换行
                     end_idx = end_idx + 4
                     code_block = text[i:end_idx]
                     placeholder = make_placeholder()
@@ -1186,23 +1186,26 @@ class ContentGenerator:
             return f'\\{{{inner}}}'
 
         # 匹配简单的 {identifier} 格式（不包括冒号，避免匹配 {PORT:8080} 这种 shell 变量默认值语法）
-        content = re.sub(r'\{([a-zA-Z_][a-zA-Z0-9_]*)\}', escape_path_param, content)
+        # 使用负向后瞻确保 { 前面不是反斜杠（避免重复转义）
+        content = re.sub(r'(?<!\\)\{([a-zA-Z_][a-zA-Z0-9_]*)\}', escape_path_param, content)
 
         # 3.8 转义 Python f-string 格式的占位符 {var:.2f}, {var:.1%}, {var[key]} 等
         # 这些在正文中的占位符会被 MDX 误解析为 JSX 表达式
+        # 使用负向后瞻确保 { 前面不是反斜杠（避免重复转义）
         def escape_fstring_placeholder(match):
             inner = match.group(1)
             return f'\\{{{inner}}}'
 
         # 匹配 {var:format} 格式（如 {mean_effect:.2f}, {prob_positive:.1%}）
-        content = re.sub(r'\{([a-zA-Z_][a-zA-Z0-9_]*):[^}]+\}', escape_fstring_placeholder, content)
+        content = re.sub(r'(?<!\\)\{([a-zA-Z_][a-zA-Z0-9_]*):[^}]+\}', escape_fstring_placeholder, content)
 
         # 匹配 {var[key]} 格式（如 {result['mean']}）
-        content = re.sub(r'\{([a-zA-Z_][a-zA-Z0-9_]*)\[[^\]]+\]\}', escape_fstring_placeholder, content)
+        content = re.sub(r'(?<!\\)\{([a-zA-Z_][a-zA-Z0-9_]*)\[[^\]]+\]\}', escape_fstring_placeholder, content)
 
         # 匹配 {dict_var} 格式（如 {'mu': 0, 'sigma': 10}）
         # 注意：这个要小心，只匹配看起来像字典或配置的内容
         # 实际上，这种格式太复杂，我们选择转义所有剩余的 {word...word} 格式
+        # 使用负向后瞻确保 { 前面不是反斜杠（避免重复转义）
         def escape_complex_braces(match):
             inner = match.group(1)
             # 如果内部只包含字母、数字、下划线、引号、冒号、逗号、空格、点号等安全字符
@@ -1211,7 +1214,29 @@ class ContentGenerator:
             return match.group(0)
 
         # 匹配更复杂的 {...} 格式（如 {'mu': 0, 'sigma': 10}）
-        content = re.sub(r'\{([a-zA-Z0-9_\'":,\s.\[\]%+-]{3,50})\}', escape_complex_braces, content)
+        content = re.sub(r'(?<!\\)\{([a-zA-Z0-9_\'":,\s.\[\]%+-]{3,50})\}', escape_complex_braces, content)
+
+        # 3.9 转义包含中文或其他 Unicode 字符的占位符（如 {当前年份}、{变量名}）
+        # 这些会被 MDX 误解析为 JSX 表达式
+        # 使用负向后瞻确保 { 前面不是反斜杠（避免重复转义）
+        def escape_unicode_placeholder(match):
+            inner = match.group(1)
+            return f'\\{{{inner}}}'
+
+        # 匹配包含中文字符的 {...} 格式
+        content = re.sub(r'(?<!\\)\{([\u4e00-\u9fff\u3400-\u4dbf\w\s]+)\}', escape_unicode_placeholder, content)
+
+        # 3.10 转义所有剩余的简单 {...} 格式（兜底规则）
+        # 匹配任何剩余的 {xxx} 格式（1-30个字符，不包含特殊字符）
+        # 使用负向后瞻确保 { 前面不是反斜杠（避免重复转义）
+        def escape_remaining_braces(match):
+            inner = match.group(1)
+            # 如果内部看起来像简单的文本（不含已转义的反斜杠）
+            if '\\' not in inner and len(inner) <= 30:
+                return f'\\{{{inner}}}'
+            return match.group(0)
+
+        content = re.sub(r'(?<!\\)\{([^{}\n\\]{1,30})\}', escape_remaining_braces, content)
 
         # 步骤4: 恢复保护的标签
         # 从后往前恢复，避免嵌套问题
@@ -1226,7 +1251,8 @@ class ContentGenerator:
             result = []
             i = 0
             while i < len(text):
-                if text[i:i+3] == '```':
+                # 只匹配行首的 ```
+                if text[i:i+3] == '```' and (i == 0 or text[i-1] == '\n'):
                     # 找到代码块结束
                     end_idx = text.find('\n```', i + 3)
                     if end_idx == -1:
