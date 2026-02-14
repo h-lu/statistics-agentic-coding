@@ -1005,6 +1005,56 @@ class ContentGenerator:
         content = protect_code_blocks(content)
         self.logger.debug(f"After code block protection: {len(placeholders)} placeholders")
 
+        # 步骤0.3: 保护 LaTeX 数学公式（$$...$$ 和 $...$），避免公式中的 { } 被转义
+        def protect_latex_math(text):
+            result = []
+            i = 0
+            while i < len(text):
+                # 查找 $$...$$ 块（多行数学公式）
+                if text[i:i+2] == '$$':
+                    end_idx = text.find('$$', i + 2)
+                    if end_idx == -1:
+                        result.append(text[i:])
+                        break
+                    end_idx = end_idx + 2
+                    math_block = text[i:end_idx]
+                    placeholder = make_placeholder()
+                    placeholders[placeholder] = math_block
+                    result.append(placeholder)
+                    i = end_idx
+                # 查找行内 $...$ 公式（单行，不包含换行）
+                elif text[i] == '$' and (i == 0 or text[i-1] != '$'):
+                    # 找到下一个 $，但确保不是 $$ 的一部分
+                    end_idx = text.find('$', i + 1)
+                    if end_idx == -1 or end_idx == i + 1:
+                        result.append(text[i])
+                        i += 1
+                        continue
+                    # 确保不是 $$ 的开始
+                    if end_idx + 1 < len(text) and text[end_idx + 1] == '$':
+                        result.append(text[i])
+                        i += 1
+                        continue
+                    # 检查是否在同一行内
+                    newline_idx = text.find('\n', i, end_idx)
+                    if newline_idx != -1:
+                        # 跨行，不是有效的行内公式
+                        result.append(text[i])
+                        i += 1
+                        continue
+                    math_block = text[i:end_idx + 1]
+                    placeholder = make_placeholder()
+                    placeholders[placeholder] = math_block
+                    result.append(placeholder)
+                    i = end_idx + 1
+                else:
+                    result.append(text[i])
+                    i += 1
+            return ''.join(result)
+
+        content = protect_latex_math(content)
+        self.logger.debug(f"After LaTeX protection: {len(placeholders)} placeholders")
+
         # 保护合法的 MDX 组件和 HTML 标签（这些不应该被转义）
         protected_tags = ['Tabs', 'TabItem', 'details', 'summary', 'br', 'code', 'pre', 'kbd', 'sub', 'sup']
 
