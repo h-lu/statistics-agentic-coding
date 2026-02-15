@@ -1,0 +1,68 @@
+# Week 05 锚点清单
+#
+# 记录本周的核心可验证声明（claims）及其证据和验证方式。
+# 每个 anchor 包含：
+#   id: 唯一标识符
+#   claim: 可验证的声明
+#   evidence: 支持声明的证据位置（代码/图表/文本）
+#   verification: 如何验证（测试/运行代码/检查输出）
+
+# ─── 模拟与随机性 ───
+
+- id: week_05_coin_flip_law
+  claim: 抛硬币1000次，正面频率趋近于50%（大数定律）
+  evidence: examples/01_simulation_intro.py，输出显示正面频率接近50%
+  verification: 运行脚本，观察输出
+
+- id: week_05_sampling_distribution_shape
+  claim: 重复抽样1000次，统计量（如均值）的分布形成钟形曲线
+  evidence: examples/01_simulation_intro.py，右图显示正面次数的钟形分布
+  verification: 运行脚本，检查images/simulation_coin_flip.png
+
+# ─── 抽样分布 ───
+
+- id: week_05_null_distribution
+  claim: 当真实无差异时，差异的抽样分布以0为中心
+  evidence: examples/02_sampling_distribution.py，差异分布直方图
+  verification: 运行脚本，检查images/sampling_distribution_null.png
+
+- id: week_05_standard_error
+  claim: 标准误 = 标准差 / sqrt(样本量)
+  evidence: CHAPTER.md 第4节，公式推导
+  verification: 手动计算与模拟结果对比
+
+# ─── 中心极限定理 ───
+
+- id: week_05_clt_convergence
+  claim: 无论总体分布形状，样本量足够大时样本均值分布近似正态
+  evidence: examples/03_clt_simulation.py，展示从n=1到n=100的分布变化
+  verification: 运行脚本，检查images/clt_simulation.png
+
+- id: week_05_clt_sample_size
+  claim: 对于偏态总体，n=30通常足够CLT收敛
+  evidence: examples/03_clt_simulation.py，n=30时的分布已接近钟形
+  verification: 运行脚本，观察n=30的分布形状
+
+# ─── Bootstrap ───
+
+- id: week_05_bootstrap_ci
+  claim: Bootstrap方法可估计统计量的95%置信区间
+  evidence: examples/04_bootstrap_intro.py，输出置信区间
+  verification: 运行脚本，检查置信区间是否合理
+
+- id: week_05_bootstrap_se
+  claim: Bootstrap标准误等于Bootstrap分布的标准差
+  evidence: examples/04_bootstrap_intro.py，代码实现
+  verification: 运行脚本，对比计算结果
+
+# ─── 假阳性 ───
+
+- id: week_05_false_positive_rate
+  claim: 检验5个假设（真实无差异），至少1个假阳性的概率≈23%
+  evidence: examples/05_false_positive_simulation.py，模拟结果
+  verification: 运行脚本，观察输出概率
+
+- id: week_05_multiple_comparison
+  claim: 多重比较会增加假阳性风险，需要校正
+  evidence: CHAPTER.md 第5节，理论推导和模拟
+  verification: 理论计算 1-(1-0.05)^5 ≈ 0.226

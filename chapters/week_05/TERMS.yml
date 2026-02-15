@@ -1,0 +1,28 @@
+# Week 05 术语表
+#
+# 本周新概念（5 个，预算上限 5 个）
+
+- term_zh: 随机性
+  term_en: randomness
+  definition_zh: 事件结果的不确定性。在统计学中，随机性是抽样波动的来源——同样的总体，每次抽样会得到不同的结果。
+  first_seen: week_05
+
+- term_zh: 抽样分布
+  term_en: sampling distribution
+  definition_zh: 统计量的分布。比如"样本均值"的抽样分布，描述的是"如果重复抽样100次，样本均值会如何变化"。区别于"数据分布"（原始数据的分布）。
+  first_seen: week_05
+
+- term_zh: 中心极限定理
+  term_en: Central Limit Theorem (CLT)
+  definition_zh: 统计学核心定理。无论总体分布是什么形状，只要样本量足够大，样本均值的分布会近似正态分布。这是为什么正态分布在统计推断中如此重要。
+  first_seen: week_05
+
+- term_zh: Bootstrap 方法
+  term_en: Bootstrap method
+  definition_zh: 一种重采样技术。从原始样本中有放回地抽取样本，模拟"从总体重复抽样"的过程，用于估计统计量的抽样分布、标准误和置信区间。由 Bradley Efron 于 1979 年提出。
+  first_seen: week_05
+
+- term_zh: 标准误
+  term_en: standard error (SE)
+  definition_zh: 抽样分布的标准差。描述统计量（如样本均值）的不确定性。与标准差不同：标准差描述数据的波动，标准误描述统计量的波动。公式：SE = SD / sqrt(n)。
+  first_seen: week_05
