@@ -1,0 +1,58 @@
+# Week 03 锚点清单
+#
+# 锚点用于标记可验证的重要结论。每个锚点包含：
+# - id: 唯一标识符
+# - claim: 结论陈述
+# - evidence: 证据来源（代码/数据/文献）
+# - verification: 验证方法（测试/手动检查）
+
+# 缺失值机制
+- id: week_03_missing_mechanism_mcar
+  claim: "MCAR 缺失与所有变量无关，删除缺失值不会引入偏差"
+  evidence: "examples/01_missing_mechanism.py"
+  verification: "统计检验缺失与其他变量的独立性"
+
+- id: week_03_fill_zero_bias
+  claim: "将缺失值填充为 0 会拉偏均值，产生误导性结论"
+  evidence: "examples/01_missing_mechanism.py - 小北的错误示例"
+  verification: "对比填充前后的均值变化"
+
+# 缺失值处理策略
+- id: week_03_deletion_vs_imputation
+  claim: "删除缺失值适合 MCAR 且缺失率低；填充适合 MAR；预测填充适合高价值数据"
+  evidence: "examples/02_missing_strategies.py"
+  verification: "对比不同策略的偏差和方差"
+
+# 异常值检测
+- id: week_03_iqr_method
+  claim: "IQR 方法将 Q1-1.5*IQR 以下和 Q3+1.5*IQR 以上的点标记为异常值"
+  evidence: "examples/03_outlier_detection.py"
+  verification: "验证箱线图须的边界计算"
+
+- id: week_03_zscore_limitation
+  claim: "Z-score 方法假设数据近似正态分布，对偏态分布效果不佳"
+  evidence: "examples/03_outlier_detection.py"
+  verification: "对比正态和偏态数据的 Z-score 检测结果"
+
+# 异常值处理决策
+- id: week_03_outlier_decision_types
+  claim: "异常值分为错误型（删除/修正）、发现型（保留分析）、边界型（记录决策）三类"
+  evidence: "examples/04_outlier_decision.py"
+  verification: "检查清洗日志中的决策分类"
+
+# 数据转换
+- id: week_03_standardization_vs_normalization
+  claim: "标准化（均值0标准差1）适合假设正态分布的算法；归一化（0-1）适合需要统一尺度的算法"
+  evidence: "examples/05_data_transformation.py"
+  verification: "验证转换后的数据统计量"
+
+- id: week_03_log_transform_skewness
+  claim: "对数变换可以压缩右偏分布的长尾，使分布更对称"
+  evidence: "examples/05_data_transformation.py"
+  verification: "对比变换前后的偏度系数"
+
+# 特征编码
+- id: week_03_onehot_limitation
+  claim: "One-hot 编码对高基数变量会产生过多列，可能导致维度灾难"
+  evidence: "examples/05_data_transformation.py"
+  verification: "计算编码后的列数"

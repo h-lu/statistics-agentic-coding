@@ -103,3 +103,24 @@
   definition_zh: 避免误导读者的可视化原则。核心包括：Y 轴从 0 开始（除非有充分理由并说明）、标注实际数值、标注样本量。
   first_seen: week_02
 
+# ─── Week 03 ───
+- term_zh: 缺失值机制
+  term_en: missing data mechanism
+  definition_zh: 描述缺失值产生原因的分类框架。分为三类：MCAR（完全随机缺失，与所有变量无关）、MAR（随机缺失，与观测变量有关）、MNAR（非随机缺失，与未观测变量有关）。
+  first_seen: week_03
+
+- term_zh: 异常值检测
+  term_en: outlier detection
+  definition_zh: 识别数据中与大多数观测值显著不同的数据点的方法。常用统计方法包括 IQR 方法（Q1-1.5×IQR 或 Q3+1.5×IQR）和 Z-score 方法（|z|>3）。
+  first_seen: week_03
+
+- term_zh: 数据转换
+  term_en: data transformation
+  definition_zh: 改变数据的尺度或分布的方法。常见转换包括标准化（转换为均值0、标准差1）、归一化（缩放到[0,1]区间）、对数变换（压缩长尾分布）。
+  first_seen: week_03
+
+- term_zh: 特征编码
+  term_en: feature encoding
+  definition_zh: 将分类型变量转换为数值型的方法。常见编码方式包括 One-hot 编码（每个类别创建一个二进制列）、Label 编码（每个类别分配一个整数）。
+  first_seen: week_03
+

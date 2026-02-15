@@ -44,3 +44,34 @@
   revisited: [week_04, week_10, week_16]
   bloom_level: evaluate
 
+- concept_zh: 箱线图
+  concept_en: boxplot
+  introduced: week_02
+  revisited: [week_03, week_06]
+  bloom_level: apply
+
+# ─── Week 03 ───
+- concept_zh: 缺失值机制
+  concept_en: missing data mechanism
+  introduced: week_03
+  revisited: [week_06, week_09]
+  bloom_level: understand
+
+- concept_zh: 异常值检测
+  concept_en: outlier detection
+  introduced: week_03
+  revisited: [week_06, week_08]
+  bloom_level: apply
+
+- concept_zh: 数据转换
+  concept_en: data transformation
+  introduced: week_03
+  revisited: [week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: 特征编码
+  concept_en: feature encoding
+  introduced: week_03
+  revisited: [week_09, week_10]
+  bloom_level: apply
+

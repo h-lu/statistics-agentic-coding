@@ -1,0 +1,61 @@
+# Week 03 术语表
+#
+# 本周新概念（4 个，在预算内）
+
+- term_zh: 缺失值机制
+  term_en: missing data mechanism
+  definition_zh: |
+    描述缺失值产生原因的分类框架。分为三类：
+    - MCAR (Missing Completely At Random): 缺失与所有变量都无关
+    - MAR (Missing At Random): 缺失与观测变量有关，但与未观测变量无关
+    - MNAR (Missing Not At Random): 缺失与未观测变量有关
+  definition_en: |
+    A classification framework describing why missing values occur. Three types:
+    - MCAR (Missing Completely At Random): Missing unrelated to any variables
+    - MAR (Missing At Random): Missing related to observed variables but not unobserved
+    - MNAR (Missing Not At Random): Missing related to unobserved variables
+  first_seen: week_03
+  week: week_03
+
+- term_zh: 异常值检测
+  term_en: outlier detection
+  definition_zh: |
+    识别数据中与大多数观测值显著不同的数据点的方法。常用统计方法包括：
+    - IQR 方法：低于 Q1-1.5*IQR 或高于 Q3+1.5*IQR 的点
+    - Z-score 方法：|z| > 3 的点（假设近似正态分布）
+  definition_en: |
+    Methods for identifying data points that differ significantly from most observations. Common statistical methods include:
+    - IQR method: Points below Q1-1.5*IQR or above Q3+1.5*IQR
+    - Z-score method: Points with |z| > 3 (assumes approximate normal distribution)
+  first_seen: week_03
+  week: week_03
+
+- term_zh: 数据转换
+  term_en: data transformation
+  definition_zh: |
+    改变数据的尺度或分布的方法。常见转换包括：
+    - 标准化 (Standardization): 转换为均值0、标准差1
+    - 归一化 (Normalization): 缩放到 [0, 1] 区间
+    - 对数变换 (Log Transformation): 压缩长尾分布
+  definition_en: |
+    Methods for changing the scale or distribution of data. Common transformations include:
+    - Standardization: Transform to mean=0, std=1
+    - Normalization: Scale to [0, 1] range
+    - Log Transformation: Compress long-tailed distributions
+  first_seen: week_03
+  week: week_03
+
+- term_zh: 特征编码
+  term_en: feature encoding
+  definition_zh: |
+    将分类型变量转换为数值型的方法。常见编码方式：
+    - One-hot 编码: 每个类别创建一个二进制列
+    - Label 编码: 每个类别分配一个整数
+    - Target 编码: 用目标变量的均值编码类别
+  definition_en: |
+    Methods for converting categorical variables to numeric. Common encoding approaches:
+    - One-hot encoding: Create a binary column for each category
+    - Label encoding: Assign an integer to each category
+    - Target encoding: Encode categories with target variable mean
+  first_seen: week_03
+  week: week_03
