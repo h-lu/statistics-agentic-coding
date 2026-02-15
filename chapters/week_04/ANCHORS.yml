@@ -1,0 +1,96 @@
+# Week 04 锚点清单
+#
+# 每个锚点是一个可验证的声明，包含 claim（声明）、evidence（证据）、verification（验证方法）。
+# 验证方法可以是：pytest、manual、code_example
+
+# ─── 第1节：相关分析 ───
+
+- id: week04_correlation_pearson_range
+  claim: Pearson 相关系数的取值范围是 [-1, 1]
+  evidence: CHAPTER.md 第1节，"相关系数只是一个总结数字"
+  verification: code_example (examples/01_correlation_intro.py)
+
+- id: week04_correlation_outlier_impact
+  claim: 一个异常值可以将相关系数从 -0.3 变成 +0.4
+  evidence: CHAPTER.md 第1节，老潘的故事（网站停留 8 小时的用户）
+  verification: code_example (examples/01_correlation_intro.py)
+
+- id: week04_correlation_anscombe
+  claim: Anscombe 四重奏的四组数据有相同的 Pearson r，但散点图形状完全不同
+  evidence: CHAPTER.md 第1节，"相关系数只是一个总结数字"
+  verification: code_example (examples/01_correlation_intro.py)
+
+- id: week04_correlation_method_choice
+  claim: Pearson 适合线性关系，Spearman 适合单调关系，Kendall 适合小样本
+  evidence: CHAPTER.md 第1节，三种相关系数的选择法则
+  verification: manual
+
+# ─── 第2节：分组比较 ───
+
+- id: week04_groupby_aggregation
+  claim: groupby 后可以计算均值、中位数、标准差等聚合统计量
+  evidence: CHAPTER.md 第2节，groupby 代码示例
+  verification: pytest (test_group_comparison.py::TestGroupbyAggregate)
+
+- id: week04_pivot_table_dimensions
+  claim: 透视表可以按两个分类变量交叉分组
+  evidence: CHAPTER.md 第2节，pd.pivot_table 示例
+  verification: pytest (test_group_comparison.py::TestCreatePivotTable)
+
+- id: week04_simpson_paradox
+  claim: 辛普森悖论是指分组看和整体看结论相反
+  evidence: CHAPTER.md 第2节，辛普森悖论解释
+  verification: manual
+
+# ─── 第3节：多变量可视化 ───
+
+- id: week04_pairplot_usage
+  claim: sns.pairplot 可以同时展示所有变量两两之间的关系
+  evidence: CHAPTER.md 第3节，散点图矩阵代码
+  verification: code_example (examples/03_multivariate_viz.py)
+
+- id: week04_heatmap_annot
+  claim: sns.heatmap 的 annot=True 参数可以在热力图中显示数值
+  evidence: CHAPTER.md 第3节，热力图代码
+  verification: code_example (examples/03_multivariate_viz.py)
+
+- id: week04_heatmap_limitation
+  claim: 热力图只能检测线性相关，无法识别非线性关系
+  evidence: CHAPTER.md 第3节，"热力图是近视眼"
+  verification: manual
+
+# ─── 第4节：时间序列 ───
+
+- id: week04_time_series_aggregation
+  claim: 按周/月聚合数据可以减少噪声，让趋势和季节性更清晰
+  evidence: CHAPTER.md 第4节，日数据 vs 周平均数据对比
+  verification: code_example (examples/04_time_series.py)
+
+- id: week04_time_series_confounding
+  claim: 时间序列中的"相关"容易受混杂变量影响（如温度影响冰淇淋销量和溺水）
+  evidence: CHAPTER.md 第4节，冰淇淋和溺水例子
+  verification: manual
+
+# ─── 第5节：假设清单 ───
+
+- id: week04_hypothesis_format
+  claim: 每个假设应包含观察、解释、检验方法和优先级
+  evidence: CHAPTER.md 第5节，假设清单模板
+  verification: pytest (test_hypothesis_list.py::TestHypothesisList)
+
+- id: week04_hypothesis_testable
+  claim: 假设必须是可检验的（能用数据验证）和具体的（明确方向）
+  evidence: CHAPTER.md 第5节，假设的两个特征
+  verification: manual
+
+- id: week04_hypothesis_priority
+  claim: 假设应按业务影响力和数据可检验性排序，聚焦 3-5 个最重要的问题
+  evidence: CHAPTER.md 第5节，假设优先级讨论
+  verification: manual
+
+# ─── StatLab ───
+
+- id: week04_statlab_progress
+  claim: 本周 StatLab 报告新增相关分析、分组比较和假设清单
+  evidence: CHAPTER.md StatLab 进度小节
+  verification: code_example (examples/99_statlab.py)
