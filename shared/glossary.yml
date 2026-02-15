@@ -272,3 +272,74 @@
   definition_zh: 用于检验数据是否符合正态分布的图形方法。正态数据的点会落在一条直线上。
   first_seen: week_06
 
+# ─── Week 07 ───
+
+- term_zh: 多重比较问题
+  term_en: multiple comparisons problem
+  definition_zh: 当同时进行多次统计检验时，"至少出现一个假阳性"的概率会随检验次数增加而上升的问题。需要通过校正方法控制。
+  first_seen: week_07
+
+- term_zh: FWER
+  term_en: Family-wise Error Rate
+  definition_zh: 在所有进行的假设检验中，至少出现一个假阳性（第一类错误）的概率。FWER = 1 - (1 - α)^m，其中 m 是检验次数。
+  first_seen: week_07
+
+- term_zh: ANOVA
+  term_en: Analysis of Variance (ANOVA)
+  definition_zh: 方差分析，用于比较三组或以上均值是否相等的统计方法。通过比较组间方差和组内方差来判断均值是否有差异。
+  first_seen: week_07
+
+- term_zh: F 统计量
+  term_en: F-statistic
+  definition_zh: ANOVA 中使用的检验统计量，等于组间方差除以组内方差。F 值越大，说明组间差异相对于组内波动越大。
+  first_seen: week_07
+
+- term_zh: 事后比较
+  term_en: post-hoc tests
+  definition_zh: 在 ANOVA 拒绝原假设后，用于确定具体哪几组之间存在显著差异的检验方法。常用方法包括 Tukey HSD、Bonferroni 等。
+  first_seen: week_07
+
+- term_zh: Tukey HSD
+  term_en: Tukey's Honestly Significant Difference
+  definition_zh: 一种常用的事后比较方法，自动控制多重比较的假阳性率（FWER），比两两 t 检验更保守。
+  first_seen: week_07
+
+- term_zh: 多重比较校正
+  term_en: multiple comparison correction
+  definition_zh: 用于控制多次检验中假阳性率的方法。常用方法包括 Bonferroni 校正（控制 FWER）和 FDR 校正（控制假发现率）。
+  first_seen: week_07
+
+- term_zh: FWER
+  term_en: Family-wise Error Rate
+  definition_zh: 整个假设家庭中"至少有一个假阳性"的概率。FWER = 1 - (1 - α)^m。
+  first_seen: week_07
+
+- term_zh: FDR
+  term_en: False Discovery Rate
+  definition_zh: 假阳性占所有阳性结果的比例。FDR 校正比 Bonferroni 更"宽容"，适合探索性研究。
+  first_seen: week_07
+
+- term_zh: Bonferroni 校正
+  term_en: Bonferroni correction
+  definition_zh: 最简单的多重比较校正方法：将显著性阈值除以检验次数（α/m），或将 p 值乘以检验次数。最保守的方法之一。
+  first_seen: week_07
+
+- term_zh: FDR
+  term_en: False Discovery Rate
+  definition_zh: 在所有被判定为显著的结果中，假阳性所占的比例。FDR 校正比 Bonferroni 更宽松，适合大量检验的场景。
+  first_seen: week_07
+
+- term_zh: Benjamini-Hochberg
+  term_en: Benjamini-Hochberg procedure
+  definition_zh: 最常用的 FDR 控制方法。将 p 值排序后，按照排名调整校正阈值，比 Bonferroni 更有功效。
+  first_seen: week_07
+
+- term_zh: η²
+  term_en: eta-squared
+  definition_zh: ANOVA 的效应量指标，表示组间变异占总变异的比例。η² = 0.01 小效应，0.06 中等效应，0.14 大效应。
+  first_seen: week_07
+
+- term_zh: Kruskal-Wallis 检验
+  term_en: Kruskal-Wallis test
+  definition_zh: ANOVA 的非参数替代方法，不要求数据服从正态分布。比较的是各组的中位数而非均值。
+  first_seen: week_07

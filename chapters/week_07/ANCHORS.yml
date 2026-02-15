@@ -1,0 +1,39 @@
+# Week 07 锚点
+#
+# 锚点是正文中的重要结论，需要有明确的断言、证据和验证方式。
+# 验证方式可以是测试用例、代码示例或手动验证步骤。
+
+- id: w07_fwer_formula
+  claim: "FWER（至少一个假阳性的概率）= 1 - (1 - α)^m，其中 m 是检验次数"
+  evidence: "CHAPTER.md 第 1 节，FWER 计算表格和公式推导"
+  verification: "tests/test_multiple_comparisons.py::test_fwer_calculation"
+
+- id: w07_anova_f_stat
+  claim: "ANOVA 的 F 统计量 = 组间方差 / 组内方差。F >> 1 表示组间差异显著大于组内噪音"
+  evidence: "CHAPTER.md 第 2 节，F 统计量解释和代码示例"
+  verification: "tests/test_anova.py::test_f_statistic"
+
+- id: w07_anova_assumptions
+  claim: "ANOVA 需要满足三个前提假设：独立性、正态性、方差齐性"
+  evidence: "CHAPTER.md 第 2 节，前提假设说明和检查方法"
+  verification: "tests/test_anova.py::test_assumptions"
+
+- id: w07_tukey_hsd
+  claim: "Tukey HSD 是最常用的事后比较方法，自动控制 FWER ≤ α"
+  evidence: "CHAPTER.md 第 3 节，Tukey HSD 原理和代码示例"
+  verification: "tests/test_posthoc.py::test_tukey_hsd"
+
+- id: w07_bonferroni_conservative
+  claim: "Bonferroni 校正最保守，校正后 α = α/m，适合检验次数少或不能容忍假阳性的场景"
+  evidence: "CHAPTER.md 第 4 节，Bonferroni 方法说明"
+  verification: "tests/test_correction.py::test_bonferroni"
+
+- id: w07_fdr_balance
+  claim: "FDR（Benjamini-Hochberg）比 Bonferroni 更平衡，在检验次数多时更有可能发现真实效应"
+  evidence: "CHAPTER.md 第 4 节，FDR 与 Bonferroni 对比"
+  verification: "tests/test_correction.py::test_fdr_vs_bonferroni"
+
+- id: w07_ai_review_checklist
+  claim: "审查 AI 生成的多组比较报告需要检查：多重比较校正、效应量报告、前提假设、因果声明"
+  evidence: "CHAPTER.md 第 5 节，AI 审查案例和检查清单"
+  verification: "手动验证：对照检查清单审查示例报告"

@@ -162,3 +162,34 @@
   revisited: [week_07, week_09, week_10]
   bloom_level: analyze
 
+# ─── Week 07 ───
+
+- concept_zh: 多重比较问题
+  concept_en: multiple comparisons problem
+  introduced: week_07
+  revisited: [week_08, week_13]
+  bloom_level: understand
+
+- concept_zh: ANOVA
+  concept_en: Analysis of Variance
+  introduced: week_07
+  revisited: [week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: F 统计量
+  concept_en: F-statistic
+  introduced: week_07
+  revisited: [week_09]
+  bloom_level: understand
+
+- concept_zh: 事后比较
+  concept_en: post-hoc tests
+  introduced: week_07
+  revisited: [week_09]
+  bloom_level: apply
+
+- concept_zh: 多重比较校正
+  concept_en: multiple comparison correction
+  introduced: week_07
+  revisited: [week_08, week_13]
+  bloom_level: evaluate

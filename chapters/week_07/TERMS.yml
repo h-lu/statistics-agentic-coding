@@ -1,0 +1,52 @@
+# Week 07 新术语
+#
+# 约定：
+# - term_zh 是校验脚本的主键
+# - term_en 可选
+# - definition_zh 必填（尽量一句话说明清楚）
+# - first_seen 必须是 week_01..week_16 之一
+
+- term_zh: 多重比较问题
+  term_en: multiple comparisons problem
+  definition_zh: 当同时检验多个假设时，"至少有一个假阳性"的概率会随检验次数增加而急剧上升的现象。
+  first_seen: week_07
+
+- term_zh: ANOVA
+  term_en: Analysis of Variance
+  definition_zh: 方差分析，通过比较组间方差和组内方差来检验多组均值是否相等的方法。
+  first_seen: week_07
+
+- term_zh: F 统计量
+  term_en: F-statistic
+  definition_zh: ANOVA 的检验统计量，等于组间方差除以组内方差。F >> 1 表示组间差异显著大于组内噪音。
+  first_seen: week_07
+
+- term_zh: 事后比较
+  term_en: post-hoc tests
+  definition_zh: 在 ANOVA 显著后，用于确定"哪一对组有差异"的两两比较方法。常用 Tukey HSD。
+  first_seen: week_07
+
+- term_zh: 多重比较校正
+  term_en: multiple comparisons correction
+  definition_zh: 控制多重比较假阳性率的方法，包括 Bonferroni（保守）和 FDR（平衡）等。
+  first_seen: week_07
+
+- term_zh: FWER
+  term_en: Family-wise Error Rate
+  definition_zh: 整个假设家庭中"至少有一个假阳性"的概率。FWER = 1 - (1 - α)^m。
+  first_seen: week_07
+
+- term_zh: FDR
+  term_en: False Discovery Rate
+  definition_zh: 假阳性占所有阳性结果的比例。FDR 校正比 Bonferroni 更"宽容"，适合探索性研究。
+  first_seen: week_07
+
+- term_zh: Tukey HSD
+  term_en: Tukey's Honestly Significant Difference
+  definition_zh: 一种事后比较方法，自动控制多重比较的假阳性率（FWER ≤ α）。
+  first_seen: week_07
+
+- term_zh: η²
+  term_en: eta squared
+  definition_zh: ANOVA 的效应量指标，表示组间变异占总变异的比例。η² < 0.01 小效应，0.01-0.14 中等效应，> 0.14 大效应。
+  first_seen: week_07
