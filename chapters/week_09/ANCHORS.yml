@@ -1,0 +1,53 @@
+# Week 09 锚点列表
+#
+# 锚点是本周可验证的重要结论，每个锚点包含 claim（主张）、evidence（证据）、verification（验证方法）
+
+- id: week_09_regression_ols
+  claim: 简单线性回归用最小二乘法（OLS）拟合，选择使残差平方和最小的直线
+  evidence: CHAPTER.md 第 1 节，公式 SSR = Σ(yᵢ - ŷᵢ)² 最小化
+  verification: examples/01_correlation_vs_regression.py 和 02_interpret_coefficients.py 演示 OLS 拟合
+
+- id: week_09_coefficient_interpretation
+  claim: 回归系数的斜率表示"x 每增加 1 单位，y 的变化量"；多元回归中表示"控制其他变量后"的影响
+  evidence: CHAPTER.md 第 2 节，斜率 b = 0.5 表示广告投入每增加 1 万元，销售额增加 0.5 万元
+  verification: examples/02_interpret_coefficients.py 对比简单回归和多元回归的系数
+
+- id: week_09_r_squared_limitation
+  claim: R² 高不等于假设满足，也不等于模型能泛化；R² 会随特征增加而增加，即使是无意义的特征
+  evidence: CHAPTER.md 第 2 节，R² 的三个陷阱
+  verification: examples/05_multiple_regression.py 展示调整 R² 和 R² 的区别
+
+- id: week_09_line_assumptions
+  claim: 线性回归有四大假设（LINE）：线性、独立性、正态性、等方差；违反假设时 p 值和 CI 不可信
+  evidence: CHAPTER.md 第 3 节，LINE 假设表格
+  verification: examples/03_regression_assumptions.py 用残差图、QQ 图、Breusch-Pagan 检验检查假设
+
+- id: week_09_residual_diagnosis
+  claim: 残差图应呈随机分布，LOWESS 线应水平靠近 0；如果有趋势或 U 型，说明违反线性或等方差假设
+  evidence: CHAPTER.md 第 3-4 节，残差图解读规则
+  verification: examples/03_regression_assumptions.py 生成残差 vs 拟合值图
+
+- id: week_09_qq_plot
+  claim: QQ 图用于检查正态性；点应大致落在对角线上，偏离表示残差有偏态或长尾
+  evidence: CHAPTER.md 第 3-4 节，QQ 图解读规则
+  verification: examples/03_regression_assumptions.py 生成正态 QQ 图
+
+- id: week_09_cooks_distance
+  claim: Cook's 距离衡量每个观测对回归系数的影响；Cook's D > 4/n 的点是高影响点，需要检查
+  evidence: CHAPTER.md 第 4 节，Cook's 距离公式和阈值
+  verification: examples/04_model_diagnostics.py 计算并可视化 Cook's 距离
+
+- id: week_09_vif_multicollinearity
+  claim: VIF（方差膨胀因子）检测多重共线性；VIF > 10 表示严重多重共线性，系数不稳定
+  evidence: CHAPTER.md 第 5 节，VIF 计算和解读
+  verification: examples/05_multiple_regression.py 计算 VIF 并判断共线性程度
+
+- id: week_09_multiple_regression_control
+  claim: 多元回归的系数是"控制其他变量后"的影响，与简单回归的系数含义不同
+  evidence: CHAPTER.md 第 5 节，简单回归 b=0.5 vs 多元回归 b=0.3 的例子
+  verification: examples/05_multiple_regression.py 对比同一变量的简单回归和多元回归系数
+
+- id: week_09_statlab_report
+  claim: 带诊断的回归报告应包含：模型摘要、系数表、假设检验、高影响点、多重共线性、诊断图表
+  evidence: CHAPTER.md StatLab 进度，报告格式
+  verification: examples/99_statlab_regression.py 生成完整的 Markdown 诊断报告

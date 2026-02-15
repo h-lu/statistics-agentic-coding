@@ -1,0 +1,28 @@
+# Week 09 术语表
+#
+# 本周新概念（5 个，预算上限 5 个）
+
+- term_zh: 简单线性回归
+  term_en: simple linear regression
+  definition_zh: 用一个自变量预测因变量的统计模型，方程为 y = a + bx + ε，其中 a 是截距（x=0 时 y 的预测值），b 是斜率（x 每增加 1 单位 y 的变化量），ε 是残差（预测误差）。
+  first_seen: week_09
+
+- term_zh: 回归系数
+  term_en: regression coefficient
+  definition_zh: 回归模型中自变量的参数。简单回归中斜率表示"x 每增加 1 单位，y 的变化量"；多元回归中表示"控制其他变量后"的影响。系数有对应的 p 值（显著性检验）和置信区间。
+  first_seen: week_09
+
+- term_zh: R² 与拟合优度
+  term_en: R-squared and goodness of fit
+  definition_zh: R² 是模型解释的方差比例，取值 0-1，越接近 1 表示拟合越好。但 R² 有陷阱：高 R² 不等于假设满足，R² 会随特征增加而增加，R² 无法判断因果关系。调整 R² 会惩罚模型复杂度。
+  first_seen: week_09
+
+- term_zh: 回归假设
+  term_en: regression assumptions (LINE)
+  definition_zh: 线性回归的四大假设，记忆口诀 LINE。L（Linear）线性：y 和 x 是线性关系；I（Independence）独立性：残差相互独立；N（Normal）正态性：残差服从正态分布；E（Equal variance）等方差：残差的方差恒定。违反假设时 p 值和置信区间不可信。
+  first_seen: week_09
+
+- term_zh: 模型诊断
+  term_en: model diagnostics
+  definition_zh: 检查模型假设是否满足、识别异常值和高影响点的过程。常用工具包括：残差图（检查线性和等方差）、QQ 图（检查正态性）、Cook's 距离（识别高影响点）、VIF（检测多重共线性）、Breusch-Pagan 检验（检验等方差）。
+  first_seen: week_09

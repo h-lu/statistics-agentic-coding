@@ -225,3 +225,35 @@
   introduced: week_08
   revisited: [week_09, week_15]
   bloom_level: apply
+
+# ─── Week 09 ───
+
+- concept_zh: 简单线性回归
+  concept_en: simple linear regression
+  introduced: week_09
+  revisited: [week_10, week_11, week_16]
+  bloom_level: apply
+
+- concept_zh: 回归系数
+  concept_en: regression coefficient
+  introduced: week_09
+  revisited: [week_10, week_12, week_16]
+  bloom_level: apply
+
+- concept_zh: R² 与拟合优度
+  concept_en: R-squared and goodness of fit
+  introduced: week_09
+  revisited: [week_10, week_11, week_16]
+  bloom_level: understand
+
+- concept_zh: 回归假设
+  concept_en: regression assumptions (LINE)
+  introduced: week_09
+  revisited: [week_10, week_11, week_16]
+  bloom_level: analyze
+
+- concept_zh: 模型诊断
+  concept_en: model diagnostics
+  introduced: week_09
+  revisited: [week_10, week_11, week_16]
+  bloom_level: evaluate
