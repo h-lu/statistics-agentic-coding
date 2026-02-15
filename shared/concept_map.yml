@@ -19,3 +19,28 @@
   revisited: [week_04, week_09, week_16]
   bloom_level: understand
 
+# ─── Week 02 ───
+- concept_zh: 集中趋势
+  concept_en: central tendency
+  introduced: week_02
+  revisited: [week_03, week_06, week_09]
+  bloom_level: understand
+
+- concept_zh: 离散程度
+  concept_en: dispersion
+  introduced: week_02
+  revisited: [week_03, week_06, week_08]
+  bloom_level: understand
+
+- concept_zh: 分布形状
+  concept_en: distribution shape
+  introduced: week_02
+  revisited: [week_03, week_05, week_06]
+  bloom_level: understand
+
+- concept_zh: 诚实可视化
+  concept_en: honest visualization
+  introduced: week_02
+  revisited: [week_04, week_10, week_16]
+  bloom_level: evaluate
+

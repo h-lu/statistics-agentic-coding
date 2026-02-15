@@ -1,257 +1,218 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-一页报告示例：整合描述统计与可视化
+示例：生成一页分布报告（包含箱线图）。
 
-本示例展示如何生成一页可展示的分布报告，
-包含统计摘要和诚实图表。
+本例整合本周所学：集中趋势、离散程度、分布形状、箱线图、诚实可视化，
+生成一份完整的"一页分布报告"。
 
-运行方式：python 05_one_page_report.py
+运行方式：python3 chapters/week_02/examples/05_one_page_report.py
+预期输出：
+- output/one_page_report.png：四合一报告（摘要统计 + 直方图 + 箱线图 + 密度图）
+- 控制台输出：完整的统计摘要
 """
+from __future__ import annotations
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
 
-
-def setup_style():
-    """设置绘图风格"""
-    sns.set_theme(style="whitegrid")
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def generate_sample_data():
-    """生成示例数据：电商用户分析"""
-    np.random.seed(42)
-
-    # 生成 500 个用户的数据
-    n = 500
-    df = pd.DataFrame({
-        'user_id': range(1, n + 1),
-        'age': np.random.normal(35, 10, n),  # 年龄：正态分布
-        'registration_days': np.random.exponential(100, n),  # 注册天数：指数分布
-        'city': np.random.choice(['北京', '上海', '广州', '深圳'], n),
-        'total_spend': np.random.lognormal(7, 1, n)  # 消费：对数正态
-    })
-
-    # 确保消费为正
-    df['total_spend'] = df['total_spend'].clip(lower=0).round(2)
-
-    # 确保年龄为正整数
-    df['age'] = df['age'].clip(lower=18).round(0).astype(int)
-
-    return df
+def setup_output_dir() -> Path:
+    """设置输出目录"""
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
 
-def create_summary_table(df):
-    """创建统计摘要表"""
-    print("生成统计摘要表...")
-
-    # 数值列的统计摘要
-    numeric_cols = ['age', 'registration_days', 'total_spend']
-    summary = df[numeric_cols].agg(['mean', 'median', 'std']).T
-
-    # 添加四分位数
-    for col in numeric_cols:
-        q1 = df[col].quantile(0.25)
-        q3 = df[col].quantile(0.75)
-        summary.loc[col, 'Q1'] = q1
-        summary.loc[col, 'Q3'] = q3
-        summary.loc[col, 'IQR'] = q3 - q1
-
-    # 格式化
-    summary = summary.round(2)
-    summary.columns = ['均值', '中位数', '标准差', 'Q1', 'Q3', 'IQR']
-
-    return summary
+def generate_summary_stats(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
+    """生成描述统计表"""
+    stats = df[numeric_cols].agg([
+        ("count", "count"),
+        ("mean", "mean"),
+        ("median", "median"),
+        ("std", "std"),
+        ("min", "min"),
+        ("Q25", lambda x: x.quantile(0.25)),
+        ("Q75", lambda x: x.quantile(0.75)),
+        ("max", "max")
+    ]).round(1)
+    return stats
 
 
-def create_distribution_plots(df, output_dir='figures'):
-    """创建分布图"""
-    Path(output_dir).mkdir(exist_ok=True)
+def print_summary_stats(df: pd.DataFrame) -> None:
+    """打印摘要统计"""
+    print("="*60)
+    print("一页分布报告：Palmer Penguins 数据集")
+    print("="*60)
 
-    print(f"生成分布图到 {output_dir}/...")
+    # 整体统计
+    print("\n【数据概览】")
+    print(f"样本量：{len(df)} 只企鹅")
+    print(f"物种：{', '.join(df['species'].unique().tolist())}")
+    print(f"岛屿：{', '.join(df['island'].unique().tolist())}")
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    # 按物种分组的体重统计
+    print("\n【按物种分组的体重统计】")
+    species_stats = df.groupby("species")["body_mass_g"].agg(
+        n="count",
+        mean="mean",
+        median="median",
+        std="std",
+        min="min",
+        max="max"
+    ).round(1)
+    print(species_stats)
 
-    # 1. 年龄分布（直方图）
-    sns.histplot(df['age'], bins=20, kde=True, ax=axes[0, 0], color='steelblue')
-    axes[0, 0].set_title('用户年龄分布', fontsize=12)
-    axes[0, 0].set_xlabel('年龄（岁）')
-    axes[0, 0].set_ylabel('用户数')
-    mean_age = df['age'].mean()
-    median_age = df['age'].median()
-    axes[0, 0].axvline(mean_age, color='red', linestyle='--', label=f'均值={mean_age:.1f}')
-    axes[0, 0].axvline(median_age, color='green', linestyle='--', label=f'中位数={median_age:.1f}')
-    axes[0, 0].legend(fontsize=9)
+    # 嘴峰长度统计
+    print("\n【按物种分组的嘴峰长度统计】")
+    bill_stats = df.groupby("species")["bill_length_mm"].agg(
+        n="count",
+        mean="mean",
+        median="median",
+        std="std"
+    ).round(1)
+    print(bill_stats)
 
-    # 2. 城市分布（计数柱状图）
-    city_counts = df['city'].value_counts()
-    axes[0, 1].bar(city_counts.index, city_counts.values, color='coral', alpha=0.7)
-    axes[0, 1].set_title('用户城市分布', fontsize=12)
-    axes[0, 1].set_ylabel('用户数')
-    axes[0, 1].set_xlabel('城市')
-    for i, v in enumerate(city_counts.values):
-        axes[0, 1].text(i, v + 5, str(v), ha='center', fontsize=10)
+    # 异常值检测
+    print("\n【异常值检测（基于 1.5×IQR 规则）】")
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        q25 = data.quantile(0.25)
+        q75 = data.quantile(0.75)
+        iqr = q75 - q25
+        lower = q25 - 1.5 * iqr
+        upper = q75 + 1.5 * iqr
+        outliers = data[(data < lower) | (data > upper)]
+        if len(outliers) > 0:
+            print(f"{species}: 发现 {len(outliers)} 个异常值（{outliers.tolist()[:5]}...）")
+        else:
+            print(f"{species}: 无异常值")
 
-    # 3. 消费分布（直方图 + 箱线图组合）
-    sns.histplot(df['total_spend'], bins=30, kde=True, ax=axes[1, 0], color='teal')
-    axes[1, 0].set_title('用户消费分布', fontsize=12)
-    axes[1, 0].set_xlabel('消费金额（元）')
-    axes[1, 0].set_ylabel('用户数')
+    print("\n" + "="*60)
 
-    # 4. 消费箱线图（按城市分组）
-    sns.boxplot(data=df, x='city', y='total_spend', ax=axes[1, 1], palette='Set2')
-    axes[1, 1].set_title('各城市消费分布对比', fontsize=12)
-    axes[1, 1].set_ylabel('消费金额（元）')
-    axes[1, 1].set_xlabel('城市')
+
+def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
+    """生成一页报告（四合一图）"""
+    fig = plt.figure(figsize=(14, 10))
+
+    # 1. 摘要统计表（左上）
+    ax1 = plt.subplot(2, 2, 1)
+    ax1.axis("tight")
+    ax1.axis("off")
+
+    # 按物种分组统计
+    species_stats = df.groupby("species")["body_mass_g"].agg(
+        n="count",
+        mean="mean",
+        median="median",
+        std="std"
+    ).round(1)
+
+    table_data = []
+    for species in species_stats.index:
+        row = species_stats.loc[species]
+        table_data.append([
+            species,
+            f"{int(row['n'])}",
+            f"{row['mean']:.0f}",
+            f"{row['median']:.0f}",
+            f"{row['std']:.0f}"
+        ])
+
+    table = ax1.table(
+        cellText=table_data,
+        colLabels=["Species", "n", "Mean", "Median", "SD"],
+        cellLoc="center",
+        loc="center"
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 2)
+    ax1.set_title("Summary Statistics by Species", fontsize=12, fontweight="bold")
+
+    # 2. 直方图（右上）
+    ax2 = plt.subplot(2, 2, 2)
+    species_colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        ax2.hist(data, bins=15, alpha=0.5, label=species, edgecolor="black",
+                color=species_colors.get(species))
+    ax2.set_xlabel("Body Mass (g)")
+    ax2.set_ylabel("Frequency")
+    ax2.set_title("Distribution by Species", fontsize=12, fontweight="bold")
+    ax2.legend()
+
+    # 3. 箱线图（左下）
+    ax3 = plt.subplot(2, 2, 3)
+    sns.boxplot(data=df, x="species", y="body_mass_g", hue="species", ax=ax3,
+               palette={"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}, legend=False)
+    ax3.set_xlabel("Species")
+    ax3.set_ylabel("Body Mass (g)")
+    ax3.set_title("Boxplot: Detecting Outliers", fontsize=12, fontweight="bold")
+
+    # 4. 密度图（右下）
+    ax4 = plt.subplot(2, 2, 4)
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        ax4.hist(data, bins=15, alpha=0.3, density=True, edgecolor="black",
+                color=species_colors.get(species))
+        # 叠加密度曲线
+        from scipy import stats
+        kde = stats.gaussian_kde(data)
+        x_range = linspace = data.min() - 500, data.max() + 500
+        x = [data.min() - 500 + i * (data.max() - data.min() + 1000) / 200 for i in range(200)]
+        ax4.plot(x, kde(x), linewidth=2, label=species, color=species_colors.get(species))
+    ax4.set_xlabel("Body Mass (g)")
+    ax4.set_ylabel("Density")
+    ax4.set_title("Density Plot by Species", fontsize=12, fontweight="bold")
+    ax4.legend()
 
     plt.tight_layout()
-    output_path = Path(output_dir) / 'distribution_dashboard.png'
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / "one_page_report.png", dpi=100, facecolor="white")
     plt.close()
-
-    print(f"  保存：{output_path}")
-
-    return str(output_path)
+    print(f"\n一页报告图已保存到 {output_dir / 'one_page_report.png'}")
 
 
-def generate_markdown_report(df, summary, figure_path):
-    """生成 Markdown 报告"""
-    print("生成 Markdown 报告...")
+def plot_boxplot_comparison(df: pd.DataFrame, output_dir: Path) -> None:
+    """生成箱线图：单变量 vs 按物种分组"""
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    # 计算关键指标
-    total_users = len(df)
-    avg_spend = df['total_spend'].mean()
-    median_spend = df['total_spend'].median()
-    total_spend = df['total_spend'].sum()
+    # 左图：单变量箱线图
+    axes[0].boxplot(df["body_mass_g"].dropna(), vert=True)
+    axes[0].set_ylabel("Body Mass (g)")
+    axes[0].set_title("Overall Distribution")
+    axes[0].set_xticks([])
 
-    # 城市分布
-    city_dist = df['city'].value_counts(normalize=True) * 100
+    # 右图：按物种分组的箱线图
+    species_colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+    sns.boxplot(data=df, x="species", y="body_mass_g", hue="species", ax=axes[1],
+               palette=species_colors, legend=False)
+    axes[1].set_xlabel("Species")
+    axes[1].set_ylabel("Body Mass (g)")
+    axes[1].set_title("By Species (Gentoo is clearly heavier)")
 
-    report = f"""# 用户行为分布报告
-
-## 数据概览
-
-- **分析日期**：2026-02-11
-- **数据来源**：示例数据集（仅供演示）
-- **样本量**：{total_users:,} 个用户
-
----
-
-## 核心指标摘要
-
-| 指标 | 年龄 | 注册天数 | 消费金额 |
-|--------|------|----------|----------|
-| 均值 | {summary.loc['age', '均值']:.1f} 岁 | {summary.loc['registration_days', '均值']:.1f} 天 | {summary.loc['total_spend', '均值']:.2f} 元 |
-| 中位数 | {summary.loc['age', '中位数']:.1f} 岁 | {summary.loc['registration_days', '中位数']:.1f} 天 | {summary.loc['total_spend', '中位数']:.2f} 元 |
-| 标准差 | {summary.loc['age', '标准差']:.2f} | {summary.loc['registration_days', '标准差']:.2f} | {summary.loc['total_spend', '标准差']:.2f} |
-| IQR | {summary.loc['age', 'IQR']:.2f} | {summary.loc['registration_days', 'IQR']:.2f} | {summary.loc['total_spend', 'IQR']:.2f} |
-
-### 关键发现
-
-- **年龄分布**：用户平均年龄 {summary.loc['age', '均值']:.1f} 岁，中位数 {summary.loc['age', '中位数']:.1f} 岁，分布相对均匀
-- **消费能力**：平均消费 {avg_spend:.2f} 元，但中位数仅 {median_spend:.2f} 元，说明有高消费用户拉高均值
-- **总市场**：样本总消费约 {total_spend/10000:.1f} 万元
-
----
-
-## 分布图
-
-![分布概览]({figure_path})
-
-### 图表解读
-
-1. **年龄分布**（左上）
-   - 分布接近正态，大部分用户在 25-45 岁之间
-   - 均值与中位数接近，说明无严重极端值
-
-2. **城市分布**（右上）
-   - 四城市分布较为均衡
-   - {city_dist.index[0]} 占比最高（{city_dist.iloc[0]:.1f}%）
-
-3. **消费分布**（左下）
-   - 明显右偏（长尾向右）
-   - 均值被少数高消费用户拉高
-   - 中位数更能代表"典型用户"消费水平
-
-4. **城市消费对比**（右下）
-   - 各城市消费中位数差异明显
-   - {df.groupby('city')['total_spend'].median().idxmax()} 用户消费中位数最高
-
----
-
-## 结论
-
-1. 用户画像：{summary.loc['age', '均值']:.0f} 岁左右，活跃度约 {summary.loc['registration_days', '均值']:.0f} 天
-2. 消费特征：呈现典型的二八分布特征，建议用中位数（{median_spend:.0f} 元）而非均值作为"典型用户"指标
-3. 地域差异：不同城市用户消费存在差异，建议后续分析原因
-
----
-
-## 附录
-
-### 数据说明
-- 本报告使用合成演示数据
-- 所有图表 Y 轴均从 0 开始，确保诚实可视化
-- 箱线图中的圆点表示异常值
-
-### 生成信息
-- 生成脚本：`05_one_page_report.py`
-- 生成时间：2026-02-11
-- StatLab 版本：Week 02
-"""
-
-    return report
+    plt.tight_layout()
+    plt.savefig(output_dir / "boxplot_comparison.png", dpi=100, facecolor="white")
+    plt.close()
+    print(f"箱线图对比已保存到 {output_dir / 'boxplot_comparison.png'}")
 
 
-def main():
-    """主函数：生成完整报告"""
-    print("=" * 60)
-    print("一页分布报告生成器")
-    print("=" * 60)
+def main() -> None:
+    """主函数：生成完整的一页分布报告"""
+    penguins = sns.load_dataset("penguins")
+    output_dir = setup_output_dir()
 
-    # 1. 生成数据
-    df = generate_sample_data()
-    print(f"\n数据样本（前 5 行）：")
-    print(df.head())
+    # 打印摘要统计
+    print_summary_stats(penguins)
 
-    # 2. 创建统计摘要
-    summary = create_summary_table(df)
-    print("\n统计摘要：")
-    print(summary)
+    # 生成可视化
+    plot_one_page_report(penguins, output_dir)
+    plot_boxplot_comparison(penguins, output_dir)
 
-    # 3. 生成图表
-    figure_path = create_distribution_plots(df)
-    print(f"\n图表已生成：{figure_path}")
-
-    # 4. 生成 Markdown 报告
-    report = generate_markdown_report(df, summary, figure_path)
-
-    # 5. 保存报告
-    report_path = 'report.md'
-    with open(report_path, 'w', encoding='utf-8') as f:
-        f.write(report)
-
-    print(f"\n✅ 报告已生成：{report_path}")
-
-    print("\n" + "=" * 60)
-    print("老潘的点评：")
-    print("=" * 60)
-    print("'一页报告不是偷懒，是聚焦。'")
-    print("'你只有一分钟时间，就把最重要的信息放上去。'")
-    print("'图表要能自解释——别让人猜你画的是什么。'")
-
-    return {
-        'report_path': report_path,
-        'figure_path': figure_path,
-        'summary': summary.to_dict()
-    }
+    print("\n✓ 一页分布报告生成完成！")
+    print("  包含：摘要统计 + 直方图 + 箱线图 + 密度图")
 
 
 if __name__ == "__main__":
-    setup_style()
-    result = main()
+    main()

@@ -27,3 +27,79 @@
   definition_zh: 一份数据的"身份证"，包含数据来源、字段字典、规模概览、缺失概览等信息，用于提高数据透明度和可复现性。
   first_seen: week_01
 
+# ─── Week 02 ───
+- term_zh: 集中趋势
+  term_en: central tendency
+  definition_zh: 描述数据"典型值"的统计量，包括均值、中位数和众数。均值对极端值敏感，中位数更稳健。
+  first_seen: week_02
+
+- term_zh: 均值
+  term_en: mean
+  definition_zh: 所有数值的和除以数量。对极端值敏感，适合对称分布的数据。
+  first_seen: week_02
+
+- term_zh: 中位数
+  term_en: median
+  definition_zh: 将数据排序后位于中间位置的值。对极端值稳健，适合有长尾或异常值的数据。
+  first_seen: week_02
+
+- term_zh: 众数
+  term_en: mode
+  definition_zh: 数据中出现最频繁的值。主要用于分类型数据。
+  first_seen: week_02
+
+- term_zh: 离散程度
+  term_en: dispersion
+  definition_zh: 描述数据"分散程度"的统计量，包括方差、标准差、极差和四分位距（IQR）。
+  first_seen: week_02
+
+- term_zh: 方差
+  term_en: variance
+  definition_zh: 每个数据点到均值距离的平方的平均值。单位是原始单位的平方（如"平方克"），不易直接解释。
+  first_seen: week_02
+
+- term_zh: 标准差
+  term_en: standard deviation
+  definition_zh: 方差的平方根。单位与原始数据一致，描述数据偏离均值的典型程度。
+  first_seen: week_02
+
+- term_zh: 四分位距
+  term_en: interquartile range (IQR)
+  definition_zh: 第三四分位数（Q75）减去第一四分位数（Q25）。描述"中间 50% 数据"的范围，对极端值稳健。
+  first_seen: week_02
+
+- term_zh: 分布形状
+  term_en: distribution shape
+  definition_zh: 描述数据分布的几何特征，包括偏度（对称性）和峰度（尖峭程度）。
+  first_seen: week_02
+
+- term_zh: 偏度
+  term_en: skewness
+  definition_zh: 描述分布的"不对称性"。正偏态表示右边有长尾，负偏态表示左边有长尾。
+  first_seen: week_02
+
+- term_zh: 峰度
+  term_en: kurtosis
+  definition_zh: 描述分布的"尖峭程度"。峰度高表示中间更尖、尾部更厚，峰度低表示更平坦。
+  first_seen: week_02
+
+- term_zh: 直方图
+  term_en: histogram
+  definition_zh: 用矩形条表示数据频率分布的图表。X 轴是数据范围，Y 轴是频数或频率。能直观显示分布形状、双峰、长尾等特征。
+  first_seen: week_02
+
+- term_zh: 箱线图
+  term_en: boxplot
+  definition_zh: 用"箱子+须"显示数据分布的图表。箱子表示 Q25-Q75（IQR），箱内线表示中位数，须延伸到 1.5×IQR，超出须的点标记为异常值。
+  first_seen: week_02
+
+- term_zh: 异常值
+  term_en: outlier
+  definition_zh: 明显偏离其他数据的观测值。可能来自录入错误、测量误差，或真实但极端的样本。不应直接删除，需要先调查原因。
+  first_seen: week_02
+
+- term_zh: 诚实可视化
+  term_en: honest visualization
+  definition_zh: 避免误导读者的可视化原则。核心包括：Y 轴从 0 开始（除非有充分理由并说明）、标注实际数值、标注样本量。
+  first_seen: week_02
+

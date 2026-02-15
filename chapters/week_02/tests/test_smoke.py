@@ -49,8 +49,6 @@ class TestModuleImport:
         期望：应包含以下函数：
         - calculate_central_tendency
         - calculate_dispersion
-        - plot_histogram / plot_distribution_summary
-        - generate_descriptive_summary
         """
         try:
             import solution
@@ -113,8 +111,6 @@ class TestFunctionSignatures:
                 # 验证函数可调用
                 assert callable(func)
 
-                # 验证基本签名（不调用函数，只检查可调用性）
-                # 具体参数测试在其他测试文件中
         except ImportError:
             pytest.skip("solution.py not yet created")
 

@@ -11,6 +11,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import pytest
+import sys
+
+# 添加 starter_code 到 Python 路径
+starter_code_path = Path(__file__).parent.parent / "starter_code"
+if str(starter_code_path) not in sys.path:
+    sys.path.insert(0, str(starter_code_path))
 
 
 # =============================================================================

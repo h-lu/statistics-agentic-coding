@@ -1,274 +1,136 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-诚实可视化示例：误导图 vs 诚实图
+示例：诚实可视化对比（Y 轴截断问题）。
 
-本示例展示常见的可视化误导陷阱，
-以及如何修正它们。
+本例演示 Y 轴截断如何误导读者，以及如何生成诚实的可视化。
+对比同一数据的两种画法，展示视觉差异。
 
-运行方式：python 04_honest_visualization.py
+运行方式：python3 chapters/week_02/examples/04_honest_visualization.py
+预期输出：
+- output/honest_visualization.png：并排对比（误导 vs 诚实）
+- output/area_trap_demo.png：面积陷阱演示
 """
+from __future__ import annotations
 
 from pathlib import Path
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+
 import seaborn as sns
-
-OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_02"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def setup_style():
-    """设置绘图风格"""
-    sns.set_theme(style="whitegrid")
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def demonstrate_truncated_y_axis():
-    """演示截断 Y 轴的误导性"""
-    print("=" * 60)
-    print("误导 #1：截断 Y 轴 —— 让小差异看起来很大")
-    print("=" * 60)
+def setup_output_dir() -> Path:
+    """设置输出目录"""
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
-    # 数据：两组差异很小（2% vs 3%）
-    groups = ['A组', 'B组']
-    values = [2.0, 3.0]  # 单位：%
 
-    print(f"\n真实数据：{dict(zip(groups, values))}")
-    print(f"差异：{values[1] / values[0] - 1:.2%}")
+def plot_y_axis_comparison(penguins: pd.DataFrame, output_dir: Path) -> None:
+    """绘制 Y 轴截断对比图"""
+    # 计算各物种的平均体重
+    mean_mass = penguins.groupby("species")["body_mass_g"].mean().reset_index()
+    mean_mass = mean_mass.sort_values("body_mass_g")
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    # 左图：误导（Y 轴从 1.5 开始）
-    bars1 = axes[0].bar(groups, values, color=['coral', 'steelblue'])
-    axes[0].set_ylim(1.5, 3.5)
-    axes[0].set_ylabel('转化率 (%)')
-    axes[0].set_title('❌ 误导：Y 轴从 1.5 开始', fontsize=12)
-    axes[0].grid(axis='y', alpha=0.3)
+    colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+    bar_colors = [colors[species] for species in mean_mass["species"]]
 
-    # 添加数据标签
-    for i, (group, val) in enumerate(zip(groups, values)):
-        axes[0].text(i, val + 0.1, f'{val}%', ha='center', fontsize=12)
+    # 左图：截断 Y 轴（误导性）
+    axes[0].bar(mean_mass["species"], mean_mass["body_mass_g"], color=bar_colors)
+    axes[0].set_ylim(3000, 5500)  # 截断 Y 轴
+    axes[0].set_ylabel("Body Mass (g)")
+    axes[0].set_title("❌ Misleading: Truncated Y-axis")
+    axes[0].set_xlabel("Species")
 
-    # 右图：诚实（Y 轴从 0 开始）
-    bars2 = axes[1].bar(groups, values, color=['coral', 'steelblue'])
-    axes[1].set_ylim(0, 3.5)
-    axes[1].set_ylabel('转化率 (%)')
-    axes[1].set_title('✅ 诚实：Y 轴从 0 开始', fontsize=12)
-    axes[1].grid(axis='y', alpha=0.3)
+    # 右图：完整 Y 轴（诚实）
+    axes[1].bar(mean_mass["species"], mean_mass["body_mass_g"], color=bar_colors)
+    axes[1].set_ylim(0, 6000)  # 从 0 开始
+    axes[1].set_ylabel("Body Mass (g)")
+    axes[1].set_title("✅ Honest: Full Y-axis (from 0)")
+    axes[1].set_xlabel("Species")
 
-    for i, (group, val) in enumerate(zip(groups, values)):
-        axes[1].text(i, val + 0.1, f'{val}%', ha='center', fontsize=12)
+    # 标注实际数值
+    for ax in axes:
+        for i, row in mean_mass.iterrows():
+            ax.text(i, row["body_mass_g"] + 100, f"{row['body_mass_g']:.0f}",
+                    ha="center", va="bottom", fontsize=10, fontweight="bold")
+
+    # 标注样本量
+    sample_sizes = penguins["species"].value_counts().to_dict()
+    for ax in axes:
+        ax.text(0.5, 0.02, f"Sample sizes: Adelie={sample_sizes['Adelie']}, "
+                           f"Chinstrap={sample_sizes['Chinstrap']}, Gentoo={sample_sizes['Gentoo']}",
+                transform=ax.transAxes, ha="center", fontsize=9, style="italic")
 
     plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'truncated_y_axis_comparison.png'}")
-    plt.savefig(OUTPUT_DIR / 'truncated_y_axis_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / "honest_visualization.png", dpi=100, facecolor="white")
     plt.close()
+    print(f"Y 轴对比图已保存到 {output_dir / 'honest_visualization.png'}")
 
-    print("\n老潘的点评：")
-    print("'在公司里，截断 Y 轴的图表会被打回来的。'")
-    print("'你想突出差异，但同时掩盖了真实范围。'")
+    # 打印实际差异
+    adelie_mean = mean_mass[mean_mass["species"] == "Adelie"]["body_mass_g"].values[0]
+    gentoo_mean = mean_mass[mean_mass["species"] == "Gentoo"]["body_mass_g"].values[0]
+    diff = gentoo_mean - adelie_mean
+    pct_diff = (diff / adelie_mean) * 100
 
-    return {
-        'misleading_ylim': (1.5, 3.5),
-        'honest_ylim': (0, 3.5),
-        'data': dict(zip(groups, values))
-    }
+    print(f"\n实际差异：")
+    print(f"  Gentoo 比 Adelie 重 {diff:.0f} g（{pct_diff:.1f}%）")
+    print(f"  但截断 Y 轴的图看起来像是'两倍'的差异！")
 
 
-def demonstrate_area_deception():
-    """演示面积误导"""
-    print("\n" + "=" * 60)
-    print("误导 #2：面积误导 —— 让人误以为总量不同")
-    print("=" * 60)
-
-    # 单变量时间序列数据
-    years = [2018, 2019, 2020, 2021, 2022]
-    sales = [100, 110, 120, 135, 150]
-
+def plot_area_trap(output_dir: Path) -> None:
+    """演示面积陷阱：饼图 vs 柱状图的感知差异"""
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    # 左图：误导（3D 效果/面积填充）
-    axes[0].fill_between(years, 0, sales, color='steelblue', alpha=0.5)
-    axes[0].plot(years, sales, 'o-', color='darkblue', markersize=8)
-    axes[0].set_ylabel('销售额')
-    axes[0].set_title('❌ 误导：面积填充强调视觉', fontsize=12)
-    axes[0].grid(True, alpha=0.3)
+    # 模拟数据：只有 10% 的差异
+    categories = ["A", "B"]
+    values = [100, 110]
 
-    # 右图：诚实（线条）
-    axes[1].plot(years, sales, 'o-', color='steelblue', markersize=8)
-    axes[1].set_ylabel('销售额')
-    axes[1].set_title('✅ 诚实：线条展示趋势', fontsize=12)
-    axes[1].grid(True, alpha=0.3)
+    # 左图：饼图（面积感知）
+    axes[0].pie(values, labels=categories, autopct="%1.0f%%", colors=["steelblue", "orange"])
+    axes[0].set_title("❌ Pie Chart: Area perception (10% difference)")
 
-    # 标注最终值
-    axes[0].text(years[-1], sales[-1], f' {sales[-1]}', fontsize=10)
-    axes[1].text(years[-1], sales[-1], f' {sales[-1]}', fontsize=10)
+    # 右图：柱状图（高度感知）
+    axes[1].bar(categories, values, color=["steelblue", "orange"])
+    axes[1].set_ylim(0, 120)
+    axes[1].set_ylabel("Value")
+    axes[1].set_title("✅ Bar Chart: Height perception (10% difference)")
 
-    plt.tight_layout()
-    print("\n说明：")
-    print("• 左图：面积填充让最后一年'看起来占比很大")
-    print("• 右图：线条展示的是'增长趋势'，视觉上更平衡")
-
-    print(f"\n输出：{OUTPUT_DIR / 'area_deception_comparison.png'}")
-    plt.savefig(OUTPUT_DIR / 'area_deception_comparison.png', dpi=150, bbox_inches='tight')
-    plt.close()
-
-
-def demonstrate_dual_axis_trick():
-    """演示双 Y 轴陷阱"""
-    print("\n" + "=" * 60)
-    print("误导 #3：双 Y 轴 —— 相关性错觉")
-    print("=" * 60)
-
-    years = [2018, 2019, 2020, 2021, 2022]
-    revenue = [100, 105, 108, 112, 118]  # 左轴
-    growth_rate = [5, 8, 12, 15, 18]  # 右轴
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-
-    color1 = 'steelblue'
-    color2 = 'coral'
-
-    # 左轴：收入
-    line1 = ax.plot(years, revenue, 'o-', color=color1, markersize=8, label='收入（万元）')
-    ax.set_ylabel('收入（万元）', color=color1, fontsize=12)
-    ax.tick_params(axis='y', colors=color1)
-
-    # 右轴：增长率
-    ax2 = ax.twinx()
-    line2 = ax2.plot(years, revenue, 's--', color=color2, markersize=8, label='增长率（%）')
-    ax2.set_ylabel('增长率（%）', color=color2, fontsize=12)
-    ax2.tick_params(axis='y', colors=color2)
-
-    ax.set_title('同一数据，两个 Y 轴的"相关"错觉', fontsize=14)
-    ax.grid(True, alpha=0.3)
-
-    # 图例
-    lines = line1 + line2
-    labels = [l.get_label() for l in lines]
-    ax.legend(lines, labels, loc='upper left')
+    # 标注实际数值
+    for i, v in enumerate(values):
+        axes[1].text(i, v + 3, f"{v}", ha="center", va="bottom", fontsize=12, fontweight="bold")
 
     plt.tight_layout()
-    print("\n说明：")
-    print("• 两条线走的是同一数据！")
-    print("• 但双 Y 轴给人'两个指标一起变化'的错觉")
-    print("• 如果想看相关，应该画散点图，不是双 Y 轴折线")
-
-    print(f"\n输出：{OUTPUT_DIR / 'dual_axis_trick.png'}")
-    plt.savefig(OUTPUT_DIR / 'dual_axis_trick.png', dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / "area_trap_demo.png", dpi=100, facecolor="white")
     plt.close()
+    print(f"面积陷阱演示图已保存到 {output_dir / 'area_trap_demo.png'}")
 
 
-def demonstrate_honest_alternatives():
-    """演示诚实的替代方案"""
-    print("\n" + "=" * 60)
-    print("✅ 诚实可视化的原则")
-    print("=" * 60)
-
-    # 生成示例数据
-    np.random.seed(42)
-    categories = ['A', 'B', 'C', 'D', 'E']
-    values = [23, 25, 21, 27, 24]
-
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-    # 左图：带误差条的柱状图
-    bars = axes[0].bar(categories, values, yerr=2, capsize=5,
-                          color='steelblue', alpha=0.7)
-    axes[0].set_ylabel('数值')
-    axes[0].set_title('带误差条：展示不确定性', fontsize=12)
-    axes[0].set_ylim(0, 35)
-    axes[0].grid(axis='y', alpha=0.3)
-
-    # 右图：完整标签
-    bars2 = axes[1].bar(categories, values, color='steelblue', alpha=0.7)
-    axes[1].set_ylabel('数值')
-    axes[1].set_title('完整标签：直接标注数值', fontsize=12)
-    axes[1].set_ylim(0, 35)
-    axes[1].grid(axis='y', alpha=0.3)
-
-    for i, (cat, val) in enumerate(zip(categories, values)):
-        axes[1].text(i, val + 0.5, f'{val}', ha='center', fontsize=11)
-
-    plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'honest_alternatives.png'}")
-    plt.savefig(OUTPUT_DIR / 'honest_alternatives.png', dpi=150, bbox_inches='tight')
-    plt.close()
-
-    print("\n诚实可视化清单：")
-    print("1. Y 轴从 0 开始（除非有充分理由）")
-    print("2. 比例时保持比例（1:1）")
-    print("3. 用误差条展示不确定性")
-    print("4. 标注实际数值，不只是看图")
-    print("5. 避免双 Y 轴（除非必要）")
-    print("6. 用面积填充时要谨慎")
+def print_honest_principles() -> None:
+    """打印诚实可视化三原则"""
+    print("\n" + "="*50)
+    print("诚实可视化三原则：")
+    print("="*50)
+    print("1. Y 轴从 0 开始（除非有充分理由，并说明）")
+    print("2. 标注实际数值（不要让读者'猜'差异）")
+    print("3. 标注样本量（n=?）")
+    print("\n其他常见陷阱：")
+    print("  - 面积陷阱：用二维图形表示一维数据")
+    print("  - 颜色陷阱：用颜色强度表示数值但没有图例")
+    print("  - 时间陷阱：X 轴间隔不均匀但画成等距")
+    print("="*50)
 
 
-def create_honesty_checklist():
-    """创建可视化检查清单"""
-    print("\n" + "=" * 60)
-    print("可视化诚实性自检清单")
-    print("=" * 60)
+def main() -> None:
+    """主函数：生成诚实可视化对比"""
+    penguins = sns.load_dataset("penguins")
+    output_dir = setup_output_dir()
 
-    checklist = """
-在发布图表前，问自己这些问题：
-
-□ Y 轴是否从 0 开始？
-  → 如果否，我是否有充分理由截断？
-  → 我是否在标题/注释中说明了截断？
-
-□ 比例是否真实反映了数据关系？
-  → 如果是 1:1，我是否标注了？
-  → 如果不是，是否用散点图替代？
-
-□ 是否有误导性的视觉效果？
-  → 面积填充是否夸大了差异？
-  → 3D 效果是否必要？
-
-□ 标签是否完整清晰？
-  → 坐标轴有单位吗？
-  → 图例能解释所有元素吗？
-
-□ 数据来源是否说明？
-  → 是否标注了样本量？
-  → 是否标注了时间范围？
-  → 是否说明了数据来源？
-
-□ 如果 AI 生成这张图，我审查过吗？
-  → 图表类型适合数据类型吗？
-  → 有没有误导性截断？
-  → 结论是否与图表一致？
-    """
-
-    print(checklist)
-
-    # 写入文件
-    checklist_path = OUTPUT_DIR / 'honesty_checklist.md'
-    with open(checklist_path, 'w', encoding='utf-8') as f:
-        f.write("# 可视化诚实性自检清单\n\n")
-        f.write(checklist)
-
-    print(f"\n清单已保存到 {checklist_path}")
+    plot_y_axis_comparison(penguins, output_dir)
+    plot_area_trap(output_dir)
+    print_honest_principles()
 
 
 if __name__ == "__main__":
-    setup_style()
-
-    # 运行所有演示
-    demonstrate_truncated_y_axis()
-    demonstrate_area_deception()
-    demonstrate_dual_axis_trick()
-    demonstrate_honest_alternatives()
-    create_honesty_checklist()
-
-    print("\n" + "=" * 60)
-    print("核心要点总结")
-    print("=" * 60)
-    print("1. 截断 Y 轴是最高发的误导性做法")
-    print("2. 面积填充会夸大视觉差异")
-    print("3. 双 Y 轴容易造成相关错觉")
-    print("4. 诚实原则：Y 轴从 0、标注数值、说明来源")
-    print("5. 老潘：'图表是武器，你要为它负责'")
+    main()

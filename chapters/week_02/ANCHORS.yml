@@ -1,36 +1,123 @@
-# Week 02 锚点表
+# Week 02 锚点定义
+#
+# 锚点用于验证正文中的关键结论。每个锚点包含：
+# - id: 唯一标识符
+# - claim: 正文中的结论/断言
+# - evidence: 支持证据（代码/数据/图表）
+# - verification: 验证方法
 
-# 第1节：集中趋势
-- id: w02_01
-  claim: 均值受极端值影响，中位数更稳健
-  evidence: examples/01_central_tendency.py 第50-80行
-  verification: 运行脚本，观察有/无极端值时均值与中位数的变化
+# ─── 集中趋势 ───
 
-# 第2节：离散程度
-- id: w02_02
-  claim: 标准差衡量整体波动，IQR衡量中间50%波动
-  evidence: examples/02_dispersion_demo.py 第35-70行
-  verification: 运行脚本，对比同一数据的std与IQR
+- id: week02_mean_median_diff
+  claim: |
+    均值和中位数在回答不同的问题。均值对极端值敏感，中位数更稳健。
+    对于收入数据 [3000, 3500, 4000, 4500, 100000]，均值是 23000，中位数是 4000。
+  evidence: |
+    examples/01_central_tendency.py 演示了按物种分组的均值和中位数计算。
+    Gentoo 的均值（5076g）和中位数（5050g）很接近，说明分布对称。
+  verification: |
+    运行 examples/01_central_tendency.py，检查输出中 Gentoo 的 mean 和 median 是否接近。
 
-# 第3节：分布可视化
-- id: w02_03
-  claim: 直方图显示分布形状（对称/偏态/双峰）
-  evidence: examples/03_distribution_plots.py 第45-80行
-  verification: 运行脚本，观察不同数据的直方图形态
+- id: week02_central_tendency_choice
+  claim: |
+    数据分布对称时用均值或中位数都可以；有极端值/长尾时用中位数更稳健。
+  evidence: |
+    正文第 133-144 行的经验法则表格。
+  verification: |
+    人工检查正文内容是否与 claim 一致。
 
-# 第4节：可视化诚实性
-- id: w02_04
-  claim: 截断Y轴会夸大差异，诚实图Y轴应从0开始
-  evidence: examples/04_honest_visualization.py 第25-90行
-  verification: 运行脚本，对比左右两图视觉效果
+# ─── 离散程度 ───
 
-# StatLab：生成描述统计报告
-- id: w02_sl_01
-  claim: 在report.md中追加描述统计章节
-  evidence: examples/02_statlab_update.py 第35-90行
-  verification: 运行后检查report.md新增内容
+- id: week02_std_iqr_diff
+  claim: |
+    标准差考虑所有点到均值的距离，IQR 只看中间 50%。
+    如果分布有长尾，标准差会更大，因为它被极端值"拉"出去了。
+  evidence: |
+    examples/02_dispersion_demo.py 演示了按物种分组的标准差和 IQR 计算。
+    Adelie 体重的标准差是 458g，IQR 是 650g。
+  verification: |
+    运行 examples/02_dispersion_demo.py，检查输出中 Adelie 的 std 和 IQR。
 
-- id: w02_sl_02
-  claim: 生成的图表保存到figures目录
-  evidence: examples/02_statlab_update.py 第75-85行
-  verification: 运行后验证figures目录被创建
+- id: week02_variance_unit
+  claim: |
+    方差的单位是"原始单位的平方"（如"平方克"），不易直接解释。
+    标准差开根号后单位与原始数据一致。
+  evidence: |
+    正文第 196-200 行的解释。
+  verification: |
+    人工检查正文内容是否与 claim 一致。
+
+# ─── 分布形状 ───
+
+- id: week02_bimodal_distribution
+  claim: |
+    Palmer Penguins 体重数据的整体分布有"双峰"，揭示了这份数据不是单一群体，
+    而是三个群体（三种企鹅）的混合。
+  evidence: |
+    images/distribution_plots.png 显示了整体分布的双峰特征。
+    按物种分组后，可以看到三个群体的差异。
+  verification: |
+    检查 images/distribution_plots.png 是否存在，人工确认图片是否显示双峰。
+
+- id: week02_skew_kurtosis
+  claim: |
+    偏度描述分布的"不对称性"（正偏态=右尾长）。
+    峰度描述分布的"尖峭程度"（峰度高=中间更尖、尾部更厚）。
+  evidence: |
+    examples/03_distribution_plots.py 计算了偏度（0.47）和峰度（-0.72）。
+  verification: |
+    运行 examples/03_distribution_plots.py，检查输出中的偏度和峰度值。
+
+# ─── 异常值 ───
+
+- id: week02_outlier_iqr_rule
+  claim: |
+    箱线图的"须"通常延伸到 Q1-1.5×IQR 和 Q3+1.5×IQR。
+    超出这个范围的点会被画成单独的点，可能是异常值。
+  evidence: |
+    images/boxplot_by_species.png 显示了 Adelie 和 Chinstrap 有离群点。
+  verification: |
+    检查 images/boxplot_by_species.png 是否存在，人工确认是否有离群点。
+
+- id: week02_outlier_types
+  claim: |
+    异常值有三类可能：录入错误、测量误差、真实但极端。
+    不应直接删除，需要先调查原因。
+  evidence: |
+    正文第 360-366 行的分类表格。
+  verification: |
+    人工检查正文内容是否与 claim 一致。
+
+# ─── 诚实可视化 ───
+
+- id: week02_yaxis_truncation
+  claim: |
+    Y 轴截断可以把"小差异"变成"看起来很大"。
+    截断 Y 轴的图中 Gentoo 看起来是 Adelie 的"两倍高"，
+    但实际只重了约 37%。
+  evidence: |
+    images/honest_visualization.png 左右对比展示了截断和完整的 Y 轴。
+  verification: |
+    检查 images/honest_visualization.png 是否存在，人工确认左右图差异。
+
+- id: week02_honest_viz_principles
+  claim: |
+    诚实可视化三原则：
+    1. Y 轴从 0 开始（除非有充分理由并说明）
+    2. 标注实际数值
+    3. 标注样本量
+  evidence: |
+    正文第 437-445 行的三条原则。
+  verification: |
+    人工检查正文内容是否与 claim 一致。
+
+# ─── StatLab 进度 ───
+
+- id: week02_statlab_progress
+  claim: |
+    本周 StatLab 从"只有数据卡"升级为"数据卡 + 描述统计 + 2-3 张可视化图表"。
+  evidence: |
+    examples/02_statlab_update.py 生成了 report.md 包含描述统计和图表。
+    examples/05_one_page_report.py 生成了完整的一页分布报告。
+  verification: |
+    运行 examples/02_statlab_update.py，检查是否生成 report.md 和图表。

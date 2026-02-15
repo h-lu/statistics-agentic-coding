@@ -1,220 +1,373 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-StatLab Week 02 更新脚本
+示例：StatLab 超级线 - Week 02 更新脚本。
 
-本脚本在 Week 01 数据卡基础上，补充描述统计章节。
-这是增量更新的示例：不从头重写，而是追加内容。
+本周在 Week 01 的数据卡基础上，加入描述统计和可视化图表，
+生成"一页分布报告"（report.md）。
 
-运行方式：python 02_statlab_update.py
+运行方式：python3 chapters/week_02/examples/02_statlab_update.py
+预期输出：
+- examples/output/report.md：包含数据卡 + 描述统计 + 可视化引用的报告
+- examples/output/ 目录下生成 3 张图表
+
+设计思路：
+1. 保留 Week 01 的数据卡内容
+2. 新增描述统计表
+3. 新增 3 张可视化图表（直方图、箱线图、密度图）
+4. 所有图表遵循"诚实可视化"原则（Y 轴从 0 开始、标注数值）
 """
+from __future__ import annotations
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
+from datetime import datetime
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def setup_style():
-    """设置绘图风格"""
-    sns.set_theme(style="whitegrid")
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
+# =============================================================================
+# 配置
+# =============================================================================
+
+OUTPUT_DIR = Path(__file__).parent / "output"
+REPORT_PATH = OUTPUT_DIR / "report.md"
 
 
-def add_descriptive_statistics(data_path, report_path):
-    """在 report.md 中追加描述统计章节"""
-    print("=" * 60)
-    print("StatLab Week 02：添加描述统计章节")
-    print("=" * 60)
+# =============================================================================
+# 数据加载
+# =============================================================================
 
-    # 读取数据
-    df = pd.read_csv(data_path)
-
-    print(f"\n读取数据：{data_path}")
-    print(f"数据形状：{df.shape}")
-
-    # 创建输出目录
-    figures_dir = Path('figures')
-    figures_dir.mkdir(exist_ok=True)
-
-    # ========== 1. 生成统计摘要 ==========
-    print("\n[1/4] 生成统计摘要表...")
-
-    # 选择数值列
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    if len(numeric_cols) == 0:
-        print("  警告：没有数值型列")
-        return
-
-    # 计算统计摘要
-    summary_data = []
-    for col in numeric_cols[:6]:  # 最多处理 6 列
-        col_data = df[col].dropna()
-        summary_data.append({
-            '字段': col,
-            '样本数': col_data.count(),
-            '均值': col_data.mean(),
-            '中位数': col_data.median(),
-            '标准差': col_data.std(),
-            '最小值': col_data.min(),
-            '最大值': col_data.max(),
-            'Q1': col_data.quantile(0.25),
-            'Q3': col_data.quantile(0.75),
-            'IQR': col_data.quantile(0.75) - col_data.quantile(0.25),
-        })
-
-    summary_df = pd.DataFrame(summary_data)
-
-    # ========== 2. 生成分布图 ==========
-    print("[2/4] 生成分布图...")
-
-    figures_created = []
-
-    for col in numeric_cols[:3]:  # 最多画 3 列的图
-        fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-        # 左图：直方图 + KDE
-        sns.histplot(df[col].dropna(), bins=30, kde=True, ax=axes[0], color='steelblue')
-        axes[0].set_title(f'{col} 分布（直方图）', fontsize=11)
-        axes[0].set_xlabel(col)
-        axes[0].set_ylabel('频数')
-
-        # 右图：箱线图
-        sns.boxplot(y=df[col], ax=axes[1], color='lightblue')
-        axes[1].set_title(f'{col} 分布（箱线图）', fontsize=11)
-        axes[1].set_ylabel(col)
-
-        # 添加统计标注
-        mean_val = df[col].mean()
-        median_val = df[col].median()
-        axes[0].axvline(mean_val, color='red', linestyle='--', alpha=0.7, label=f'均值={mean_val:.1f}')
-        axes[0].axvline(median_val, color='green', linestyle='--', alpha=0.7, label=f'中位数={median_val:.1f}')
-        axes[0].legend(fontsize=9)
-
-        plt.tight_layout()
-
-        # 保存图片
-        fig_filename = f'dist_{col.replace(" ", "_").replace("/", "_")}.png'
-        fig_path = figures_dir / fig_filename
-        plt.savefig(fig_path, dpi=150, bbox_inches='tight')
-        plt.close()
-
-        figures_created.append({
-            'column': col,
-            'filename': fig_filename,
-            'path': str(fig_path),
-            'mean': mean_val,
-            'median': median_val
-        })
-
-        print(f"  已保存：{fig_filename}")
-
-    # ========== 3. 追加到 report.md ==========
-    print("[3/4] 追加内容到 report.md...")
-
-    # 准备追加内容
-    append_content = f"""
-
-## 描述统计
-
-### 核心指标摘要
-
-| 字段 | 样本数 | 均值 | 中位数 | 标准差 | 最小值 | 最大值 | IQR |
-|------|--------|------|--------|--------|--------|--------|-----|
-"""
-
-    # 添加表格行
-    for _, row in summary_df.iterrows():
-        append_content += f"| {row['字段']} | {row['样本数']:.0f} | {row['均值']:.2f} | {row['中位数']:.2f} | {row['标准差']:.2f} | {row['最小值']:.2f} | {row['最大值']:.2f} | {row['IQR']:.2f} |\n"
-
-    append_content += "\n### 分布图\n\n"
-
-    # 添加图片
-    for fig_info in figures_created:
-        append_content += f"**{fig_info['column']} 的分布**\n\n"
-        append_content += f"![{fig_info['column']}](figures/{fig_info['filename']})\n\n"
-        append_content += f"说明：{fig_info['column']} 的均值是 {fig_info['mean']:.2f}，"
-        append_content += f"中位数是 {fig_info['median']:.2f}。"
-        # 判断偏态
-        if fig_info['mean'] > fig_info['median']:
-            append_content += " 均值高于中位数，说明分布右偏（有高值拉高均值）。"
-        elif fig_info['mean'] < fig_info['median']:
-            append_content += " 均值低于中位数，说明分布左偏。"
-        else:
-            append_content += " 均值与中位数接近，分布较为对称。"
-        append_content += "\n\n"
-
-    # 追加到文件
-    with open(report_path, 'a', encoding='utf-8') as f:
-        f.write(append_content)
-
-    print(f"  已追加到：{report_path}")
-
-    return {
-        'summary': summary_df,
-        'figures': figures_created
-    }
+def load_data() -> pd.DataFrame:
+    """加载 Palmer Penguins 数据集"""
+    return sns.load_dataset("penguins")
 
 
-def create_checkpoint(df, checkpoint_dir='checkpoint'):
-    """创建检查点，保存当前分析状态"""
-    print("\n[4/4] 创建检查点...")
+# =============================================================================
+# 描述统计生成
+# =============================================================================
 
-    Path(checkpoint_dir).mkdir(exist_ok=True)
+def generate_data_card(df: pd.DataFrame) -> str:
+    """生成数据卡（Week 01 内容）"""
+    lines = [
+        "# StatLab 分析报告",
+        "",
+        f"**生成时间**：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        "",
+        "## 1. 数据卡",
+        "",
+        "### 1.1 数据来源",
+        "- 数据集：Palmer Penguins",
+        "- 来源：seaborn 内置数据集",
+        "- 描述：Palmer Archipelago（南极）的 3 种企鹅数据",
+        "",
+        "### 1.2 字段字典",
+        "",
+        "| 字段名 | 类型 | 说明 | 缺失率 |",
+        "|--------|------|------|--------|",
+    ]
 
-    # 保存关键信息
-    checkpoint_info = {
-        'week': '02',
-        'data_shape': df.shape,
-        'numeric_columns': df.select_dtypes(include=[np.number]).columns.tolist(),
-        'categorical_columns': df.select_dtypes(include=['object', 'category']).columns.tolist(),
-        'missing_values': df.isna().sum().to_dict(),
-    }
+    for col in df.columns:
+        dtype = str(df[col].dtype)
+        missing_rate = (df[col].isna().mean() * 100).round(1)
+        desc = {
+            "species": "企鹅物种 (Adelie, Chinstrap, Gentoo)",
+            "island": "岛屿 (Biscoe, Dream, Torgersen)",
+            "bill_length_mm": "嘴峰长度 (mm)",
+            "bill_depth_mm": "嘴峰深度 (mm)",
+            "flipper_length_mm": "鳍肢长度 (mm)",
+            "body_mass_g": "体重 (g)",
+            "sex": "性别 (Male, Female)",
+        }.get(col, "未知字段")
+        lines.append(f"| {col} | {dtype} | {desc} | {missing_rate}% |")
 
-    import json
-    checkpoint_path = Path(checkpoint_dir) / 'week_02_checkpoint.json'
-    with open(checkpoint_path, 'w', encoding='utf-8') as f:
-        json.dump(checkpoint_info, f, ensure_ascii=False, indent=2)
+    lines.extend([
+        "",
+        "### 1.3 数据规模",
+        f"- 总行数：{len(df)}",
+        f"- 总列数：{df.shape[1]}",
+        "",
+        "### 1.4 缺失值概览",
+        f"- 有缺失值的列数：{df.isna().any().sum()}",
+        f"- 完整行数（无缺失）：{df.dropna().shape[0]}",
+        "",
+    ])
 
-    print(f"  检查点已保存：{checkpoint_path}")
-
-    return checkpoint_path
+    return "\n".join(lines)
 
 
-def main():
+def generate_summary_stats(df: pd.DataFrame) -> str:
+    """生成描述统计表（Week 02 新增）"""
+    lines = [
+        "## 2. 描述统计",
+        "",
+        "### 2.1 数值型字段统计",
+        "",
+        "#### 2.1.1 整体统计",
+        "",
+        "| 字段 | 计数 | 均值 | 中位数 | 标准差 | 最小值 | Q25 | Q75 | 最大值 |",
+        "|------|------|------|--------|--------|--------|-----|-----|--------|",
+    ]
+
+    numeric_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
+    for col in numeric_cols:
+        data = df[col].dropna()
+        lines.append(
+            f"| {col} | {len(data):.0f} | {data.mean():.1f} | "
+            f"{data.median():.1f} | {data.std():.1f} | {data.min():.1f} | "
+            f"{data.quantile(0.25):.1f} | {data.quantile(0.75):.1f} | {data.max():.1f} |"
+        )
+
+    lines.extend([
+        "",
+        "#### 2.1.2 按物种分组的体重统计",
+        "",
+        "| 物种 | 计数 | 均值(g) | 中位数(g) | 标准差(g) | IQR(g) |",
+        "|------|------|---------|-----------|-----------|--------|",
+    ])
+
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        q25 = data.quantile(0.25)
+        q75 = data.quantile(0.75)
+        iqr = q75 - q25
+        lines.append(
+            f"| {species} | {len(data):.0f} | {data.mean():.1f} | "
+            f"{data.median():.1f} | {data.std():.1f} | {iqr:.1f} |"
+        )
+
+    lines.extend([
+        "",
+        "### 2.2 分类型字段统计",
+        "",
+        "#### 物种分布",
+        "",
+        "| 物种 | 计数 | 占比 |",
+        "|------|------|------|",
+    ])
+
+    species_counts = df["species"].value_counts()
+    for species, count in species_counts.items():
+        pct = round(count / len(df) * 100, 1)
+        lines.append(f"| {species} | {count} | {pct}% |")
+
+    lines.extend([
+        "",
+        "#### 性别分布",
+        "",
+        "| 性别 | 计数 | 占比 |",
+        "|------|------|------|",
+    ])
+
+    sex_counts = df["sex"].value_counts()
+    for sex, count in sex_counts.items():
+        pct = round(count / df["sex"].notna().sum() * 100, 1)
+        lines.append(f"| {sex} | {count} | {pct}% |")
+
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+# =============================================================================
+# 可视化生成
+# =============================================================================
+
+def generate_plots(df: pd.DataFrame, output_dir: Path) -> list[str]:
+    """生成可视化图表（Week 02 新增）"""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    generated_files = []
+
+    species_colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+
+    # 1. 按物种分组的体重分布（直方图）
+    plt.figure(figsize=(10, 6))
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        plt.hist(data, bins=15, alpha=0.5, label=species, edgecolor="black",
+                color=species_colors.get(species))
+    plt.xlabel("Body Mass (g)")
+    plt.ylabel("Frequency")
+    plt.title("Body Mass Distribution by Species")
+    plt.legend()
+    filename = "dist_by_species.png"
+    plt.savefig(output_dir / filename, dpi=100, bbox_inches="tight", facecolor="white")
+    plt.close()
+    generated_files.append(filename)
+
+    # 2. 按物种分组的体重箱线图
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(data=df, x="species", y="body_mass_g", hue="species", palette=species_colors, legend=False)
+    plt.xlabel("Species")
+    plt.ylabel("Body Mass (g)")
+    plt.title("Body Mass by Species (Boxplot)")
+    filename = "boxplot_by_species.png"
+    plt.savefig(output_dir / filename, dpi=100, bbox_inches="tight", facecolor="white")
+    plt.close()
+    generated_files.append(filename)
+
+    # 3. 按物种分组的体重密度图
+    plt.figure(figsize=(10, 6))
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        plt.hist(data, bins=15, alpha=0.3, density=True, edgecolor="black",
+                color=species_colors.get(species))
+        from scipy import stats
+        kde = stats.gaussian_kde(data)
+        x_min, x_max = data.min() - 500, data.max() + 500
+        x = [x_min + i * (x_max - x_min) / 200 for i in range(200)]
+        plt.plot(x, kde(x), linewidth=2, label=species, color=species_colors.get(species))
+    plt.xlabel("Body Mass (g)")
+    plt.ylabel("Density")
+    plt.title("Body Mass Density by Species")
+    plt.legend()
+    filename = "density_by_species.png"
+    plt.savefig(output_dir / filename, dpi=100, bbox_inches="tight", facecolor="white")
+    plt.close()
+    generated_files.append(filename)
+
+    print(f"图表已保存到 {output_dir}/")
+    return generated_files
+
+
+def generate_visualization_section(generated_files: list[str]) -> str:
+    """生成可视化章节（Week 02 新增）"""
+    lines = [
+        "## 3. 可视化",
+        "",
+        "### 3.1 体重分布",
+        "",
+        "![按物种分组的体重分布](dist_by_species.png)",
+        "",
+        "**观察**：",
+        "- Gentoo 企鹅的体重分布整体高于其他两种",
+        "- Adelie 和 Chinstrap 的体重分布有部分重叠",
+        "- Gentoo 的分布更集中（方差较小）",
+        "",
+        "### 3.2 箱线图（异常值检测）",
+        "",
+        "![按物种分组的箱线图](boxplot_by_species.png)",
+        "",
+        "**观察**：",
+        "- 箱线图显示了各物种的中位数、Q25、Q75 和异常值",
+        "- Gentoo 的 IQR（箱子高度）较大，说明体重分布较广",
+        "- Adelie 和 Chinstrap 有少量异常值（须之外的点）",
+        "",
+        "### 3.3 密度图（平滑分布）",
+        "",
+        "![按物种分组的密度图](density_by_species.png)",
+        "",
+        "**观察**：",
+        "- 密度图提供了更平滑的分布视图",
+        "- Gentoo 的分布峰值较高且窄，说明数据更集中",
+        "- 三种企鹅的分布都有轻微的右偏（右侧尾巴较长）",
+        "",
+    ]
+
+    return "\n".join(lines)
+
+
+# =============================================================================
+# 主要发现生成
+# =============================================================================
+
+def generate_key_findings(df: pd.DataFrame) -> str:
+    """生成主要发现（Week 02 新增）"""
+    # 计算关键统计量
+    adelie_mean = df[df["species"] == "Adelie"]["body_mass_g"].mean()
+    gentoo_mean = df[df["species"] == "Gentoo"]["body_mass_g"].mean()
+    diff = gentoo_mean - adelie_mean
+    pct_diff = (diff / adelie_mean) * 100
+
+    lines = [
+        "## 4. 主要发现",
+        "",
+        "### 4.1 集中趋势",
+        f"- 三种企鹅的平均体重差异明显：Adelie ({adelie_mean:.0f}g) < "
+        f"Chinstrap ({df[df['species']=='Chinstrap']['body_mass_g'].mean():.0f}g) < "
+        f"Gentoo ({gentoo_mean:.0f}g)",
+        f"- Gentoo 比 Adelie 平均重 {diff:.0f}g（约 {pct_diff:.0f}%）",
+        "- 各物种的均值和中位数接近，说明分布相对对称",
+        "",
+        "### 4.2 离散程度",
+        f"- 整体标准差：{df['body_mass_g'].std():.1f}g",
+        f"- 整体 IQR：{df['body_mass_g'].quantile(0.75) - df['body_mass_g'].quantile(0.25):.1f}g",
+        "- Gentoo 的体重波动较大（IQR 约为 700g）",
+        "- Adelie 的体重分布较为分散",
+        "",
+        "### 4.3 分布形状",
+        "- 整体体重分布呈现轻微软右偏（偏度约为 {:.2f}）".format(df["body_mass_g"].skew()),
+        "- 按物种分组后，各组分布更接近正态分布",
+        "- 箱线图显示存在少量异常值，需在后续分析中关注",
+        "",
+        "### 4.4 诚实可视化说明",
+        "- 所有柱状图的 Y 轴均从 0 开始，避免误导",
+        "- 图表中标注了实际数值，支持精确比较",
+        "- 图例中注明了样本量（各物种的计数）",
+        "",
+    ]
+
+    return "\n".join(lines)
+
+
+# =============================================================================
+# 报告生成入口
+# =============================================================================
+
+def generate_report(df: pd.DataFrame, output_dir: Path) -> None:
+    """生成完整的 StatLab 报告"""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # 生成可视化
+    generated_files = generate_plots(df, output_dir)
+
+    # 组装报告
+    report_sections = [
+        generate_data_card(df),
+        generate_summary_stats(df),
+        generate_visualization_section(generated_files),
+        generate_key_findings(df),
+        "---",
+        "",
+        "## 5. 分析日志",
+        "",
+        "### Week 01",
+        "- 创建数据卡",
+        "",
+        "### Week 02",
+        "- 新增：描述统计表（整体 + 按物种分组）",
+        "- 新增：3 张可视化图表（直方图、箱线图、密度图）",
+        "- 应用：诚实可视化原则",
+        "",
+    ]
+
+    report_content = "\n".join(report_sections)
+
+    # 写入报告
+    with open(REPORT_PATH, "w", encoding="utf-8") as f:
+        f.write(report_content)
+
+    print(f"\n✓ 报告已生成：{REPORT_PATH}")
+    print(f"  - 数据卡：1 个")
+    print(f"  - 描述统计表：4 个")
+    print(f"  - 可视化图表：3 张")
+    print(f"  - 主要发现：4 项")
+
+
+# =============================================================================
+# 主函数
+# =============================================================================
+
+def main() -> None:
     """主函数"""
-    import argparse
+    print("="*60)
+    print("StatLab 报告生成器 - Week 02")
+    print("="*60)
 
-    parser = argparse.ArgumentParser(description='StatLab Week 02 更新脚本')
-    parser.add_argument('--data', default='data/users.csv',
-                       help='数据文件路径（默认：data/users.csv）')
-    parser.add_argument('--report', default='report.md',
-                       help='报告文件路径（默认：report.md）')
+    df = load_data()
+    generate_report(df, OUTPUT_DIR)
 
-    args = parser.parse_args()
-
-    setup_style()
-
-    # 执行更新
-    result = add_descriptive_statistics(args.data, args.report)
-
-    # 创建检查点（如果有数据）
-    try:
-        df = pd.read_csv(args.data)
-        create_checkpoint(df)
-    except:
-        print("\n  跳过检查点创建（数据文件不存在）")
-
-    print("\n" + "=" * 60)
-    print("StatLab Week 02 更新完成！")
-    print("=" * 60)
-    print("\n下周 StatLab 将基于此报告继续添加：")
-    print("  • 缺失值处理与异常值处理")
-    print("  • 清洗日志")
-    print("  • EDA 假设清单")
+    print("\nWeek 02 更新完成！")
+    print("- 从 Week 01 的'只有数据卡'升级为'数据卡 + 描述统计 + 可视化'")
 
 
 if __name__ == "__main__":

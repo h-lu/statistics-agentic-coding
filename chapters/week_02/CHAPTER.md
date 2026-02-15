@@ -1,653 +1,595 @@
 # Week 02：一页分布报告 —— 从"一个均值"到"看见数据的形状"
 
-> "Without data, you're just another person with an opinion."
-> — W. Edwards Deming
+> "The greatest value of a picture is when it forces us to notice what we never expected to see."
+> — John Tukey
 
-你把一份用户数据丢给 AI，十秒钟后它吐回来一份报告："平均月消费 320 元，标准差 150 元，数据呈现右偏分布。"看起来很专业，对吧？
+近年来，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。GitHub Copilot 在 2026 年用户已超过 2000 万开发者，AI 正在编写约 46% 的代码。这很诱人，也很危险。
 
-但这里面藏着一个你可能没注意到的问题：**AI 给你的只是一个"看起来对"的摘要，但它不会告诉你——320 元的均值被几个超级大户拽高了；中位数其实只有 180 元；所谓"右偏"意味着有 5% 的用户消费超过 1000 元，他们才是你真正需要单独研究的群体。**
+因为 AI 可以比你更快地算出一个均值、画出一张分布图，却不会替你问：这份数据到底在讲谁？均值和中位数选哪个才合适？这张图是不是把 Y 轴截断了？如果你连"数据长什么样"都没看清楚，后面的任何结论——无论 p 值多小、模型多复杂——都可能建在沙滩上。
 
-GitHub 的数据显示，截至 2025 年 7 月，Copilot 已经有超过 2000 万用户——但同一时期的研究也发现，AI 生成的统计分析经常出现错误的假设检验、误导性的图表编码，甚至把"相关"直接写成"因果"。AI 确实能加速计算，但它不会替你思考：这个均值能代表典型用户吗？标准差大意味着什么？为什么有时候中位数比均值更诚实？
+<!-- 参考（访问日期：2026-02-15）：
+- https://www.wearetenet.com/blog/github-copilot-usage-data-statistics
+- https://itbrief.news/story/github-copilot-users-surpass-20-million-as-ai-tools-surge-in-demand
+-->
 
-本周我们要做的，是"慢下来"——从只报一个均值，到真正看见数据的形状。描述统计不是"背公式"，而是建立数据直觉的第一步：数据大概落在什么范围？典型值在哪？波动有多大？有没有奇怪的地方？有了这些直觉，你才能判断 AI 给你的分析是否靠谱。
+本周我们不急着让 AI 帮我们画图。从集中趋势、离散程度、分布形状开始，先把统计直觉建立起来。然后我们用可视化把数据的故事讲清楚——不是"好看就行"，而是"诚实优先"。
 
 ---
 
 ## 前情提要
 
-上周你给自己的数据办了一张"身份证"（数据卡），知道每列是什么类型、能回答什么类型的问题。但这只是起点——老潘看过你的初稿后，只问了一句："**均值之后呢？**"
+上一周你学会了先问"我想回答什么问题"，然后用数据卡把数据的边界写清楚。你知道了 Palmer Penguins 数据集有 344 行、7 列，知道了哪些字段有缺失值、缺失率是多少。这些信息是地基——但地基只是地基，你还没看到"数据长什么样"。
 
-这是个好问题。如果你只给老板或客户报一个"平均留存率 40%"，他们可能会问："这是典型用户的情况吗？有没有极端情况？不同用户群体差异大吗？"如果你回答不上来，说明你还没有真正"看见"数据。
+小北看了一眼数据卡，问："我知道 bill_length_mm 的缺失率是 2.4%，但我不知道它大概是多少毫米，也不知道三种企鹅的嘴峰长度是不是差很多。"
 
-本周我们要做的，是把你对数据的认识从"一个数字"升级为"一张图 + 几个关键指标"。这不是炫技，而是诚实地回答："数据大概长什么样？典型值在哪？波动有多大？有没有奇怪的地方？"
-
-AI 可以在几秒钟内为你生成一堆图表和统计量，但它不会替你回答"这些图说明什么"——这是你的工作，也是本周的核心。
+这正是本周要解决的问题：**用描述统计和可视化，把"数据长什么样"这个问题回答清楚**。
 
 ---
 
-## 学习目标
+## 本章学习目标
 
 完成本周学习后，你将能够：
-1. 选择合适的集中趋势指标（均值 vs 中位数 vs 众数），并解释为何选择它
-2. 用标准差、IQR 等指标刻画数据的波动大小
-3. 用直方图、密度图、箱线图展示数据的分布形状
-4. 识别并避免常见的可视化误导（截断 Y 轴、面积误导等）
-5. 为你的数据集生成一页"分布报告"（统计摘要 + 诚实图表）
+1. 计算并解释集中趋势指标（均值、中位数、众数），知道什么时候该用哪个
+2. 计算并解释离散程度指标（方差、标准差、极差、IQR），理解"波动"的意义
+3. 用直方图和箱线图观察分布形状，识别偏度和异常值
+4. 判断一张图是否"诚实"：避免 Y 轴截断、面积误导等常见陷阱
+5. 在 StatLab 报告中加入描述统计和可视化，生成"一页分布报告"
 
 ---
-
 <!--
-贯穿案例：一页分布报告
+贯穿案例：一次用户留存分析的误会
 
-本周贯穿案例是一个渐进式小项目：读者逐周把同一份数据的描述统计报告打磨成"可对外展示"的一页纸。
+案例演进路线：
+- 第 1 节（数据卡回顾）→ 确认样本是谁、时间范围是什么、字段怎么来的
+- 第 2 节（集中趋势）→ 留存率看均值还是中位数？为什么（异常值的影响）
+- 第 3 节（分布与分组）→ 不同渠道/不同城市分布有没有长尾（直方图、密度图）
+- 第 4 节（离散程度与箱线图）→ 用箱线图识别异常值，解释 IQR 的意义
+- 第 5 节（诚实可视化）→ 用一张图把误会讲清楚，并解释图的边界（避免误导）
 
-- 第 1 节：集中趋势 → 案例从"只知道一个均值"变成"理解何时该用均值/中位数/众数"
-- 第 2 节：离散程度 → 案例从"只看中心"变成"同时理解中心和波动"
-- 第 3 节：分布可视化 → 案例从"只有数字"变成"有图有真相"（直方图/密度图/箱线图）
-- 第 4 节：可视化诚实性 → 案例从"随便画图"变成"能解释为什么这张图诚实"
-- 第 5 节：一页报告 → 案例从"零散的分析"变成"一页可展示的报告"
+最终成果：读者拥有一份"一页分布报告"，包含关键统计量和 2-3 张诚实的可视化图表
 
-最终成果：读者为选定的数据集生成一份"一页分布报告"（report.md 的第二版），包含：
-- 数据卡（上周的）
-- 核心指标的集中趋势和离散程度摘要
-- 2-3 张"诚实"的分布图
-- 每张图的简短解释（为什么选它、说明了什么）
+数据集：使用用户留存数据（或沿用 Penguins 数据，同时展示两种案例风格）
+
+---
 
 认知负荷预算：
 - 本周新概念（4 个，预算上限 4 个）：
-  1. 集中趋势（central tendency）
-  2. 离散程度（dispersion）
-  3. 分布可视化（distribution plots）
-  4. 可视化诚实性（honest visualization）
+  1. 集中趋势（均值/中位数/众数）
+  2. 离散程度（方差/标准差/IQR）
+  3. 分布形状（偏度/峰度）
+  4. 诚实可视化原则
 - 结论：✅ 在预算内
 
 回顾桥设计（至少 2 个）：
-- [数据类型]（来自 week_01）：在第 1 节，通过"数值型 vs 分类型"再次强调不同类型用不同指标
-- [数据卡]（来自 week_01）：在第 5 节，把一页报告作为数据卡的"内容扩展"
-- [DataFrame]（来自 week_01）：在代码示例中自然使用 pandas，不重复讲解基础
+- [数据类型]（来自 week_01）：在第 1 节，通过"不同类型的字段用不同的集中趋势指标"再次使用
+- [数据卡]（来自 week_01）：在第 5 节，通过"把分布报告写进数据卡/报告"再次使用
 
 AI 小专栏规划：
-合并为一个 AI 专栏放在章末（小结之前）：
-- 主题：AI 时代如何审查自动生成的统计图表
-- 内容要点：
-  1. AI 生成图表的"一刀切"问题（默认用均值、截断 Y 轴）
-  2. 误导性图表在 AI 输出中的普遍性
-  3. 实用的审查清单
-- 建议搜索词：
-  - "AI automated data visualization limitations 2025 2026"
-  - "misleading data visualization AI generated 2025"
-  - "human-in-the-loop visualization 2026"
+- 第 1 个侧栏（第 2 节之后）：
+  - 主题："AI 能替你选图表吗？"
+  - 连接点：刚学完集中趋势，讨论 AI 自动选择统计量/图表类型的边界
+  - 建议搜索词："AI automated chart selection 2026", "Python visualization recommendation tools 2026"
+
+- 第 2 个侧栏（第 4 节之后）：
+  - 主题："误导性可视化：AI 时代更常见的陷阱"
+  - 连接点：刚学完箱线图和分布可视化，讨论 Y 轴截断、面积误导等常见问题
+  - 建议搜索词："misleading data visualization examples 2026", "data visualization ethics 2026", "chart y-axis truncation controversy 2025"
 
 角色出场规划：
-- 小北（第 1 节）：只看均值就下结论，被引导思考"这个均值代表性如何"
-- 阿码（第 4 节）：问"AI 生成的图会不会错？"
-- 老潘（第 3 节结尾）：追问"Y 轴从 0 开始了吗？"
+- 小北（第 2 节）：只看均值就下结论，被老潘追问"中位数呢？"，引出异常值对均值的影响
+- 阿码（第 3 节）：看到偏态分布后问"能不能用 AI 自动判断分布类型？"，引出 AI 的边界
+- 老潘（第 5 节）：看到误导图后点评"在工业界，这种图会被产品经理挑战"，引出诚实可视化的重要性
 
 StatLab 本周推进：
-- 上周状态：只有数据卡（Data Card），描述了数据来源、字段、缺失情况
-- 本周改进：在 report.md 中补充描述统计章节，包含均值/中位数、标准差/IQR，以及 2-3 张分布图
-- 涉及的本周概念：集中趋势、离散程度、分布可视化、可视化诚实性
-- 建议示例文件：examples/02_descriptive_report.py（生成描述统计报告的脚本）
+- 上周状态：只有数据卡（数据来源、字段字典、规模、缺失概览）
+- 本周改进：加入描述统计（均值、中位数、标准差、分位数）和 2-3 张可视化图表
+- 涉及的本周概念：集中趋势、离散程度、分布形状、诚实可视化
+- 建议示例文件：examples/02_statlab_update.py（本周报告生成入口脚本）
 -->
 
-## 1. 别让平均数骗了你
+## 1. 哪个数字才是"典型"？
 
-小北拿到一份"用户月消费"数据，兴冲冲地算了个平均数，然后在汇报里写："**我们的用户平均月消费 320 元**"。
+小北算出 Palmer Penguins 三个物种的平均体重：Adelie 3700g、Chinstrap 3733g、Gentoo 5076g。她立刻写下结论："Gentoo 企鹅比其他两种重了 1300g 左右。"
 
-老潘看了一眼，只问了一句："那中位数呢？"
+老潘看了一眼报告，问了一句："中位数呢？"
 
-"中位数……"小北愣住了，"为什么要算中位数？均值不就够了吗？"
-
-这是个极其真实的问题。小北算出的"320 元"在数学上是对的，但可能极具误导性——因为只要有一两个高消费的极端值，均值就会被拽着跑。比如这份数据里如果有 10 个普通用户（月消费 100-200 元）和 1 个超级大户（月消费 5000 元），均值会被拉到 600 多，完全失去"典型用户"的意义。
-
-这就是**集中趋势**（central tendency）要回答的问题：数据的"典型水平"在哪里？但你有一个选择：是用均值、中位数，还是众数？
-
-上周你已经知道，**数值型数据**才适合算均值。但数值型内部还有一个重要区别：这列数据有没有极端值？如果有，中位数往往比均值更"诚实"——中位数是排序后中间位置的数，不会被极端值拽着跑。
-
-```python
-import pandas as pd
-
-# 读取数据
-df = pd.read_csv("data/users.csv")
-
-# 计算集中趋势的三个指标
-mean_value = df["monthly_spend"].mean()
-median_value = df["monthly_spend"].median()
-mode_value = df["monthly_spend"].mode()[0]  # mode 返回 Series，取第一个
-
-print(f"均值: {mean_value:.2f}")
-print(f"中位数: {median_value:.2f}")
-print(f"众数: {mode_value:.2f}")
-```
-
-小北跑了一下，发现均值是 320，中位数是 180，众数是 150。
-
-"差这么多……"他盯着屏幕，"那我汇报的时候该用哪个？"
-
-好问题。答案是：**取决于你想回答什么问题**。
-
-- 均值适合给你一个整体规模感："所有用户的消费加起来，平均每人贡献了多少。"
-- 中位数更像"典型个体"的位置："如果随机抓一个用户，他的消费大概率在中位数附近。"
-- 众数适合分类型数据："哪个城市/哪个商品/哪个等级的用户最多？"
-
-阿码在旁边突然冒出一个问题："等等，我试过把性别（编码成 0 和 1）算个均值，结果出来个 0.52。这能说明什么吗？"
-
-这是个很"阿码式"的问题——他总是喜欢试探边界，偶尔还能踩到些有趣的坑。
-
-你当然可以算，pandas 不会拦着你。但上周我们已经学过，性别是**分类型数据**，不是数值型。你算出来的"平均性别 0.52"在数学上没错，但在语义上是空的——它不代表任何真实的东西，就像问"这组苹果和橙子的平均水果是什么"一样。
-
-所以这里有个"哦！"时刻：**工具不会替你思考语义**。pandas 会算你让它算的一切，但判断"这个指标有意义吗"——那是你的工作。
-
-**先问数据类型，再选指标。** 数值型且没有极端值，用均值没问题；数值型但有长尾或异常点，用中位数更稳妥；分类型数据，用众数。
-
-小北还是有点纠结："那我每次都要算三个吗？"
-
-不是。你先画个分布图，看一眼数据长什么样——下一节我们就来聊这个。
+小北愣住了："啊？我算均值还不够吗？"
 
 ---
 
-> **AI 时代小专栏：数据质量是 AI 分析的底线**
+### 均值 vs 中位数：它们在回答不同的问题
+
+上周你学会了**数据类型**（数值型 vs 分类型）。这周我们首先需要知道：**即使是数值型数据，也不是"一个均值就能说明一切"**。
+
+均值（mean）和中位数（median）都在回答"什么是典型值"，但它们对"极端值"的敏感度完全不同。
+
+```python
+# examples/01_central_tendency.py
+import seaborn as sns
+import pandas as pd
+
+penguins = sns.load_dataset("penguins")
+
+# 计算三种企鹅的平均体重和中位数体重
+print("按物种分组的体重统计：")
+stats_by_species = penguins.groupby("species")["body_mass_g"].agg(
+    mean="mean",
+    median="median",
+    count="count"
+).round(1)
+print(stats_by_species)
+print()
+
+# 计算整体的均值和中位数
+print("整体统计：")
+print(f"均值：{penguins['body_mass_g'].mean():.1f} g")
+print(f"中位数：{penguins['body_mass_g'].median():.1f} g")
+print(f"众数：{penguins['species'].mode().tolist()}")
+```
+
+运行后你会发现：Gentoo 的均值（5076g）和中位数（5050g）很接近，这说明它的分布比较对称。但如果你遇到有极端值的数据，均值就会被"拉偏"。
+
+想象一个场景：你分析用户收入，数据是 `[3000, 3500, 4000, 4500, 100000]`。均值是 23000，但中位数只有 4000。哪个更"典型"？如果你说"我们的用户平均月入 2.3 万"，任何人都会以为你疯了——因为绝大多数人远没到这个数。中位数才是那个"一半人比我少、一半人比我多"的稳健指标。
+
+### 什么时候用哪个？
+
+老潘的经验法则是这样的：数据分布对称时，均值和中位数都可以用；但如果数据有极端值或长尾，均值会被拉偏，中位数更稳健。如果你需要计算总和（比如总收入），均值可累加，中位数不行；如果是分类型数据，那就用众数——比如 `species` 的众数是 `Adelie`，这是 152 只企鹅的物种。但对数值型数据，众数通常没什么用（连续数据可能根本没有重复值）。
+
+阿码举手："那我是不是每次都应该算均值和中位数，看看它们差多少？"
+
+好问题。如果均值和中位数很接近，说明分布比较对称，用哪个都可以；如果差得远，说明有偏态或极端值，这时中位数更可靠。
+
+这一步你把"典型值"抓到了手。但典型值只是故事的一半——你还需要知道数据有多"散"。两个产品日留存率均值都是 40%，但一个稳定在 38%-42% 之间，另一个在 10%-70% 之间乱跳——你能说它们是一样的吗？这就是下一节要解决的问题。
+
+## 2. 波动也是信息
+
+小北看到两个产品的日留存率都是 40%，立刻在报告里写："两款产品表现一致。"
+
+老潘把两份原始数据扔给她："你先看看这两个 40% 背后的波动有多大。"
+
+---
+
+### 标准差：给波动一个数字
+
+离散程度（dispersion）衡量数据有多"散"。最常用的指标是**标准差**（standard deviation）和**四分位距**（IQR）。
+
+```python
+# examples/02_dispersion_demo.py
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+penguins = sns.load_dataset("penguins")
+
+# 计算三种企鹅体重的标准差和 IQR
+print("按物种分组的离散程度：")
+dispersion_by_species = penguins.groupby("species")["body_mass_g"].agg(
+    std="std",
+    min=("min", lambda x: x.min()),
+    q25=("quantile", lambda x: x.quantile(0.25)),
+    median=("median", lambda x: x.median()),
+    q75=("quantile", lambda x: x.quantile(0.75)),
+    max=("max", lambda x: x.max())
+).round(1)
+print(dispersion_by_species)
+print()
+
+# 计算 IQR（四分位距）
+def compute_iqr(series):
+    q25 = series.quantile(0.25)
+    q75 = series.quantile(0.75)
+    return q75 - q25
+
+print("整体 IQR：")
+iqr = compute_iqr(penguins["body_mass_g"].dropna())
+print(f"四分位距：{iqr:.1f} g")
+```
+
+标准差是方差的平方根。方差（variance）是每个点到均值的距离平方后求平均，单位是"克的平方"——这不好理解。所以开根号变回标准差，单位就恢复了。
+
+阿码追问："那为什么不用方差？开根号多麻烦。"
+
+问题在于单位。如果体重的单位是克，方差的单位就是"平方克"——这个物理意义很奇怪。标准差的优势在于它和原始数据单位一致，你可以说"平均来说，体重偏离均值约 500g"，这比"方差是 250000 平方克"好懂多了。
+
+### 标准差 vs IQR：稳健性不同，用途也不同
+
+标准差和 IQR 的区别，和均值与中位数的区别类似。如果数据接近正态分布，标准差是经典搭配，IQR 也可以；但如果数据有极端值，标准差会被放大，IQR 依然稳健。
+
+如果你需要和均值搭配，用标准差；如果和中位数搭配，用 IQR。小北试了一下：她算出 Adelie 企鹅体重的标准差是 458g，IQR 是 650g。为什么这两个数字不一样？因为它们在回答略有不同的问题。标准差考虑了所有点到均值的距离，IQR 只看中间 50%。如果分布有长尾，标准差会更大，因为它被极端值"拉"出去了。
+
+### 波动为什么重要？
+
+老潘当年吃过亏。他做过一个 A/B 测试，对照组和实验组的均值只差 0.5%，他差点下结论"没差异"。但看标准差才发现：对照组波动很小（SD=1%），实验组波动很大（SD=5%）。这意味实验组"不稳定"——有些用户非常喜欢，有些非常讨厌，平均起来才看起来"差不多"。
+
+**典型值 + 波动，才能完整描述数据**。均值告诉你"大概在哪里"，标准差告诉你"大概有多散"。只看均值，就像只看平均值而不知道方差——你可能会错过最重要的故事。
+
+> **AI 时代小专栏：AI 能替你选图表吗？**
 >
-> 你可能觉得：既然 AI 能自动生成描述统计、画分布图，那我学这些还有什么意义？
+> 你刚学完集中趋势和离散程度，可能已经在想：AI 能不能直接告诉我该用均值还是中位数？能不能替我选一张最合适的图表？
 >
-> 2025-2026 年的研究给出了一个清晰的答案：**数据质量决定了 AI 输出的质量**。MicroStrategy 的分析指出，2026 年 AI 成功的关键在于高质量数据——"垃圾进，垃圾出"这条老规则在 AI 时代不仅没过时，反而更致命。
+> 2026 年确实有一批 AI 工具在做这件事：Vizly AI 可以从原始数据通过提示词自动生成图表，Tableau AI 能基于数据趋势自动生成"洞察"。它们很快——几秒钟就能产出你花半小时才能画完的图。但这里有个关键区别：**AI 可以帮你"画"图，但不会替你"选"图。**
 >
-> Duke University 图书馆 2026 年 1 月的文章指出：LLM 的幻觉问题在 2026 年依然存在，而幻觉的一个重要来源就是**稀疏、矛盾或低质量的数据**。当你让 AI 做描述统计时，它不会替你检查：缺失值是不是随机缺失？异常值是录入错误还是真实情况？分类型变量有没有被错误编码？
+> 举例：AI 可以比你更快地算出一个均值，但不会替你问："这个数据有极端值吗？均值和中位数选哪个才合适？" 你需要先看分布（用本周学的直方图/箱线图），判断数据是否对称、有没有长尾，再决定用哪个统计量。AI 会给你两个数字，但"选哪个"的判断需要你来做。
 >
-> 更有意思的是，GPTZero 在 2025 年底发现，ICLR 2026 的研究投稿中有超过 50 处幻觉引用——每处都被 3-5 位审稿人遗漏。这说明什么？**AI 生成的分析看起来"很专业"，但专业不等于正确**。
+> 同理，AI 可以生成柱状图、折线图、饼图等七八种变体，但它不知道你的分析目标是什么。你是想"比较绝对差异"（用柱状图，Y 轴从 0 开始）还是"展示趋势变化"（用折线图，Y 轴可以适度截断）？你是想"强调占比"（用饼图，但要警惕面积误导）还是"支持精确比较"（用堆叠柱状图）？这些决策需要你理解数据和受众，AI 目前做不到。
 >
-> 所以本周你学的"先看数据类型、再选指标""画分布图、看异常值"不是"过时的基本功"，而是 AI 时代的**质检流程**：在你把数据丢给 AI 之前，先搞清楚数据长什么样；在 AI 吐回分析结果之后，你有能力判断"这个均值靠谱吗""这张图有没有误导"。
->
-> 记住：**AI 是你的副驾驶，但你是那个握方向盘的人**。
+> 这就是为什么你学的不只是"怎么算统计量"，而是"什么时候用哪个"。AI 是加速器，不是决策替代品。知道"为什么选这个图表"，比知道"怎么画这个图表"更重要。
 >
 > 参考（访问日期：2026-02-15）：
-> - [Why Data Quality is Key to AI Success in 2026](https://www.strategysoftware.com/blog/why-data-quality-is-key-to-ai-success-in-2026)
-> - [It's 2026. Why Are LLMs Still Hallucinating?](https://blogs.library.duke.edu/blog/2026/01/05/its-2026-why-are-llms-still-hallucinating/)
-> - [GPTZero Finds Over 50 Hallucinations in ICLR 2026 Submissions](https://gptzero.me/news/iclr-2026/)
+> - https://www.findanomaly.ai/best-ai-tools-data-analysis-visualization-2026
+> - https://www.splunk.com/en_us/blog/learn/data-analysis-tools.html
+> - https://www.reddit.com/r/datavisualization/comments/1r22kgg/a_growing_list_of_aipowered_data_visualization/
+
+## 3. 把分布画出来
+
+小北以为体重数据是"正态分布"——中间高、两边低、完美对称。她写代码画了一张直方图，结果愣住了：左边有一段小尾巴，右边也有一段小尾巴，而且不太对称。
+
+"这是怎么了？我的数据有问题吗？"
 
 ---
 
-## 2. 波动不只是"噪音"
-
-小北盯着屏幕上那三个数字——均值 320、中位数 180、众数 150——觉得自己已经"看透"了这份数据。他满意地靠在椅背上，端起咖啡抿了一口，准备点击"发送"。
-
-老潘恰好路过，瞥了一眼屏幕，问了一个让小北差点呛到的问题："波动多大？"
-
-"波动……"小北想了想，在 Excel 里找到标准差公式，填进去。"标准差是 150。"
-
-"标准差是个东西，"老潘说，"但 150 到底算大还是算小？"
-
-这是个好问题。**离散程度**（dispersion）要回答的是：数据有多"散"？波动有多大？但和集中趋势一样，你也有选择：标准差、IQR（四分位距）、方差、极差——每个指标回答的是不同的问题。
-
-先用一个例子感受一下：两组数据的均值都是 50，但第一组是 [48, 49, 50, 51, 52]，第二组是 [0, 25, 50, 75, 100]。均值相同，但第一组"稳定"，第二组"抖动"——这就是离散程度的差别。
-
-最常用的两个指标是**标准差**（standard deviation）和**四分位距 IQR**（interquartile range）：
+### 直方图：看见分布的形状
 
 ```python
-import pandas as pd
-
-df = pd.read_csv("data/users.csv")
-
-# 标准差（Standard Deviation）
-std = df["monthly_spend"].std()
-print(f"标准差: {std:.2f}")
-
-# 四分位距 IQR（Interquartile Range）
-q1 = df["monthly_spend"].quantile(0.25)
-q3 = df["monthly_spend"].quantile(0.75)
-iqr = q3 - q1
-print(f"IQR: {iqr:.2f} (Q1: {q1:.2f}, Q3: {q3:.2f})")
-```
-
-阿码看着输出，问了一个很犀利的问题："那标准差和 IQR，我该用哪个？"
-
-答案是：**取决于你的数据有没有极端值**。
-
-标准差对极端值非常敏感——有一个异常点，标准差就会被拽大。而 IQR 是中间 50% 数据的范围，极端值几乎不影响它。这里有一个"哦！"时刻：**如果你发现标准差远大于 IQR，说明数据里有极端值在"捣乱"**——这时候 IQR 更诚实。
-
-小北追问："那如果我的数据是正态分布呢？"
-
-好问题。正态分布时，标准差有简洁的解释：约 68% 的数据落在均值 ±1 个标准差内，95% 落在 ±2 个标准差内。但这个解释只在数据接近正态分布时才成立——如果分布有长尾，这个规则就不靠谱了。
-
-上周我们学过，**分类型数据不能算标准差**——你可以说"性别"的众数是什么，但说"性别的标准差是 0.5"没有意义。分类型数据的离散程度要用熵或者基尼系数，那是更后面的内容了。
-
-现在你同时有了"中心"和"波动"两个视角。但数字还是太抽象——你可能算出标准差是 150，但直觉上不知道"150 到底算大还是算小"。
-
-小北想了想："那如果标准差是 0 呢？"
-
-"那说明你们用户都是克隆人，消费一模一样。"老潘难得开了个玩笑，"快去画图吧。下一节，我们画图。"
-
----
-
-## 3. 数据长什么样？先画分布
-
-小北算出了均值、中位数、标准差，在报告里写了一堆数字。老潘看完只说了一句话："**画张图。**"
-
-"画什么？"小北愣住了。
-
-"画数据长什么样。"
-
-这就是**分布可视化**（distribution plots）的核心：数字可以告诉你均值是多少、标准差是多大，但只有图能让你"看见"数据的形状。是单峰还是双峰？是对称还是偏斜？有没有异常值？这些信息藏在分布里，不在摘要数字里。
-
-等等，"看见"数据是什么意思？你可能会说：我有一千行数据，我怎么"看见"？答案就是：**把分布画出来**。
-
-最常用的三种分布图是：**直方图**（histogram）、**密度图**（density plot）、**箱线图**（boxplot）。
-
-```python
-import pandas as pd
+# examples/03_distribution_plots.py
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# 读取数据（Week 01 你已经熟悉了 DataFrame）
-df = pd.read_csv("data/users.csv")
+penguins = sns.load_dataset("penguins")
 
-# 直方图（Histogram）
-plt.figure(figsize=(10, 4))
-sns.histplot(df["monthly_spend"], kde=True, bins=30)
-plt.title("月消费的分布（直方图）")
-plt.xlabel("月消费（元）")
-plt.ylabel("频数")
-plt.show()
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-# 箱线图（Boxplot）
-plt.figure(figsize=(6, 4))
-sns.boxplot(y=df["monthly_spend"])
-plt.title("月消费的分布（箱线图）")
-plt.ylabel("月消费（元）")
-plt.show()
+# 左图：所有企鹅的体重分布
+axes[0].hist(penguins["body_mass_g"].dropna(), bins=20, edgecolor="black", alpha=0.7)
+axes[0].set_xlabel("Body Mass (g)")
+axes[0].set_ylabel("Frequency")
+axes[0].set_title("Distribution of Penguin Body Mass")
+
+# 右图：按物种分组的体重分布
+for species in penguins["species"].unique():
+    data = penguins[penguins["species"] == species]["body_mass_g"].dropna()
+    axes[1].hist(data, bins=15, alpha=0.5, label=species, edgecolor="black")
+
+axes[1].set_xlabel("Body Mass (g)")
+axes[1].set_ylabel("Frequency")
+axes[1].set_title("Body Mass by Species")
+axes[1].legend()
+
+plt.tight_layout()
+plt.savefig("output/distribution_plots.png", dpi=100)
+print("图表已保存到 output/distribution_plots.png")
 ```
 
-阿码看着这两张图，突然问了一个问题："那我什么时候用直方图，什么时候用箱线图？"
+运行后你会看到：左图有一个"双峰"（两个鼓包），右图揭示了真相——Gentoo 企鹅整体更重，Adelie 和 Chinstrap 较轻但重叠。如果你只看整体均值（4200g），你会错过这个最重要的发现：**这份数据不是单一群体，而是三个群体的混合**。
 
-好问题。它们回答的是不同的问题：
+![](images/distribution_plots.png)
+*图：企鹅体重分布。左图为整体分布（可见双峰），右图按物种分组后揭示了三个群体的差异*
 
-- **直方图**让你看到"整体形状"：单峰还是多峰？对称还是偏斜？数据集中在哪个区间？如果你加上 `kde=True`，还能看到一条平滑的密度曲线，帮助你判断"这像不像正态分布"。
+阿码看到直方图后问："能不能用 AI 自动判断这是正态分布还是别的分布？"
 
-- **箱线图**让你看到"异常值"：箱子的上下边是 Q1 和 Q3（中间 50% 数据的范围），中间的线是中位数，"须"延伸到 1.5 倍 IQR，超出须的点就是异常值。箱线图不适合判断"形状"，但非常适合发现极端点。
+技术上可以。AI 可以用拟合优度检验（如 Kolmogorov-Smirnov 检验）告诉你"这不符合正态分布"。但这里有个更大的问题：**为什么要判断分布类型？**
 
-小北盯着屏幕上的箱线图，发现有 5 个点在须的外面。"这些是异常值吗？我要删掉它们吗？"
+如果你的目标是"做 t 检验"（Week 06 会学），那你需要关心数据是否近似正态；但如果你的目标是"描述数据长什么样"，直方图已经告诉你答案了——它是不是对称的、有没有长尾、有几个峰。这些直观观察，比一个"p < 0.05 的正态性检验"更有用。
 
-别急着删。这里有一个很多人都会踩的坑：**异常值不一定是错的**。异常值可能有三类：
+### 密度图：更平滑的分布
 
-1. **录入错误**：比如身高写成了 250 厘米——这是修数据
-2. **极端但真实**：比如真的有用户月消费 10000 元——这是修解释
-3. **某个群体的特征**：比如 VIP 用户的消费本来就高——这是修分组策略
-
-Week 03 我们会专门聊异常值处理。现在你只需要记住：**箱线图把异常值摆到你面前，但怎么处理，是业务决策，不是统计操作**。
-
-换句话说，箱线图不仅是"看见异常值"的工具，更是"理解异常值"的起点——这些点到底是怎么回事？是数据质量问题，还是你忽略的一个细分市场？
-
-阿码追问："如果我有多个组（比如不同城市的用户），怎么画？"
-
-用分组箱线图，这个很常见——而且经常能发现"意外的故事"：
+直方图的缺点是它对 `bins` 参数敏感——你选 10 个 bins 和 30 个 bins，形状可能完全不同。密度图（density plot）是一种平滑的替代方案：
 
 ```python
-# 分组箱线图
-plt.figure(figsize=(10, 4))
-sns.boxplot(x=df["city"], y=df["monthly_spend"])
-plt.title("不同城市的月消费分布")
-plt.xlabel("城市")
-plt.ylabel("月消费（元）")
-plt.xticks(rotation=45)
-plt.show()
+# 密度图示例
+plt.figure(figsize=(8, 5))
+sns.kdeplot(data=penguins, x="body_mass_g", hue="species", fill=True, alpha=0.3)
+plt.xlabel("Body Mass (g)")
+plt.ylabel("Density")
+plt.title("Density Plot of Body Mass by Species")
+plt.savefig("output/density_plots.png", dpi=100)
 ```
 
-这样你不仅能看到每个城市的"典型消费"（中位数），还能看到不同城市的波动和异常点差异。上周我们学过，**分类型数据不能算均值**，但可以用箱线图来比较不同类别组的分布——这就是可视化的力量。
+密度图的优势是平滑，适合观察整体形状；缺点是可能会掩盖细节（比如小样本的离散度）。实践中，两种图都可以试试。
 
-小北满意地看着自己的图。老潘走过来，指着屏幕问了一句："**Y 轴从 0 开始了吗？**"
+### 偏度和峰度：描述形状的数字
 
-小北一愣："这……重要吗？"
+如果你想用数字描述形状，可以用**偏度**（skewness）和**峰度**（kurtosis）：
 
-"重要。"老潘说，"图不只是画出来，还要诚实地传达信息。下一节，我们聊聊图怎么说谎。"
+```python
+# 计算偏度和峰度
+print("偏度和峰度：")
+print(f"偏度：{penguins['body_mass_g'].skew():.2f}")
+print(f"峰度：{penguins['body_mass_g'].kurtosis():.2f}")
+```
+
+偏度描述分布的"不对称性"：负偏态表示左边有长尾，正偏态表示右边有长尾。峰度描述分布的"尖峭程度"：峰度高表示中间更尖、尾部更厚，峰度低表示更平坦。
+
+但这些数字不如图直观。新手阶段，**先学会看图**。偏度和峰度等你需要"自动化判断分布形状"时再用——比如写一个脚本自动检测数据是否近似正态。
+
+现在你已经学会了：典型值（均值/中位数）+ 波动（标准差/IQR）+ 形状（直方图/密度图）。下一节我们用一个更强大的工具——箱线图——把异常值直接摆到你面前。
+
+## 4. 用箱线图发现异常值
+
+老潘拿到一份新的用户数据，第一件事不是算均值，而是画一张箱线图。三秒钟后他指着右边的一个点说："这个，先查一下是不是数据错误。"
+
+小北凑过去看："你怎么知道它是异常值？"
 
 ---
 
-## 4. 图会说谎，但你可以不
+### 箱线图：一眼看穿中位数、分散度和异常值
 
-小北画了一张柱状图，展示"两个版本的转化率对比"：A 版本 5.2%，B 版本 5.8%。为了让差异看起来更明显，他把 Y 轴的起点设成了 5%——看起来 B 版本比 A 版本高了一大截，简直像是翻倍了似的。
-
-老板看完很高兴："B 版本效果这么好？全面上线！"
-
-小北心里美滋滋的，觉得今晚可以加个鸡腿。
-
-老潘看了一眼，直接把图打回来了。小北的鸡腿梦碎了。
-
-"在公司里，截断 Y 轴的图表会被打回来的。"
-
-"为什么？"小北委屈，"数据没错啊……"
-
-"数据没错，但你制造了错觉。"
-
-这就是**可视化诚实性**（honest visualization）要解决的问题：图不仅是"画出来"，更要"诚实地传达信息"。常见的误导手法有几种，你需要识别并避免。
-
-### 截断 Y 轴（Truncated Y-axis）
-
-这是最常见的误导。比如上面那个例子：Y 轴从 5% 开始而不是 0%，让 0.6% 的差异看起来像 60%。
+箱线图（boxplot）是把一堆统计量压缩到一张图里的神器：中位数（箱子里面的线）、Q25/Q75（箱子的上下边）、IQR（箱子的高度）、须（whiskers，通常是 Q1-1.5×IQR 和 Q3+1.5×IQR），以及异常值（须之外的点）。
 
 ```python
-# ❌ 误导图：Y 轴从 5% 开始
-import matplotlib.pyplot as plt
-versions = ["A", "B"]
-rates = [5.2, 5.8]
-
-plt.figure(figsize=(6, 4))
-plt.bar(versions, rates)
-plt.ylim(5, 6)  # 截断 Y 轴
-plt.ylabel("转化率 (%)")
-plt.title("误导图：Y 轴从 5% 开始")
-plt.show()
-
-# ✅ 诚实图：Y 轴从 0 开始
-plt.figure(figsize=(6, 4))
-plt.bar(versions, rates)
-plt.ylim(0, max(rates) * 1.2)  # Y 轴从 0 开始
-plt.ylabel("转化率 (%)")
-plt.title("诚实图：Y 轴从 0 开始")
-plt.show()
-```
-
-但注意——这个规则不是绝对的。如果你的数据本身就不接近 0（比如"人类身高 160-180cm"），Y 轴从 0 开始会压缩变化。关键原则是：**不要让截断制造错觉**。如果你必须截断，要在标题或注释中明确说明。
-
-### 面积误导（Area Misleading）
-
-饼图和气泡图经常掉进这个坑。如果你把"饼图的面积"当作数值本身，很容易犯错——因为人类对"面积"的感知不如对"长度"敏感。
-
-```python
-# ❌ 误导：用饼图展示差异很小的两个值
-import matplotlib.pyplot as plt
-sizes = [51, 49]
-labels = ["A", "B"]
-
-plt.figure(figsize=(6, 6))
-plt.pie(sizes, labels=labels, autopct="%1.1f%%")
-plt.title("误导图：差异只有 2%，但看起来很大")
-plt.show()
-
-# ✅ 诚实：用柱状图
-plt.figure(figsize=(6, 4))
-plt.bar(labels, sizes)
-plt.ylim(0, max(sizes) * 1.2)
-plt.ylabel("数值")
-plt.title("诚实图：柱状图让差异更清晰")
-plt.show()
-```
-
-老潘说得很直白："在公司里，你画的图会被很多人看到。如果你的图制造了错觉，结论就会被打折扣。没人会信任一个'会骗人的分析师'。"
-
-阿码在旁边突然举手："那如果我让 AI 生成图表呢？**AI 生成的图会不会错？**"
-
-这是个好问题。答案是：**会，而且它犯错的方式可能更隐蔽**——因为 AI 生成的图表通常很"漂亮"，你更容易放松警惕。
-
-老潘点点头："AI 不会故意骗你，但它可能为了'让图表好看'而截断 Y 轴，或者默认用均值而不是中位数。你对你输出的所有内容负责——包括让 AI 帮你生成的部分。"
-
-记住：**你对你画的图（或让 AI 画的图）负责**。
-
----
-
-## 5. 一页报告：把数据的故事讲清楚
-
-老潘走进会议室，只说了一句话："老板给你一分钟时间。"
-
-小北慌了："一分钟？我光讲数据卡就要半分钟……"
-
-"所以你得把故事压缩到一页纸上。"老潘在白板上画了个框，"30 秒让老板听懂：数据长什么样、典型值在哪、有什么需要注意的。"
-
-这就是本周的贯穿案例：**一页分布报告**。你不再是"报一堆数字"，而是把本周学的东西——集中趋势、离散程度、分布可视化——整合成一张可对外展示的"数据快照"。
-
-一页报告不是"偷懒"，而是聚焦。它回答三个问题：
-1. **数据长什么样？**（核心指标摘要）
-2. **分布是什么形状？**（2-3 张诚实的图）
-3. **有什么需要注意的？**（极端值、长尾、分组差异）
-
-上周你写的数据卡是"数据的地基"。这周你要在它基础上扩展一个"描述统计"小节——不是堆砌数字，而是选择最关键的指标和图表，让读者在 30 秒内建立对数据的直觉。
-
-### 第一步：生成统计摘要
-
-首先，我们需要一个函数来计算核心指标：
-
-```python
-# examples/05_one_page_report.py
-import pandas as pd
+# 箱线图示例（节选）
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def generate_descriptive_summary(df: pd.DataFrame) -> dict:
-    """生成描述统计摘要（用于一页报告）"""
-    numeric_cols = df.select_dtypes(include=["number"]).columns
+penguins = sns.load_dataset("penguins")
 
-    summary = {}
-    for col in numeric_cols:
-        summary[col] = {
-            "mean": df[col].mean(),
-            "median": df[col].median(),
-            "std": df[col].std(),
-            "q1": df[col].quantile(0.25),
-            "q3": df[col].quantile(0.75),
-            "iqr": df[col].quantile(0.75) - df[col].quantile(0.25),
-        }
-    return summary
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+# 左图：单变量箱线图
+sns.boxplot(data=penguins, y="body_mass_g", ax=axes[0])
+axes[0].set_ylabel("Body Mass (g)")
+axes[0].set_title("Boxplot of Body Mass")
+
+# 右图：按物种分组的箱线图
+sns.boxplot(data=penguins, x="species", y="body_mass_g", ax=axes[1])
+axes[1].set_xlabel("Species")
+axes[1].set_ylabel("Body Mass (g)")
+axes[1].set_title("Body Mass by Species")
+
+plt.tight_layout()
+plt.savefig("output/boxplot_demo.png", dpi=100)
+print("图表已保存到 output/boxplot_demo.png")
 ```
 
-这个函数遍历所有数值型列，计算均值、中位数、标准差和 IQR。注意我们没有计算所有可能的统计量——只选最关键的，这是"一页报告"的精髓。
+运行后你会看到：右图中，Gentoo 的体重整体更高，而且箱子更"宽"（IQR 更大）。Adelie 和 Chinstrap 有一些离群点（须之外的圆圈）——这些是异常值的候选。
 
-### 第二步：生成可视化
+![](images/boxplot_by_species.png)
+*图：按物种分组的箱线图。Gentoo 明显更重，Adelie 和 Chinstrap 有一些离群点*
 
-接下来，为每个数值列生成两张图：直方图（看整体形状）和箱线图（看异常值）：
+### 异常值的判断标准：1.5×IQR 规则
+
+箱线图的"须"通常延伸到 Q1-1.5×IQR 和 Q3+1.5×IQR。超出这个范围的点会被画成单独的点——它们可能是异常值。
+
+为什么要用 1.5×IQR？这是一个经验法则：如果数据近似正态分布，大约 0.7% 的点会落在这个范围之外。它不是"绝对真理"，但提供了一个"值得怀疑"的阈值。
+
+阿码问："那这些点一定是错误吗？"
+
+不一定。异常值有三种可能：录入错误（比如体重 10000g，可能是多打了一个零）、测量误差（比如传感器故障导致的极端值）、真实但极端（比如某只企鹅确实特别胖）。前两种可以修正或删除，第三种应该保留——它可能是重要发现。
+
+小北的第一反应是"把异常值删掉"。老潘拦住她："先搞清楚它是什么。"Week 03 我们会详细讨论异常值处理策略，但第一原则永远是：**不要因为"它看起来奇怪"就删掉**。异常值有时是最有价值的数据——比如那只特别胖的企鹅，可能是亚种或特殊环境下的样本。
+
+### 箱线图 vs 直方图：各有所长
+
+实践中，两种图都可以画。箱线图适合"快速筛查异常值"和"多组比较"——异常值直观可见，多组数据并排摆放很方便；直方图适合"观察分布形状"——你能看到双峰、长尾、偏态的细节。箱线图直接显示中位数和 IQR，直方图则需要额外计算。
+
+现在你已经掌握了描述统计的核心工具：集中趋势（均值/中位数）、离散程度（标准差/IQR）、分布形状（直方图/箱线图）。下一节我们讨论一个更危险的话题：**如何用图撒谎，以及如何避免**。
+
+> **AI 时代小专栏：误导性可视化：AI 时代更常见的陷阱**
+>
+> 你刚学了"诚实可视化三原则"：Y 轴从 0 开始、标注实际数值、标注样本量。这些不是教条，而是让你的报告经得住别人挑战的保险单。在 AI 时代，这份保险单比任何时候都重要。
+>
+> 为什么？因为生成误导图的成本更低了。2025 年的一项 ACM 研究系统性分析了 Y 轴截断的争议，论文标题就很直白："To Cut or Not To Cut?" 研究发现：柱状图截断通常不可接受（因为人类比较的是"面积"，截断会让小差异看起来很大），折线图截断相对可接受（因为趋势更重要）。但问题是，当你让 AI "画一个好看的柱状图"时，它可能会截断 Y 轴让差异更明显，或者用鲜艳的颜色让图表"更吸引眼球"。
+>
+> 更棘手的是，误导性可视化不总是故意的。2025 年的另一项研究发现，很多误导图来自"设计选择不当"或"缺乏伦理意识"——作者可能只是想让图表"更紧凑"，没意识到截断 Y 轴会把 10% 的差异放大成"看起来像两倍"。而 AI 生成图表时更不会主动提醒你："这张图可能会误导读者。"
+>
+> 这就是为什么你需要成为"能识别误导图的人"。生成误导图的工具越普及，能识别误导图的人就越稀缺。你刚学的"诚实可视化三原则"不是过时的教条，而是 AI 时代的核心竞争力。
+>
+> 参考（访问日期：2026-02-15）：
+> - https://dl.acm.org/doi/full/10.1145/3613904.3642102
+> - https://www.sciencedirect.com/science/article/abs/pii/S0360131525002763
+> - https://claribi.com/blog/post/data-visualization-mistakes-to-avoid/
+
+## 5. 一张图把误会讲清楚
+
+小北做了一个柱状图，比较三种企鹅的平均体重。她把 Y 轴截断在 3000g-5500g 之间，图上看起来 Gentoo 的体重是其他两种的"两倍"。
+
+"太棒了！"她把图放进报告。
+
+老潘看了一眼，只说了一句话："把 Y 轴从 0 开始，再发给我。"
+
+---
+
+### Y 轴截断：把"差异"放大
 
 ```python
-def create_distribution_plots(df: pd.DataFrame, output_dir: str = "figures") -> list:
-    """生成分布图（返回文件路径列表）"""
-    import os
-    os.makedirs(output_dir, exist_ok=True)
+# examples/04_honest_visualization.py
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-    numeric_cols = df.select_dtypes(include=["number"]).columns
-    plot_paths = []
+penguins = sns.load_dataset("penguins")
 
-    for col in numeric_cols[:3]:  # 示例：只画前 3 个数值列
-        # 直方图 + 密度曲线
-        plt.figure(figsize=(8, 4))
-        sns.histplot(df[col].dropna(), kde=True, bins=30)
-        plt.title(f"{col} 的分布")
-        plt.xlabel(col)
-        plt.ylabel("频数")
-        path = f"{output_dir}/dist_{col}.png"
-        plt.savefig(path, dpi=150, bbox_inches="tight")
-        plt.close()
-        plot_paths.append(path)
+# 计算各物种的平均体重
+mean_mass = penguins.groupby("species")["body_mass_g"].mean().reset_index()
 
-        # 箱线图
-        plt.figure(figsize=(4, 4))
-        sns.boxplot(y=df[col])
-        plt.title(f"{col} 的箱线图")
-        plt.ylabel(col)
-        path = f"{output_dir}/boxplot_{col}.png"
-        plt.savefig(path, dpi=150, bbox_inches="tight")
-        plt.close()
-        plot_paths.append(path)
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    return plot_paths
+# 左图：截断 Y 轴（误导性）
+axes[0].bar(mean_mass["species"], mean_mass["body_mass_g"], color=["steelblue", "orange", "green"])
+axes[0].set_ylim(3000, 5500)  # 截断 Y 轴
+axes[0].set_ylabel("Body Mass (g)")
+axes[0].set_title("Misleading: Truncated Y-axis")
+axes[0].set_xlabel("Species")
+
+# 右图：完整 Y 轴（诚实）
+axes[1].bar(mean_mass["species"], mean_mass["body_mass_g"], color=["steelblue", "orange", "green"])
+axes[1].set_ylim(0, 6000)  # 从 0 开始
+axes[1].set_ylabel("Body Mass (g)")
+axes[1].set_title("Honest: Full Y-axis")
+axes[1].set_xlabel("Species")
+
+# 标注实际数值
+for ax in axes:
+    for i, row in mean_mass.iterrows():
+        ax.text(i, row["body_mass_g"] + 50, f"{row['body_mass_g']:.0f}",
+                ha="center", va="bottom")
+
+plt.tight_layout()
+plt.savefig("output/honest_visualization.png", dpi=100)
+print("图表已保存到 output/honest_visualization.png")
 ```
 
-这里的关键是 `bbox_inches="tight"`——它确保图例和标签不会被截断。每张图保存后立刻 `plt.close()`，避免内存泄漏。
+左图看起来 Gentoo 的体重是 Adelie 的"两倍高"，但右图告诉你真相：其实只重了约 37%。这就是 Y 轴截断的力量——它可以把"小差异"变成"看起来很大"。
 
-### 第三步：写入报告
+![](images/honest_visualization.png)
+*图：Y 轴截断的误导效果。左图截断 Y 轴后差异被放大，右图从 0 开始展示真实比例*
 
-最后，把统计摘要和图表整合进 `report.md`：
+阿码问："那我是不是永远不能截断 Y 轴？"
 
-```python
-def append_to_report(df: pd.DataFrame, report_path: str = "report.md") -> None:
-    """在数据卡后追加描述统计章节"""
-    summary = generate_descriptive_summary(df)
-    plot_paths = create_distribution_plots(df)
+也不是。截断 Y 轴有时是必要的（比如所有数据都在 0.98-1.02 之间，从 0 开始会看不出差异）。但如果你截断了，**必须在标题或注释中说明**，并且提供完整 Y 轴的版本作为对照。
 
-    with open(report_path, "a", encoding="utf-8") as f:
-        f.write("\n## 描述统计\n\n")
-        f.write("### 核心指标摘要\n\n")
+### 诚实的可视化：三条原则
 
-        # 生成 Markdown 表格
-        f.write("| 变量 | 均值 | 中位数 | 标准差 | IQR |\n")
-        f.write("|------|------|--------|--------|-----|\n")
-        for col, stats in summary.items():
-            f.write(f"| {col} | {stats['mean']:.2f} | {stats['median']:.2f} | "
-                   f"{stats['std']:.2f} | {stats['iqr']:.2f} |\n")
+老潘在工业界的经验是：任何图表如果经不住这三条检验，就不要放进报告。
 
-        f.write("\n### 分布图\n\n")
-        for path in plot_paths:
-            basename = path.replace("figures/", "").replace(".png", "")
-            f.write(f"**{basename}**\n\n")
-            f.write(f"![{basename}]({path})\n\n")
+**1. Y 轴从 0 开始**（除非你有充分的理由不这样做，并说明）
 
-            # 添加解释：根据均值 vs 中位数判断偏斜
-            col = basename.split("_")[1]
-            if col in summary:
-                mean_val = summary[col]["mean"]
-                median_val = summary[col]["median"]
-                if mean_val > median_val * 1.2:
-                    f.write(f"说明：{col} 的均值 ({mean_val:.2f}) 显著高于中位数 ({median_val:.2f})，"
-                           f"表明分布有右偏，可能存在高值异常点。\n\n")
-                elif mean_val < median_val * 0.8:
-                    f.write(f"说明：{col} 的均值 ({mean_val:.2f}) 显著低于中位数 ({median_val:.2f})，"
-                           f"表明分布有左偏。\n\n")
-                else:
-                    f.write(f"说明：{col} 的均值 ({mean_val:.2f}) 和中位数 ({median_val:.2f}) 接近，"
-                           f"分布相对对称。\n\n")
+**2. 标注实际数值**（不要让读者"猜"差异有多大）
 
-# 使用示例
-if __name__ == "__main__":
-    df = pd.read_csv("data/users.csv")
-    append_to_report(df)
-    print("✅ 描述统计章节已追加到 report.md")
-```
+**3. 标注样本量**（"Adelie 152 只、Gentoo 124 只"——读者需要知道这个差异是基于多少数据）
 
-小北看完这段代码，问了最关键的问题："我该怎么解释这些图？"
+这三条听起来很简单，但违反它们的图表每天都在发生。小北那张截断 Y 轴的图，如果发给产品经理，会被立刻打回来："你这是在误导我。"
 
-记住：**解释比图表本身更重要**。每张图配一段话，说明三件事：
-1. **你为什么选这张图？**（直方图看整体形状，箱线图看异常点）
-2. **这张图说明了什么？**（均值和中位数的对比、IQR 的大小、异常点的位置）
-3. **有什么需要注意？**（右偏意味着高值拉高均值，异常点可能是录入错误或 VIP 用户）
+### 其他常见陷阱
 
-老潘说："一页报告不是终点，是起点。它让你在 30 秒内建立对数据的直觉——后面所有推断和建模，都要基于这个直觉。"
+**面积陷阱**：用二维图形表示一维数据。比如一个饼图的"扇形面积"是另一个的两倍，你会感觉差异很大——但如果换成柱状图，可能只差 10%。人类对"面积"的感知不如对"高度"准确。
 
-下周我们会聊数据清洗。到时候你会发现，这周画的分布图不是装饰——它们在提醒你：**该修数据，还是该修解释**。
+**颜色陷阱**：用颜色强度表示数值，但没有图例（legend）。读者不知道"深红色"比"浅红色"大多少。
+
+**时间陷阱**：X 轴不是均匀间隔的（比如 1 月、2 月、4 月、5 月，跳过了 3 月），但画出来时点与点之间的距离看起来一样。这会扭曲趋势。
+
+阿码问："AI 会犯这些错误吗？"
+
+AI 会。如果你让 AI "画一个好看的柱状图"，它可能会截断 Y 轴让差异更明显，或者用鲜艳的颜色让图表"更吸引眼球"。**人类有动机去误导，AI 有动机去"讨好"——两者都不可靠。**
+
+所以你学的不只是"怎么画图"，而是"怎么判断一张图是否诚实"。这个技能在 AI 时代更重要：因为生成误导图的成本更低了，能识别误导图的人就更稀缺了。
 
 ---
 
 ## StatLab 进度
 
-上周你写了第一版 `report.md`——一份数据卡，说明数据是谁、从哪来、有哪些字段。这周的 StatLab 要在这个基础上往前走一步：**补充描述统计章节，生成 2-3 张"诚实"的分布图**。
+### 本周改进：从"只有数据卡"到"一页分布报告"
 
-具体来说，你要在 `report.md` 中新增一个"## 描述统计"小节，包含：
+上周的 StatLab 报告只有一份数据卡——它回答了"数据从哪来、字段是什么、有多少缺失"，但没回答"数据长什么样"。
 
-1. **核心指标摘要表**：对数值型变量列出均值、中位数、标准差；对分类型变量列出众数和频数
-2. **分布图**：至少 2 张（如直方图、箱线图），每张图配一段解释（为什么选它、说明了什么）
-3. **诚实性说明**：如果某个变量的分布有长尾或异常点，说明你是如何处理可视化的（如"Y 轴从 0 开始"）
+这周我们把描述统计和可视化加进来。现在 `report.md` 会多出两个部分：
+
+**1. 描述统计表**
 
 ```python
-# examples/02_statlab_update.py
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-def add_descriptive_section(data_path: str, report_path: str) -> None:
-    """在 report.md 中追加描述统计章节"""
-    df = pd.read_csv(data_path)
-
-    # 生成描述统计摘要
-    numeric_cols = df.select_dtypes(include=['number']).columns
-    summary = df[numeric_cols].agg(['mean', 'median', 'std']).T
-
-    # 生成分布图
-    for col in numeric_cols[:3]:  # 示例：只画前 3 个数值列
-        plt.figure(figsize=(8, 4))
-        sns.histplot(df[col].dropna(), kde=True)
-        plt.title(f"{col} 的分布")
-        plt.xlabel(col)
-        plt.ylabel("频数")
-        plt.savefig(f"figures/dist_{col}.png", dpi=150, bbox_inches='tight')
-        plt.close()
-
-    # 追加到 report.md
-    with open(report_path, "a", encoding="utf-8") as f:
-        f.write("\n## 描述统计\n\n")
-        f.write("### 核心指标摘要\n\n")
-        f.write(summary.to_markdown())
-        f.write("\n\n### 分布图\n\n")
-        for col in numeric_cols[:3]:
-            f.write(f"**{col} 的分布**\n\n")
-            f.write(f"![{col} 分布](figures/dist_{col}.png)\n\n")
-            f.write(f"说明：{col} 的均值是 {summary.loc[col, 'mean']:.2f}，")
-            f.write(f"中位数是 {summary.loc[col, 'median']:.2f}。")
-
-if __name__ == "__main__":
-    add_descriptive_section("data/users.csv", "report.md")
-    print("✅ 描述统计章节已追加到 report.md")
+# 生成描述统计表
+def generate_summary_stats(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
+    """生成描述统计表"""
+    stats = df[numeric_cols].agg([
+        ("count", "count"),
+        ("mean", "mean"),
+        ("median", "median"),
+        ("std", "std"),
+        ("min", "min"),
+        ("Q25", lambda x: x.quantile(0.25)),
+        ("Q75", lambda x: x.quantile(0.75)),
+        ("max", "max")
+    ]).round(1)
+    return stats
 ```
 
-老潘看到这段代码会说："别急着写复杂代码。先确保你的图能回答一个问题——**数据长什么样？** 一张好的直方图或箱线图，比一百行数字更有说服力。"
+这张表会告诉你每个数值型字段的均值、中位数、标准差、分位数——你一眼就能看出"典型值"和"波动"。
 
----
+**2. 可视化图表**
 
-> **AI 时代小专栏：AI 时代如何审查自动生成的统计图表**
->
-> 2025-2026 年，AI 生成图表的能力越来越强——上传 CSV，几秒钟就能得到一堆直方图、散点图，甚至 AI 会"自动帮你选择最合适的图表类型"。但这恰恰是危险所在。
->
-> LinkedIn 的一篇分析指出，AI 在自动化图表生成时常犯"一刀切"的错误——它可能默认用均值总结收入数据，但你很清楚收入有长尾，中位数才诚实；它可能为了"让图表好看"而截断 Y 轴，让微小差异显得巨大。BBC 2025 年的研究更发现：**45% 的 AI 查询会产生错误答案**，统计分析领域也不例外。
->
-> 更隐蔽的问题是，AI 生成的图表通常很"漂亮"，你更容易放松警惕。Medium 上的分析指出，截断 Y 轴是"最常见的误导性可视化实践"之一——从 70% 而不是 0% 开始 Y 轴，会让微小的性能差异显得巨大。AI 不会告诉你"这张图有误导性"，它只是在执行指令。
->
-> 所以本周学的"可视化诚实性"不是"过时的设计规范"，而是 AI 时代必备的"审查能力"。无论图是你手画的还是 AI 生成的，你都要能回答：这张图诚实吗？有没有制造错觉？
->
-> **实用的审查清单：**
-> - Y 轴从 0 开始了吗？（如果截断，有明确说明吗？）
-> - 坐标轴标签和单位清晰吗？
-> - 如果用面积编码（饼图、气泡图），差异真的需要用面积来表达吗？
-> - 标题是否准确描述了图表传达的信息？
-> - AI 默认用的指标（通常是均值）适合你的业务场景吗？
->
-> 记住：**你对你输出的所有内容负责——包括让 AI 帮你生成的部分**。AI 可以加速你画图的过程，但只有你能回答"这张图要传达什么"。
->
-> 参考（访问日期：2026-02-15）：
-> - [How AI Can Create Misleading and Distorted Graphs (And How to Spot Them)](https://www.linkedin.com/pulse/how-ai-can-create-misleading-distorted-graphs-spot-them-eugene-woo-ajtle)
-> - [BBC Finds That 45% of AI Queries Produce Erroneous Answers](https://joshbersin.com/2025/10/bbc-finds-that-45-of-ai-queries-produce-erroneous-answers/)
-> - [The Most Common Misleading Errors in Data Visualization](https://medium.com/@hamzamlwh/the-most-common-misleading-errors-in-data-visualization-aa30bd1c89d4)
+```python
+# 生成关键可视化
+def generate_plots(df: pd.DataFrame, output_dir: str):
+    """生成分布图和箱线图"""
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pathlib import Path
+
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    # 1. 按物种分组的体重分布（直方图）
+    plt.figure(figsize=(10, 6))
+    for species in df["species"].unique():
+        data = df[df["species"] == species]["body_mass_g"].dropna()
+        plt.hist(data, bins=15, alpha=0.5, label=species, edgecolor="black")
+    plt.xlabel("Body Mass (g)")
+    plt.ylabel("Frequency")
+    plt.title("Body Mass Distribution by Species")
+    plt.legend()
+    plt.savefig(f"{output_dir}/dist_by_species.png", dpi=100, bbox_inches="tight")
+    plt.close()
+
+    # 2. 按物种分组的体重箱线图
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(data=df, x="species", y="body_mass_g")
+    plt.xlabel("Species")
+    plt.ylabel("Body Mass (g)")
+    plt.title("Body Mass by Species (Boxplot)")
+    plt.savefig(f"{output_dir}/boxplot_by_species.png", dpi=100, bbox_inches="tight")
+    plt.close()
+
+    print(f"图表已保存到 {output_dir}/")
+```
+
+这两张图会告诉你"数据的形状"和"异常值在哪里"。
+
+### 与本周知识的连接
+
+**集中趋势** → 描述统计表中的 `mean` 和 `median` 列，让你一眼看出典型值。
+
+**离散程度** → `std` 和 `IQR`（Q75-Q25）列，告诉你数据有多散。
+
+**分布形状** → 直方图和箱线图，让你看到数据是不是对称的、有没有长尾、有没有异常值。
+
+**诚实可视化** → 我们在生成图表时，箱线图的 Y 轴默认从 0 开始（除非数据本身远大于 0），柱状图标注了实际数值，图例中会注明样本量。这些细节让报告更可信。
+
+### 与上周的对比
+
+| 上周 | 本周 |
+|------|------|
+| 只有数据卡 | 数据卡 + 描述统计 + 2 张图 |
+| 知道"数据是什么" | 知道"数据长什么样" |
+| 无法判断异常值 | 能从箱线图直接看到异常值 |
+| 无法判断分布形状 | 能从直方图看到双峰、长尾 |
+
+老潘看到这份新报告，会说："现在你不仅能告诉别人'数据从哪来'，还能告诉别人'数据在说什么'。这就是从'有数据'到'有洞察'的第一步。"
+
+### 下周预告
+
+本周的报告包含了"一页分布报告"：数据卡 + 描述统计表 + 2-3 张图。下周我们会加入缺失值处理和异常值处理策略，并在报告中记录"我们做了什么、为什么这么做"。
 
 ---
 
 ## Git 本周要点
 
 本周必会命令：
-- `git status`：查看工作区状态
-- `git diff`：查看具体改动内容
-- `git add -A`：添加所有改动
-- `git commit -m "draft: add descriptive statistics"`：提交改动
-- `git log --oneline -n 5`：查看最近 5 条提交
+- `git diff`（查看本周对报告的修改）
+- `git log --oneline -n 5`（查看提交历史）
 
 常见坑：
-- 把生成的图片也提交进仓库：建议用 `.gitignore` 排除 `figures/`，或单独管理图片文件
-- 只提交代码不更新报告：`report.md` 和代码一样重要
-- 不写提交信息：`git commit -m "add figures"` 比 `git commit` 不写信息好一百倍
+- 生成的图片没有提交：报告里引用了 `images/distribution.png`，但文件不在仓库里
+- 路径问题：图片路径写死（`/Users/xxx/images/`），换电脑就跑不了
+
+老潘的建议：把图片放在 `output/` 目录下，用相对路径引用（`![分布图](output/distribution.png)`）。这样无论在谁电脑上跑，路径都能对上。
 
 ---
 
 ## 本周小结（供下周参考）
 
-本周你做了三件事：不只是算均值，还学会了看中位数和众数——你知道了"平均值可能是骗人的"；不只是看中心，还学会了看波动——标准差和 IQR 回答的是不同的问题；不只是报数字，还学会了画"诚实"的图——Y 轴从 0 开始、不截断、不误导。
+这周你学会了"看见数据的形状"。你知道了均值和中位数在回答不同的问题——前者对极端值敏感，后者稳健。你也知道了标准差和 IQR 在描述波动：它们告诉你"典型值"到底有多"典型"。更重要的是，你学会了用直方图和箱线图把分布画出来：一眼就能看出数据是不是对称的、有没有长尾、有没有异常值。
 
-这就是描述统计的核心：**让数据自己说话，而不是让一个数字代替它**。
+最后一项技能是"诚实可视化"。你看到了 Y 轴截断如何把小差异放大成"看起来很大"，也知道了三条原则：Y 轴从 0 开始、标注实际数值、标注样本量。这些不是"教条"，而是让你的报告经得住别人挑战的保险单。
 
-小北问："下周还要学什么？"
+StatLab 报告也从"只有数据卡"升级为"数据卡 + 描述统计 + 2-3 张图"。现在任何人打开报告，都能在第一页看到"数据在说什么"，而不是翻遍代码才能找到统计量。
 
-下周是数据清洗与预处理。你会发现：当你真正"看见"数据分布后，缺失值和异常值处理就不再是"机械操作"，而是有据可依的决策。这周画的分布图不是装饰——它们在提醒你：**该修数据，还是该修解释**。
+下周，我们会处理这周看到的"问题"：缺失值和异常值。我们不是一上来就 `dropna()`，而是先把"我们做了什么、为什么这么做"写进清洗日志，让报告变得可审计、可复现。
 
 ---
 
 ## Definition of Done（学生自测清单）
 
-- [ ] 我能解释为什么有时候中位数比均值更合适
-- [ ] 我能计算标准差和 IQR，并解释它们的区别
-- [ ] 我能画直方图、密度图、箱线图，并说明每张图的用途
-- [ ] 我能识别至少两种常见的可视化误导（如截断 Y 轴、面积误导）
-- [ ] 我为自己的数据集生成了一页"分布报告"（包含指标摘要 + 2-3 张图 + 解释）
-- [ ] 我的报告中的图表都是"诚实"的（Y 轴从 0 开始、没有误导性编码）
-- [ ] 我用 git 提交了本周的工作（至少一次 commit）
-- [ ] 我理解"描述统计不是终点，是后续分析的起点"
+- [ ] 我能用自己的话解释"均值和中位数有什么区别，什么时候该用哪个"
+- [ ] 我能计算标准差和 IQR，并解释"波动"的含义
+- [ ] 我能用直方图和箱线图观察分布，识别异常值
+- [ ] 我能判断一张图是否诚实（Y 轴是否截断、面积是否误导）
+- [ ] 我能在 StatLab 报告中加入描述统计和可视化
+- [ ] 我知道为什么不能"只看均值就下结论"

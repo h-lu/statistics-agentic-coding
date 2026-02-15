@@ -1,355 +1,366 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Week 02 起始代码：一页分布报告
+Week 02 作业参考实现。
 
-本文件是学生练习的起始模板。
-你可以基于此代码完成本周作业。
+本文件提供作业的参考答案，学生在遇到困难时可以查看。
+建议先自己尝试完成作业，实在想不出来再参考本文件。
 
-运行方式：python solution.py
+作业要求概述：
+1. 计算描述统计量（均值、中位数、标准差、IQR）
+2. 绘制直方图和箱线图
+3. 分析分布形状和异常值
+4. 应用诚实可视化原则
+
+注意：本实现只包含基础要求，不覆盖进阶/挑战部分。
 """
+from __future__ import annotations
 
+from pathlib import Path
+from typing import Dict
+
+import seaborn as sns
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pathlib import Path
 
 
-def setup_style():
-    """设置绘图风格"""
-    sns.set_theme(style="whitegrid")
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
+def setup_output_dir() -> Path:
+    """设置输出目录"""
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
 
-# ============ 第 1 节：集中趋势 ============
+# =============================================================================
+# 核心函数（测试期望的函数）
+# =============================================================================
 
-def calculate_central_tendency(series):
+def calculate_central_tendency(series: pd.Series) -> Dict[str, float]:
     """
     计算集中趋势指标
 
     参数：
-        series: pd.Series - 数值型数据
+        series: pandas Series，数值型数据
 
     返回：
-        dict: 包含均值、中位数、众数
+        包含均值、中位数、众数的字典
     """
-    series = pd.Series(series).dropna()
-
-    result = {
-        'mean': series.mean(),
-        'median': series.median(),
-        'mode': series.mode()[0] if len(series.mode()) > 0 else None,
-        'count': len(series)
+    return {
+        "mean": series.mean(),
+        "median": series.median(),
+        # 众数可能返回多个值，取第一个
+        "mode": series.mode().iloc[0] if len(series.mode()) > 0 else np.nan,
     }
 
-    return result
 
-
-def recommend_central_tendency(series):
-    """
-    根据数据特征推荐合适的集中趋势指标
-
-    返回：
-        str: 推荐的指标和理由
-    """
-    series = pd.Series(series).dropna()
-    mean_val = series.mean()
-    median_val = series.median()
-    skewness = series.skew()
-
-    # 判断偏态
-    if abs(skewness) < 0.3:
-        return f"建议使用均值（{mean_val:.2f}）：分布较为对称"
-    elif skewness > 0.3:
-        return f"建议使用中位数（{median_val:.2f}）：分布右偏，均值被拉高"
-    else:  # skewness < -0.3
-        return f"建议使用中位数（{median_val:.2f}）：分布左偏，均值被拉低"
-
-
-# ============ 第 2 节：离散程度 ============
-
-def calculate_dispersion(series):
+def calculate_dispersion(series: pd.Series) -> Dict[str, float]:
     """
     计算离散程度指标
 
     参数：
-        series: pd.Series - 数值型数据
+        series: pandas Series，数值型数据
 
     返回：
-        dict: 包含标准差、方差、IQR
+        包含方差、标准差、IQR、极差的字典
     """
-    series = pd.Series(series).dropna()
-
-    q1 = series.quantile(0.25)
-    q3 = series.quantile(0.75)
-
-    result = {
-        'std': series.std(),
-        'variance': series.var(),
-        'q1': q1,
-        'q3': q3,
-        'iqr': q3 - q1,
-        'range': series.max() - series.min()
-    }
-
-    return result
-
-
-def detect_outliers_iqr(series, multiplier=1.5):
-    """
-    使用 IQR 规则检测异常值
-
-    参数：
-        series: pd.Series - 数值型数据
-        multiplier: float - IQR 倍数（默认 1.5）
-
-    返回：
-        dict: 包含边界和异常值列表
-    """
-    series = pd.Series(series).dropna()
-
-    q1 = series.quantile(0.25)
-    q3 = series.quantile(0.75)
-    iqr = q3 - q1
-
-    lower_bound = q1 - multiplier * iqr
-    upper_bound = q3 + multiplier * iqr
-
-    outliers = series[(series < lower_bound) | (series > upper_bound)]
-
+    q25 = series.quantile(0.25)
+    q75 = series.quantile(0.75)
     return {
-        'q1': q1,
-        'q3': q3,
-        'iqr': iqr,
-        'lower_bound': lower_bound,
-        'upper_bound': upper_bound,
-        'outliers': outliers.tolist(),
-        'outlier_count': len(outliers)
+        "variance": series.var(),
+        "std": series.std(),
+        "iqr": q75 - q25,
+        "range": series.max() - series.min(),
     }
 
 
-# ============ 第 3 节：分布可视化 ============
-
-def create_histogram(data, column, bins=30, kde=True):
-    """
-    创建直方图
-
-    参数：
-        data: pd.DataFrame - 数据集
-        column: str - 要绘制的列名
-        bins: int - 箱子数量
-        kde: bool - 是否添加 KDE 曲线
-
-    返回：
-        matplotlib.figure.Figure: 图表对象
-    """
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    sns.histplot(data[column].dropna(), bins=bins, kde=kde, ax=ax, color='steelblue')
-
-    mean_val = data[column].mean()
-    median_val = data[column].median()
-    ax.axvline(mean_val, color='red', linestyle='--', alpha=0.7, label=f'均值={mean_val:.1f}')
-    ax.axvline(median_val, color='green', linestyle='--', alpha=0.7, label=f'中位数={median_val:.1f}')
-
-    ax.set_title(f'{column} 分布', fontsize=12)
-    ax.set_xlabel(column)
-    ax.set_ylabel('频数')
-    ax.legend(fontsize=9)
-
-    return fig
-
-
-def create_boxplot(data, x_column, y_column):
-    """
-    创建箱线图
-
-    参数：
-        data: pd.DataFrame - 数据集
-        x_column: str - 分组列名
-        y_column: str - 数值列名
-
-    返回：
-        matplotlib.figure.Figure: 图表对象
-    """
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    sns.boxplot(data=data, x=x_column, y=y_column, ax=ax, palette='Set2')
-
-    ax.set_title(f'{y_column} 按 {x_column} 分组', fontsize=12)
-    ax.set_ylabel(y_column)
-
-    return fig
-
-
-# ============ 第 4 节：可视化诚实性 ============
-
-def check_y_axis_baseline(y_limits, data_range, tolerance=0.1):
-    """
-    检查 Y 轴基线是否诚实
-
-    参数：
-        y_limits: tuple - (ymin, ymax)
-        data_range: float - 数据的实际范围
-        tolerance: float - 容忍比例（默认 10%）
-
-    返回：
-        dict: 包含 is_honest 和说明
-    """
-    ymin, ymax = y_limits
-    data_min, data_max = 0, data_range
-
-    if ymin > tolerance * data_range:
-        return {
-            'is_honest': False,
-            'issue': 'Y 轴截断：不从 0 开始',
-            'severity': 'high' if ymin > 0.5 * data_range else 'medium'
-        }
-    else:
-        return {
-            'is_honest': True,
-            'issue': None
-        }
-
-
-def create_honest_bar_chart(categories, values, ylabel='数值'):
-    """
-    创建诚实的柱状图（Y 轴从 0 开始）
-
-    参数：
-        categories: list - 类别标签
-        values: list - 数值列表
-        ylabel: str - Y 轴标签
-
-    返回：
-        matplotlib.figure.Figure: 图表对象
-    """
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    bars = ax.bar(categories, values, color='steelblue', alpha=0.7)
-
-    ax.set_ylabel(ylabel)
-    ax.set_ylim(0, max(values) * 1.1)
-
-    # 添加数值标签
-    for i, (cat, val) in enumerate(zip(categories, values)):
-        ax.text(i, val + max(values) * 0.02, f'{val}', ha='center', fontsize=10)
-
-    return fig
-
-
-# ============ 第 5 节：一页报告 ============
-
-def generate_descriptive_summary(data, numeric_columns=None):
+def generate_descriptive_summary(df: pd.DataFrame) -> Dict[str, any]:
     """
     生成描述统计摘要
 
     参数：
-        data: pd.DataFrame - 数据集
-        numeric_columns: list - 要统计的数值列列表
+        df: pandas DataFrame，包含要分析的数据
 
     返回：
-        dict: 以列名为键，统计指标为值的字典
+        包含描述统计摘要的字典
     """
-    if numeric_columns is None:
-        numeric_columns = data.select_dtypes(include=[np.number]).columns.tolist()
-
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     summary = {}
 
-    for col in numeric_columns[:6]:  # 最多 6 列
-        col_data = data[col].dropna()
-
-        if len(col_data) == 0:
-            continue
-
+    for col in numeric_cols:
+        data = df[col].dropna()
         summary[col] = {
-            'mean': col_data.mean(),
-            'median': col_data.median(),
-            'std': col_data.std(),
-            'q1': col_data.quantile(0.25),
-            'q3': col_data.quantile(0.75),
-            'iqr': col_data.quantile(0.75) - col_data.quantile(0.25),
+            **calculate_central_tendency(data),
+            **calculate_dispersion(data),
+            "count": len(data),
+            "min": data.min(),
+            "max": data.max(),
         }
 
     return summary
 
 
-def append_to_report(report_path='report.md', content=''):
+def exercise_1_central_tendency() -> None:
     """
-    追加内容到报告
+    作业题 1：计算集中趋势指标
 
-    参数：
-        report_path: str - 报告文件路径
-        content: str - 要追加的内容
-
-    返回：
-        None
+    要求：
+    - 加载 penguins 数据集
+    - 计算所有数值型列的均值和中位数
+    - 按物种分组，计算每种企鹅的平均体重
     """
-    with open(report_path, 'a', encoding='utf-8') as f:
-        f.write(content)
+    penguins = sns.load_dataset("penguins")
 
-    print(f"已追加内容到 {report_path}")
+    print("=== 集中趋势指标 ===")
+
+    # 整体统计
+    print("\n整体统计：")
+    numeric_cols = penguins.select_dtypes(include=["number"]).columns
+    for col in numeric_cols:
+        mean_val = penguins[col].mean()
+        median_val = penguins[col].median()
+        print(f"{col}: 均值={mean_val:.2f}, 中位数={median_val:.2f}")
+
+    # 按物种分组
+    print("\n按物种分组的平均体重：")
+    species_mean = penguins.groupby("species")["body_mass_g"].mean().round(1)
+    print(species_mean)
+
+    # 众数
+    print("\n众数：")
+    print(f"物种众数: {penguins['species'].mode().tolist()}")
 
 
-# ============ 主函数演示 ============
+def exercise_2_dispersion() -> None:
+    """
+    作业题 2：计算离散程度指标
 
-def main():
-    """主函数：演示所有功能"""
-    print("=" * 60)
-    print("Week 02 起始代码演示")
-    print("=" * 60)
+    要求：
+    - 计算体重的标准差和方差
+    - 计算体重的 IQR（四分位距）
+    - 按物种分组，比较哪种企鹅的体重波动最大
+    """
+    penguins = sns.load_dataset("penguins")
 
-    # 创建示例数据
-    np.random.seed(42)
-    n = 200
+    print("\n=== 离散程度指标 ===")
 
-    df = pd.DataFrame({
-        'age': np.random.normal(35, 10, n),
-        'income': np.random.lognormal(8, 1, n),
-        'score': np.random.uniform(60, 100, n),
-        'category': np.random.choice(['A', 'B', 'C'], n)
-    })
+    # 整体统计
+    mass = penguins["body_mass_g"].dropna()
+    std = mass.std()
+    var = mass.var()
+    q25 = mass.quantile(0.25)
+    q75 = mass.quantile(0.75)
+    iqr = q75 - q25
 
-    # 确保数据为正
-    df['age'] = df['age'].clip(lower=18).round(0).astype(int)
-    df['income'] = df['income'].clip(lower=0).round(2)
+    print(f"\n整体体重统计：")
+    print(f"标准差: {std:.2f} g")
+    print(f"方差: {var:.2f} g²")
+    print(f"IQR: {iqr:.2f} g")
+    print(f"极差: {mass.max() - mass.min():.2f} g")
 
-    print(f"\n示例数据（前 5 行）：")
-    print(df.head())
+    # 按物种分组
+    print("\n按物种分组的标准差：")
+    species_std = penguins.groupby("species")["body_mass_g"].std().round(1)
+    print(species_std)
+    print(f"\n波动最大的是: {species_std.idxmax()}")
 
-    # 演示第 1 节：集中趋势
-    print("\n--- 第 1 节：集中趋势 ---")
-    income_central = calculate_central_tendency(df['income'])
-    print(f"收入均值: {income_central['mean']:.2f}")
-    print(f"收入中位数: {income_central['median']:.2f}")
-    print(f"推荐: {recommend_central_tendency(df['income'])}")
 
-    # 演示第 2 节：离散程度
-    print("\n--- 第 2 节：离散程度 ---")
-    income_dispersion = calculate_dispersion(df['income'])
-    print(f"收入标准差: {income_dispersion['std']:.2f}")
-    print(f"收入IQR: {income_dispersion['iqr']:.2f}")
+def exercise_3_histogram(output_dir: Path) -> None:
+    """
+    作业题 3：绘制直方图
 
-    outliers = detect_outliers_iqr(df['income'])
-    print(f"检测到 {outliers['outlier_count']} 个异常值")
+    要求：
+    - 绘制所有企鹅的体重分布直方图
+    - 按物种分组，绘制三张子图，每张图一个物种的体重分布
+    - 图表要清晰标注坐标轴和标题
+    """
+    penguins = sns.load_dataset("penguins")
 
-    # 演示第 4 节：诚实可视化检查
-    print("\n--- 第 4 节：可视化诚实性 ---")
-    y_limits = (1000, 10000)
-    data_range = df['income'].max() - df['income'].min()
-    check_result = check_y_axis_baseline(y_limits, data_range)
-    print(f"Y 轴诚实性检查: {check_result['is_honest']}")
-    if not check_result['is_honest']:
-        print(f"问题: {check_result['issue']}")
+    # 单图：整体分布
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    print("\n" + "=" * 60)
-    print("提示：运行此文件会演示所有函数，但不会生成文件")
-    print("请在本文件基础上完成作业")
-    print("=" * 60)
+    # 左图：整体分布
+    axes[0].hist(penguins["body_mass_g"].dropna(), bins=20, edgecolor="black", alpha=0.7)
+    axes[0].set_xlabel("Body Mass (g)")
+    axes[0].set_ylabel("Frequency")
+    axes[0].set_title("Overall Body Mass Distribution")
+
+    # 右图：按物种分组
+    for species in penguins["species"].unique():
+        data = penguins[penguins["species"] == species]["body_mass_g"].dropna()
+        axes[1].hist(data, bins=15, alpha=0.5, label=species, edgecolor="black")
+    axes[1].set_xlabel("Body Mass (g)")
+    axes[1].set_ylabel("Frequency")
+    axes[1].set_title("Body Mass Distribution by Species")
+    axes[1].legend()
+
+    plt.tight_layout()
+    plt.savefig(output_dir / "histogram_solution.png", dpi=100, facecolor="white")
+    plt.close()
+    print(f"\n直方图已保存到 {output_dir / 'histogram_solution.png'}")
+
+
+def exercise_4_boxplot(output_dir: Path) -> None:
+    """
+    作业题 4：绘制箱线图并识别异常值
+
+    要求：
+    - 绘制按物种分组的体重箱线图
+    - 识别并输出可能的异常值（使用 1.5×IQR 规则）
+    - 分析哪些物种有异常值
+    """
+    penguins = sns.load_dataset("penguins")
+
+    # 绘制箱线图
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(data=penguins, x="species", y="body_mass_g")
+    plt.xlabel("Species")
+    plt.ylabel("Body Mass (g)")
+    plt.title("Body Mass Boxplot by Species")
+    plt.savefig(output_dir / "boxplot_solution.png", dpi=100, facecolor="white")
+    plt.close()
+    print(f"\n箱线图已保存到 {output_dir / 'boxplot_solution.png'}")
+
+    # 识别异常值
+    print("\n异常值检测（1.5×IQR 规则）：")
+    for species in penguins["species"].unique():
+        data = penguins[penguins["species"] == species]["body_mass_g"].dropna()
+        q25 = data.quantile(0.25)
+        q75 = data.quantile(0.75)
+        iqr = q75 - q25
+        lower = q25 - 1.5 * iqr
+        upper = q75 + 1.5 * iqr
+        outliers = data[(data < lower) | (data > upper)]
+        if len(outliers) > 0:
+            print(f"{species}: 发现 {len(outliers)} 个异常值")
+        else:
+            print(f"{species}: 无异常值")
+
+
+def exercise_5_honest_visualization(output_dir: Path) -> None:
+    """
+    作业题 5：诚实可视化对比
+
+    要求：
+    - 创建两张并排的柱状图，比较三种企鹅的平均体重
+    - 左图截断 Y 轴（误导性），右图从 0 开始（诚实）
+    - 在图上标注实际数值和样本量
+    """
+    penguins = sns.load_dataset("penguins")
+
+    # 计算平均体重
+    mean_mass = penguins.groupby("species")["body_mass_g"].mean().reset_index()
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+    colors = ["steelblue", "orange", "green"]
+
+    # 左图：截断 Y 轴
+    axes[0].bar(mean_mass["species"], mean_mass["body_mass_g"], color=colors)
+    axes[0].set_ylim(3000, 5500)
+    axes[0].set_ylabel("Body Mass (g)")
+    axes[0].set_title("Misleading: Truncated Y-axis")
+
+    # 右图：完整 Y 轴
+    axes[1].bar(mean_mass["species"], mean_mass["body_mass_g"], color=colors)
+    axes[1].set_ylim(0, 6000)
+    axes[1].set_ylabel("Body Mass (g)")
+    axes[1].set_title("Honest: Full Y-axis")
+
+    # 标注数值
+    for ax in axes:
+        for i, row in mean_mass.iterrows():
+            ax.text(i, row["body_mass_g"] + 100, f"{row['body_mass_g']:.0f}",
+                    ha="center", va="bottom")
+
+    # 标注样本量
+    sample_sizes = penguins["species"].value_counts().to_dict()
+    for ax in axes:
+        ax.text(0.5, 0.02, f"n: Adelie={sample_sizes['Adelie']}, "
+                           f"Chinstrap={sample_sizes['Chinstrap']}, "
+                           f"Gentoo={sample_sizes['Gentoo']}",
+                transform=ax.transAxes, ha="center", fontsize=9, style="italic")
+
+    plt.tight_layout()
+    plt.savefig(output_dir / "honest_viz_solution.png", dpi=100, facecolor="white")
+    plt.close()
+    print(f"\n诚实可视化对比图已保存到 {output_dir / 'honest_viz_solution.png'}")
+
+
+def exercise_6_analysis_report() -> None:
+    """
+    作业题 6：分布分析报告
+
+    要求：
+    - 基于上述分析，写一份简短的分布分析报告
+    - 报告应包含：典型值、波动、分布形状、异常值、诚实可视化说明
+    """
+    penguins = sns.load_dataset("penguins")
+
+    print("\n=== 分布分析报告 ===")
+
+    # 计算关键统计量
+    adelie_stats = penguins[penguins["species"] == "Adelie"]["body_mass_g"].describe()
+    gentoo_stats = penguins[penguins["species"] == "Gentoo"]["body_mass_g"].describe()
+
+    report = """
+    ## Palmer Penguins 体重分布分析
+
+    ### 1. 集中趋势
+    - Adelie 企鹅平均体重: {:.0f} g
+    - Gentoo 企鹅平均体重: {:.0f} g
+    - Gentoo 比 Adelie 重约 {:.0f} g（{:.0f}%）
+
+    ### 2. 离散程度
+    - 整体标准差: {:.1f} g
+    - Adelie 标准差: {:.1f} g
+    - Gentoo 标准差: {:.1f} g
+    - Gentoo 的体重波动更大
+
+    ### 3. 分布形状
+    - 整体分布呈现轻微右偏（偏度: {:.2f}）
+    - 按物种分组后，各组分布更接近正态
+
+    ### 4. 异常值
+    - 箱线图显示存在少量异常值
+    - 这些异常值需要进一步核实（数据错误 vs 真实极端值）
+
+    ### 5. 诚实可视化
+    - 所有图表 Y 轴从 0 开始（除非说明理由）
+    - 图上标注实际数值
+    - 图例注明样本量
+    """.format(
+        adelie_stats["mean"],
+        gentoo_stats["mean"],
+        gentoo_stats["mean"] - adelie_stats["mean"],
+        (gentoo_stats["mean"] - adelie_stats["mean"]) / adelie_stats["mean"] * 100,
+        penguins["body_mass_g"].std(),
+        adelie_stats["std"],
+        gentoo_stats["std"],
+        penguins["body_mass_g"].skew()
+    )
+
+    print(report)
+
+
+def main() -> None:
+    """运行所有作业题的参考解答"""
+    print("="*60)
+    print("Week 02 作业参考实现")
+    print("="*60)
+
+    output_dir = setup_output_dir()
+
+    exercise_1_central_tendency()
+    exercise_2_dispersion()
+    exercise_3_histogram(output_dir)
+    exercise_4_boxplot(output_dir)
+    exercise_5_honest_visualization(output_dir)
+    exercise_6_analysis_report()
+
+    print("\n" + "="*60)
+    print("所有作业题完成！")
+    print(f"图表已保存到: {output_dir}")
+    print("="*60)
 
 
 if __name__ == "__main__":
-    setup_style()
     main()

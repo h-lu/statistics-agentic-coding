@@ -1,219 +1,128 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-分布可视化示例：直方图、密度图、箱线图
+示例：绘制分布图（直方图和密度图）。
 
-本示例展示如何用 seaborn 绘制不同类型的分布图，
-以及每张图适合回答什么问题。
+本例演示如何用 matplotlib 和 seaborn 绘制体重分布的直方图和密度图，
+揭示三种企鹅的分布差异。
 
-运行方式：python 03_distribution_plots.py
+运行方式：python3 chapters/week_02/examples/03_distribution_plots.py
+预期输出：
+- output/distribution_plots.png：双图（整体分布 + 按物种分组）
+- output/density_plots.png：按物种分组的密度图
+- output/distribution_with_stats.png：带统计量的分布图
 """
+from __future__ import annotations
 
 from pathlib import Path
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+
 import seaborn as sns
-
-OUTPUT_DIR = Path(__file__).parent.parent.parent / "output" / "week_02"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def setup_style():
-    """设置绘图风格"""
-    sns.set_theme(style="whitegrid")
-    plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def demonstrate_histogram():
-    """演示直方图"""
-    print("=" * 60)
-    print("直方图 (Histogram)：看数据的'分布形状'")
-    print("=" * 60)
+def setup_output_dir() -> Path:
+    """设置输出目录"""
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
-    # 生成示例数据：正态分布 + 长尾
-    np.random.seed(42)
-    data_normal = np.random.normal(loc=100, scale=20, size=500)
-    data_skewed = np.random.exponential(scale=50, size=500)
 
-    print("\n说明：")
-    print("• 直方图把数据切成'箱子'（bins），统计每个箱子里的数据点数")
-    print("• 高度 = 频数，宽度 = 数值范围")
-
+def plot_histograms(penguins: pd.DataFrame, output_dir: Path) -> None:
+    """绘制直方图：整体分布和按物种分组"""
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
-    # 左图：正态分布
-    sns.histplot(data_normal, bins=30, kde=True, ax=axes[0], color='steelblue')
-    axes[0].set_title('正态分布数据', fontsize=12)
-    axes[0].set_xlabel('数值')
-    axes[0].set_ylabel('频数')
+    # 左图：所有企鹅的体重分布
+    axes[0].hist(penguins["body_mass_g"].dropna(), bins=20, edgecolor="black", alpha=0.7, color="steelblue")
+    axes[0].set_xlabel("Body Mass (g)")
+    axes[0].set_ylabel("Frequency")
+    axes[0].set_title("Distribution of Penguin Body Mass")
 
-    # 右图：偏态分布
-    sns.histplot(data_skewed, bins=30, kde=True, ax=axes[1], color='coral')
-    axes[1].set_title('右偏分布数据（长尾）', fontsize=12)
-    axes[1].set_xlabel('数值')
-    axes[1].set_ylabel('频数')
+    # 右图：按物种分组的体重分布
+    species_colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+    for species in penguins["species"].unique():
+        data = penguins[penguins["species"] == species]["body_mass_g"].dropna()
+        axes[1].hist(data, bins=15, alpha=0.5, label=species,
+                    edgecolor="black", color=species_colors.get(species))
 
-    plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'distribution_comparison.png'}")
-    plt.savefig(OUTPUT_DIR / 'distribution_comparison.png', dpi=150, bbox_inches='tight')
-    plt.close()
-
-    print("解读：")
-    print("• 左图：对称的钟形，均值≈中位数")
-    print("• 右图：长尾向右，均值会被拉高")
-
-
-def demonstrate_boxplot():
-    """演示箱线图"""
-    print("\n" + "=" * 60)
-    print("箱线图 (Boxplot)：一眼看'中心、波动、异常值'")
-    print("=" * 60)
-
-    # 生成三组对比数据
-    np.random.seed(42)
-    group_a = np.random.normal(50, 10, 100)
-    group_b = np.random.normal(55, 15, 100)
-    group_c = np.random.normal(52, 8, 100)
-
-    # 给组C添加一些异常值
-    group_c_with_outliers = np.append(group_c, [15, 95])
-
-    df = pd.DataFrame({
-        'value': list(group_a) + list(group_b) + list(group_c_with_outliers),
-        'group': (['A'] * 100) + (['B'] * 100) + (['C'] * 102)
-    })
-
-    print("\n说明：")
-    print("• 箱子：中间 50% 数据（Q1 到 Q3）")
-    print("• 中线：中位数")
-    print("• 须：延伸到 1.5×IQR 或最远点（取较小者）")
-    print("• 圆点：须外的异常值")
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    sns.boxplot(data=df, x='group', y='value', ax=ax, palette='Set2')
-
-    ax.set_title('三组数据分布对比', fontsize=14)
-    ax.set_xlabel('分组', fontsize=12)
-    ax.set_ylabel('数值', fontsize=12)
-
-    # 添加均值标记（对比中位数）
-    means = df.groupby('group')['value'].mean()
-    for i, (group, mean_val) in enumerate(means.items()):
-        ax.plot(i, mean_val, marker='D', markersize=10, color='red', alpha=0.7)
-        ax.text(i, mean_val + 3, f'μ={mean_val:.1f}', ha='center', fontsize=10, color='red')
+    axes[1].set_xlabel("Body Mass (g)")
+    axes[1].set_ylabel("Frequency")
+    axes[1].set_title("Body Mass by Species")
+    axes[1].legend()
 
     plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'boxplot_comparison.png'}")
-    plt.savefig(OUTPUT_DIR / 'boxplot_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / "distribution_plots.png", dpi=100, facecolor="white")
     plt.close()
-
-    print("解读：")
-    print("• A 组最稳定（箱子窄）")
-    print("• B 组波动最大（箱子高）")
-    print("• C 组有两个异常值（圆点）")
-    print("• 红色菱形 = 各组均值，对比中位数的位置")
+    print(f"直方图已保存到 {output_dir / 'distribution_plots.png'}")
 
 
-def demonstrate_combined_plot():
-    """演示组合图：直方图 + 箱线图"""
-    print("\n" + "=" * 60)
-    print("组合图：直方图 + 箱线图，同时看分布和异常值")
-    print("=" * 60)
+def plot_density(penguins: pd.DataFrame, output_dir: Path) -> None:
+    """绘制密度图：按物种分组的平滑分布"""
+    plt.figure(figsize=(8, 5))
+    sns.kdeplot(data=penguins, x="body_mass_g", hue="species", fill=True, alpha=0.3)
+    plt.xlabel("Body Mass (g)")
+    plt.ylabel("Density")
+    plt.title("Density Plot of Body Mass by Species")
+    plt.savefig(output_dir / "density_plots.png", dpi=100, bbox_inches="tight", facecolor="white")
+    plt.close()
+    print(f"密度图已保存到 {output_dir / 'density_plots.png'}")
 
-    # 生成双峰分布
-    np.random.seed(42)
-    data = np.concatenate([
-        np.random.normal(30, 5, 200),
-        np.random.normal(60, 8, 200)
-    ])
 
-    df = pd.DataFrame({'value': data})
+def plot_distribution_with_stats(penguins: pd.DataFrame, output_dir: Path) -> None:
+    """绘制带统计量的分布图"""
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    species_list = ["Adelie", "Chinstrap", "Gentoo"]
+    colors = ["steelblue", "orange", "green"]
 
-    # 左图：直方图 + KDE
-    sns.histplot(data, bins=40, kde=True, ax=ax1, color='teal')
-    ax1.set_title('分布形状（直方图 + 密度曲线）', fontsize=12)
-    ax1.set_xlabel('数值')
-    ax1.set_ylabel('频数')
+    for idx, (species, color) in enumerate(zip(species_list, colors)):
+        data = penguins[penguins["species"] == species]["body_mass_g"].dropna()
 
-    # 右图：箱线图
-    sns.boxplot(data=df, x=['value'] * len(data), y='value', ax=ax2, color='lightblue')
-    ax2.set_title('分布概览（箱线图）', fontsize=12)
-    ax2.set_ylabel('数值')
-    ax2.set_xlabel('')
+        # 直方图
+        axes[idx].hist(data, bins=15, alpha=0.7, edgecolor="black", color=color)
 
-    # 在箱线图上标注统计量
-    median = df['value'].median()
-    q1 = df['value'].quantile(0.25)
-    q3 = df['value'].quantile(0.75)
-    iqr = q3 - q1
+        # 添加统计量
+        mean_val = data.mean()
+        median_val = data.median()
+        std_val = data.std()
 
-    ax2.annotate(f'中位数={median:.1f}', xy=(0.5, median), xytext=(0.7, median),
-                arrowprops=dict(arrowstyle='->', color='black'), fontsize=10)
-    ax2.annotate(f'IQR={iqr:.1f}', xy=(0.5, q3), xytext=(0.7, q3),
-                arrowprops=dict(arrowstyle='->', color='black'), fontsize=10)
+        axes[idx].axvline(mean_val, color="red", linestyle="--", linewidth=2, label=f"Mean: {mean_val:.0f}")
+        axes[idx].axvline(median_val, color="blue", linestyle="-", linewidth=2, label=f"Median: {median_val:.0f}")
+
+        axes[idx].set_xlabel("Body Mass (g)")
+        axes[idx].set_ylabel("Frequency")
+        axes[idx].set_title(f"{species}\n(n={len(data)}, SD={std_val:.0f})")
+        axes[idx].legend()
 
     plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'combined_view.png'}")
-    plt.savefig(OUTPUT_DIR / 'combined_view.png', dpi=150, bbox_inches='tight')
+    plt.savefig(output_dir / "distribution_with_stats.png", dpi=100, facecolor="white")
     plt.close()
-
-    print("组合解读：")
-    print("• 直方图揭示双峰（两个峰值：约30和约60）")
-    print("• 箱线图给出中位数和 IQR")
-    print("• 两者结合，你对数据的理解更全面")
+    print(f"带统计量的分布图已保存到 {output_dir / 'distribution_with_stats.png'}")
 
 
-def demonstrate_rugplot():
-    """演示 Rugplot（地毯图）"""
-    print("\n" + "=" * 60)
-    print("地毯图 (Rugplot)：每个数据点的'位置记号'")
-    print("=" * 60)
+def print_skewness_kurtosis(penguins: pd.DataFrame) -> None:
+    """打印偏度和峰度"""
+    print("\n分布形状指标：")
+    skewness = penguins["body_mass_g"].skew()
+    kurtosis = penguins["body_mass_g"].kurtosis()
+    print(f"偏度（Skewness）：{skewness:.2f}")
+    print(f"  - 接近 0 表示分布对称")
+    print(f"  - 正值表示右偏（右尾较长）")
+    print(f"  - 负值表示左偏（左尾较长）")
+    print(f"峰度（Kurtosis）：{kurtosis:.2f}")
+    print(f"  - 正态分布的峰度约为 0（或 3，取决于定义）")
+    print(f"  - 正值表示分布更尖峭")
+    print(f"  - 负值表示分布更平坦")
 
-    # 小数据集：每个点都很重要
-    np.random.seed(42)
-    data = np.random.normal(50, 15, 30)
 
-    fig, ax = plt.subplots(figsize=(10, 4))
+def main() -> None:
+    """主函数：生成所有分布可视化"""
+    penguins = sns.load_dataset("penguins")
+    output_dir = setup_output_dir()
 
-    # 地毯图 + KDE
-    sns.kdeplot(data, fill=True, color='lightblue', alpha=0.5, ax=ax)
-    sns.rugplot(data, color='darkblue', height=0.05, ax=ax)
-
-    ax.set_title('小数据集的分布可视化', fontsize=14)
-    ax.set_xlabel('数值', fontsize=12)
-    ax.set_ylabel('密度', fontsize=12)
-    ax.set_yticks([])  # 隐藏 Y 轴刻度
-
-    plt.tight_layout()
-    print(f"\n输出：{OUTPUT_DIR / 'rugplot_example.png'}")
-    plt.savefig(OUTPUT_DIR / 'rugplot_example.png', dpi=150, bbox_inches='tight')
-    plt.close()
-
-    print("解读：")
-    print("• 地毯上的每个小竖线 = 一个数据点")
-    print("• 适合小数据集，能看到'实际点在哪里'")
-    print("• 配合 KDE 曲线，能看到密度分布")
+    plot_histograms(penguins, output_dir)
+    plot_density(penguins, output_dir)
+    plot_distribution_with_stats(penguins, output_dir)
+    print_skewness_kurtosis(penguins)
 
 
 if __name__ == "__main__":
-    setup_style()
-
-    # 运行所有演示
-    demonstrate_histogram()
-    demonstrate_boxplot()
-    demonstrate_combined_plot()
-    demonstrate_rugplot()
-
-    print("\n" + "=" * 60)
-    print("核心要点总结")
-    print("=" * 60)
-    print("1. 直方图：看分布形状（对称/偏态/双峰）")
-    print("2. 箱线图：一眼看中心、波动、异常值")
-    print("3. 密度图 (KDE)：平滑的分布曲线")
-    print("4. 地毯图：显示每个数据点的位置")
-    print("5. 选择原则：根据问题选图，不是为了画而画")
+    main()
