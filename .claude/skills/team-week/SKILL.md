@@ -198,15 +198,21 @@ python3 scripts/validate_week.py --week week_XX --mode drafting
 python3 scripts/validate_week.py --week week_XX --mode drafting
 ```
 
-### 阶段 4：并行产出（前置：阶段 3 完成，以下三个可并行）
+### 阶段 4：并行产出（前置：阶段 3 完成，以下四个可并行）
 
-同时调用以下 3 个 subagent（**可以并行**）：
+同时调用以下 4 个 subagent（**可以并行**）：
 
 1. **`example-engineer`**：产出 `examples/` + StatLab 示例代码 + 讲解段落
 2. **`test-designer`**：产出 `tests/` pytest 用例矩阵
 3. **`exercise-factory`**：产出 `ASSIGNMENT.md` + `RUBRIC.md` + AI 协作练习
+4. **图片生成**（如 student-qa 诊断需要）：调用 `/stat-viz` skill 生成图表
 
-**校验**（三个全部完成后执行）：
+**图片生成判断**（根据 student-qa 阶段 5 的诊断结果）：
+- 如果本章涉及分布/比较/关系/评估类主题，需要图片
+- 调用方式：`Skill("stat-viz", "week_XX")`
+- 代码保存到 `examples/NN_chart_xxx.py`，图片输出到 `images/`
+
+**校验**（四个全部完成后执行）：
 
 ```bash
 python3 scripts/validate_week.py --week week_XX --mode idle

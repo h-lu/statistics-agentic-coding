@@ -100,6 +100,13 @@ if __name__ == "__main__":
 
 在写示例代码时，**自动判断**是否需要生成图表。不是每章都必须有图，但以下情况应该生成：
 
+### ⚠️ 核心原则：代码必须保存，图片是副产品
+
+**图表生成的代码必须保存到 `examples/NN_chart_xxx.py`**，图片只是运行该代码的输出。这样学生可以：
+- 复现图表
+- 修改参数学习
+- 理解绑图逻辑
+
 ### 需要图的场景
 
 1. **分布/形状很重要**：直方图、密度图、Q-Q图（如讲正态分布、偏度、残差诊断时）
@@ -114,22 +121,52 @@ if __name__ == "__main__":
 - 流程/概念图（用 Mermaid 更合适）
 - 代码逻辑演示（输出是文字/数字）
 
+### 中文字体配置（必须！）
+
+在所有绑图代码开头添加：
+
+```python
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+def setup_chinese_font() -> str:
+    """配置中文字体，返回使用的字体名称"""
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei']
+    available = [f.name for f in fm.fontManager.ttflist]
+    for font in chinese_fonts:
+        if font in available:
+            plt.rcParams['font.sans-serif'] = [font]
+            plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示
+            return font
+    plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
+    return 'DejaVu Sans'
+
+font = setup_chinese_font()
+```
+
 ### 生成规范
 
 ```python
 # 图片存放在 chapters/week_XX/images/
-import matplotlib.pyplot as plt
+# 代码存放在 chapters/week_XX/examples/NN_chart_xxx.py
+from pathlib import Path
 
-plt.figure(figsize=(8, 5))
-# ... 绑图代码 ...
-plt.savefig("chapters/week_XX/images/xxx.png", dpi=150, bbox_inches='tight')
-plt.close()
+def main() -> None:
+    setup_chinese_font()
 
-# 如果是多个相关小图，可以合并为一张
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-# ...
-plt.savefig("chapters/week_XX/images/xxx_combined.png", dpi=150, bbox_inches='tight')
-plt.close()
+    fig, ax = plt.subplots(figsize=(8, 5))
+    # ... 绑图代码 ...
+
+    # 保存图片
+    output_dir = Path(__file__).parent.parent / 'images'
+    output_dir.mkdir(exist_ok=True)
+    plt.savefig(output_dir / 'xxx.png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
+    plt.close()
+
+if __name__ == '__main__':
+    main()
 ```
 
 ### 正文引用
@@ -149,6 +186,14 @@ plt.close()
 3. 这个图是否有助于理解核心概念？
 
 如果有 2 个及以上回答"是"，就生成图片。
+
+### 避免常见错误
+
+参考 `/stat-viz` skill 中的"常见错误与修复"章节：
+- ❌ 截断 Y 轴（柱状图必须从 0 开始）
+- ❌ 3D 效果（透视 distort 数值）
+- ❌ 樱桃采摘（只展示 favorable 数据）
+- ❌ 信息过载（一张图太多信息）
 
 ## 不要做
 
