@@ -96,6 +96,61 @@ if __name__ == "__main__":
 2. 修复 examples/ 中的代码或 CHAPTER.md 中的引用。
 3. 重新跑验证确认通过。
 
+## 图片生成（自动判断）
+
+在写示例代码时，**自动判断**是否需要生成图表。不是每章都必须有图，但以下情况应该生成：
+
+### 需要图的场景
+
+1. **分布/形状很重要**：直方图、密度图、Q-Q图（如讲正态分布、偏度、残差诊断时）
+2. **比较很重要**：箱线图、分组柱状图（如比较多组均值、ANOVA时）
+3. **关系很重要**：散点图+回归线、相关矩阵热图（如讲回归、相关时）
+4. **模型评估很重要**：ROC曲线、混淆矩阵热图、学习曲线（如分类评估时）
+5. **解释很重要**：SHAP蜂群图、特征重要性条形图（如可解释性时）
+
+### 不需要图的场景
+
+- 纯计算（如算均值、p值）
+- 流程/概念图（用 Mermaid 更合适）
+- 代码逻辑演示（输出是文字/数字）
+
+### 生成规范
+
+```python
+# 图片存放在 chapters/week_XX/images/
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 5))
+# ... 绑图代码 ...
+plt.savefig("chapters/week_XX/images/xxx.png", dpi=150, bbox_inches='tight')
+plt.close()
+
+# 如果是多个相关小图，可以合并为一张
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+# ...
+plt.savefig("chapters/week_XX/images/xxx_combined.png", dpi=150, bbox_inches='tight')
+plt.close()
+```
+
+### 正文引用
+
+在 CHAPTER.md 中用相对路径引用，并配一句说明：
+
+```markdown
+![](images/distribution.png)
+*月薪分布呈右偏，均值被少数高薪极值拉高*
+```
+
+### 判断流程
+
+写示例代码时问自己：
+1. 这个概念/方法用图解释会比纯文字更直观吗？
+2. 读者运行代码后最想看到什么？
+3. 这个图是否有助于理解核心概念？
+
+如果有 2 个及以上回答"是"，就生成图片。
+
 ## 不要做
 
 - 不要大段改写正文结构（交给 Writer/Editor）。
+- 不要为了有图而画图——图要服务于理解，不是装饰。
