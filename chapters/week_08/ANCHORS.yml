@@ -1,0 +1,67 @@
+# Week 08 锚点（重要结论）
+
+# 置信区间的正确解释
+- id: week_08_ci_interpretation
+  claim: "95% CI 的正确解释是：重复抽样 100 次，约 95 个 CI 会包含真实参数"
+  evidence: "通过模拟重复抽样 100 次，可以观察到约 95 个计算出的区间会包含真实均值"
+  verification: "见 02_ci_interpretation.py 的模拟演示，覆盖率接近 95%"
+
+# Bootstrap 的优势
+- id: week_08_bootstrap_advantage
+  claim: "Bootstrap 不依赖分布假设，适用于任何统计量"
+  evidence: "Bootstrap 可以用于均值、中位数等任何统计量的 CI 估计"
+  verification: "见 03_bootstrap_method.py 和 04_bootstrap_ci_methods.py"
+
+# Bootstrap 与理论方法的关系
+- id: week_08_bootstrap_vs_theoretical
+  claim: "对于大样本正态数据，Bootstrap CI 与理论 t 分布 CI 接近"
+  evidence: "当数据满足正态性假设且样本量足够大时，两种方法的 CI 非常接近"
+  verification: "见 03_bootstrap_method.py 的对比结果"
+
+# 置换检验的核心思想
+- id: week_08_permutation_idea
+  claim: "如果零假设成立，组别标签没意义，可以随便打乱"
+  evidence: "通过打乱标签模拟零假设下的差异分布，计算 p 值"
+  verification: "见 05_permutation_test.py 的实现和可视化"
+
+# CI 与假设检验的关系
+- id: week_08_ci_vs_hypothesis
+  claim: "CI 与假设检验等价：95% CI 不包含 0 ↔ p < 0.05"
+  evidence: "当 CI 不包含 0 时，对应的假设检验 p 值必然小于 0.05"
+  verification: "见 02_ci_interpretation.py 的演示"
+
+# 点估计 vs 区间估计
+- id: week_08_point_vs_interval
+  claim: "点估计不反映不确定性，区间估计量化'有多确定'"
+  evidence: "同样的点估计可能来自不同样本量的数据，CI 宽度差异巨大"
+  verification: "见 01_confidence_interval_basics.py 的样本量对比"
+
+# 样本量对 CI 的影响
+- id: week_08_sample_size_ci
+  claim: "样本量越大，CI 越窄；样本量越小，CI 越宽"
+  evidence: "SE = SD / √n，样本量越大，标准误越小，CI 越窄"
+  verification: "见 01_confidence_interval_basics.py 的表格和图"
+
+# BCa vs Percentile Bootstrap
+- id: week_08_bca_vs_percentile
+  claim: "对于偏态数据，BCa Bootstrap 比 Percentile 更准确"
+  evidence: "BCa 进行了偏差校正和加速校正，能更好处理偏态分布"
+  verification: "见 04_bootstrap_ci_methods.py 的对比"
+
+# Bootstrap 的局限性
+- id: week_08_bootstrap_limitations
+  claim: "Bootstrap 在小样本、时间序列、极值敏感统计量时可能失效"
+  evidence: "小样本时 Bootstrap 无法很好地近似抽样分布；时间序列的重采样会破坏依赖结构"
+  verification: "见 04_bootstrap_ci_methods.py 的讨论"
+
+# 置换检验的适用场景
+- id: week_08_permutation_use_cases
+  claim: "置换检验适用于小样本、非正态数据、比较非均值统计量"
+  evidence: "置换检验只依赖独立性假设，不需要分布假设"
+  verification: "见 05_permutation_test.py 的对比和示例"
+
+# 统计学诚实原则
+- id: week_08_statistical_honesty
+  claim: "只报告点估计不是科学，是赌博；必须报告 CI"
+  evidence: "没有 CI 的报告没有量化不确定性，读者无法判断结论的可靠性"
+  verification: "老潘在 StatLab 进度中的点评"

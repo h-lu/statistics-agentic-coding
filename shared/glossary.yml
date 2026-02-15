@@ -343,3 +343,70 @@
   term_en: Kruskal-Wallis test
   definition_zh: ANOVA 的非参数替代方法，不要求数据服从正态分布。比较的是各组的中位数而非均值。
   first_seen: week_07
+
+# ─── Week 08 ───
+
+- term_zh: 点估计
+  term_en: point estimate
+  definition_zh: 用一个数字来总结数据的统计量，如均值、中位数等。点估计没有告诉你"有多确定"。
+  first_seen: week_08
+
+- term_zh: 区间估计
+  term_en: interval estimate
+  definition_zh: 在点估计的基础上，再加一个区间：在合理的假设下，这个参数大概落在什么范围。
+  first_seen: week_08
+
+- term_zh: 置信区间
+  term_en: confidence interval
+  definition_zh: 一个统计量可能落入的区间范围。95% CI 的正确解释是：重复抽样100次，约95个区间会包含真实参数。
+  first_seen: week_08
+
+- term_zh: 置信水平
+  term_en: confidence level
+  definition_zh: 置信区间包含真实参数的概率，常用值有 90%、95%、99%。
+  first_seen: week_08
+
+- term_zh: Bootstrap
+  term_en: bootstrap
+  definition_zh: 一种重采样技术，从样本中有放回地抽取多个样本，用这些样本的统计量分布来近似抽样分布。
+  first_seen: week_08
+
+- term_zh: 重采样
+  term_en: resampling
+  definition_zh: 从原始样本中重复抽取数据的方法，包括 Bootstrap 和置换检验等。
+  first_seen: week_08
+
+- term_zh: 置换检验
+  term_en: permutation test
+  definition_zh: 一种非参数检验方法。通过打乱组别标签模拟零假设下的差异分布，计算 p 值。
+  first_seen: week_08
+
+- term_zh: BCa Bootstrap
+  term_en: BCa bootstrap
+  definition_zh: 改进的 Bootstrap CI 方法，对偏差和加速进行校正，通常比 Percentile Bootstrap 更准确。
+  first_seen: week_08
+
+- term_zh: 覆盖率
+  term_en: coverage rate
+  definition_zh: 置信区间包含真实参数的比例。对于 95% CI，理论覆盖率应该是 95%。
+  first_seen: week_08
+
+- term_zh: Bootstrap 标准误
+  term_en: bootstrap standard error
+  definition_zh: Bootstrap 统计量的标准差，用于估计统计量的抽样波动。
+  first_seen: week_08
+
+- term_zh: Percentile Bootstrap
+  term_en: percentile bootstrap
+  definition_zh: 最简单的 Bootstrap CI 方法，用 Bootstrap 统计量的分位数作为置信区间。
+  first_seen: week_08
+
+- term_zh: 置换分布
+  term_en: permutation distribution
+  definition_zh: 在置换检验中，通过打乱标签得到的统计量分布，用于计算 p 值。
+  first_seen: week_08
+
+- term_zh: 有放回抽样
+  term_en: sampling with replacement
+  definition_zh: Bootstrap 使用的方法，每次抽样的观测会被放回，因此同一观测可能出现多次。
+  first_seen: week_08

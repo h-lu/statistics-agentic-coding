@@ -193,3 +193,35 @@
   introduced: week_07
   revisited: [week_08, week_13]
   bloom_level: evaluate
+
+# ─── Week 08 ───
+
+- concept_zh: 点估计与区间估计
+  concept_en: point estimate and interval estimate
+  introduced: week_08
+  revisited: [week_09, week_12]
+  bloom_level: understand
+
+- concept_zh: 置信区间
+  concept_en: confidence interval
+  introduced: week_08
+  revisited: [week_09, week_10, week_12]
+  bloom_level: apply
+
+- concept_zh: 置信水平
+  concept_en: confidence level
+  introduced: week_08
+  revisited: [week_09, week_12]
+  bloom_level: understand
+
+- concept_zh: Bootstrap 置信区间
+  concept_en: Bootstrap confidence interval
+  introduced: week_08
+  revisited: [week_09, week_10, week_15]
+  bloom_level: apply
+
+- concept_zh: 置换检验
+  concept_en: permutation test
+  introduced: week_08
+  revisited: [week_09, week_15]
+  bloom_level: apply
