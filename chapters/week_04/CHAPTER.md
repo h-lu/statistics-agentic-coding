@@ -167,7 +167,7 @@ print("图表已保存到 output/scatter_age_purchase.png")
 
 运行后你会发现：左图（年龄 vs 购买金额）显示出明显的上升趋势——年龄越大，购买金额越高。右图（停留时长 vs 购买金额）也有上升趋势，但更松散。
 
-![](images/scatter_age_purchase.png)
+![](images/correlation_scatter.png)
 *图：散点图能直观显示两个变量之间的关系。左图显示强正相关，右图显示弱正相关*
 
 小北说："哦！所以散点图能让我'看见'关系，而不是只看一个变量的均值。"
@@ -331,7 +331,7 @@ print("图表已保存到 output/boxplot_grouped_source.png")
 
 运行后你会发现：search 渠道的购买金额（中位数约 120）明显高于 social 渠道（中位数约 80），direct 渠道在中间。
 
-![](images/boxplot_grouped_source.png)
+![](images/groupby_boxplot.png)
 *图：分组箱线图能直观显示不同组之间的分布差异。search 渠道的购买金额显著高于 social 渠道*
 
 小北说："哦！所以不分组看'平均购买金额'，会掩盖渠道之间的差异？"
@@ -460,7 +460,7 @@ print("图表已保存到 output/scatter_matrix_all.png")
 
 运行后你会得到一个 4×4 的网格：对角线是每个变量的直方图（上周你学过的**分布形状**），非对角线是两两散点图。
 
-![](images/scatter_matrix_all.png)
+![](images/multivariate_pairplot.png)
 *图：散点图矩阵让你一眼看到所有变量之间的关系。对角线是单变量分布，非对角线是两两散点图*
 
 小北说："哦！这张图能让我快速发现哪些变量之间有关系，哪些没啥关系。"
@@ -486,7 +486,7 @@ print("图表已保存到 output/heatmap_correlation.png")
 
 运行后你会发现：`income` 和 `purchase_amount` 的格子是深红色（强正相关），`age` 和 `time_on_site` 的格子是浅蓝色（弱负相关）。
 
-![](images/heatmap_correlation.png)
+![](images/multivariate_heatmap.png)
 *图：相关热力图用颜色编码相关强度。红色=正相关，蓝色=负相关，颜色越深相关越强*
 
 阿码问："那热力图和散点图矩阵，我该用哪个？"
@@ -601,7 +601,7 @@ print("图表已保存到 output/time_series_trend_seasonality.png")
 
 运行后你会发现：上图（每日数据）有很多噪声，下图的周平均数据更清晰地显示了**趋势**（从 1 月到 12 月上升）和**季节性**（某些周有规律地波动）。
 
-![](images/time_series_trend_seasonality.png)
+![](images/time_series_aggregation.png)
 *图：时间序列可视化。上图显示每日数据（噪声大），下图显示周平均数据（趋势和季节性更清晰）*
 
 小北说："哦！所以时间序列分析的第一步是'去噪声'？"
