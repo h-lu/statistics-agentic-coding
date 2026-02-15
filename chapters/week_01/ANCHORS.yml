@@ -1,27 +1,34 @@
-# Week 01 锚点（Anchors）
+# Week 01 锚点清单
 #
-# 锚点格式：
-#   - id: 本周唯一标识符（小写，下划线分隔）
-#   claim: 核心断言（一句话陈述）
-#   evidence: 证据/验证方式（如何验证这个断言为真）
-#   verification: 验证脚本或示例文件路径（可选）
+# 记录本章可验证的核心断言（claims）及其证据和验证方式。
+# 锚点 ID 必须周内唯一。
 
-- id: three_questions_distinction
-  claim: 统计分析的三类目标——描述、推断、预测——对应不同的问题类型和数据需求，混淆它们会导致错误的方法选择。
-  evidence: 同一份数据集可以回答不同类型的问题；明确问题类型是选择方法的前提。
-  verification: examples/01_three_questions.py
+# ─── 统计三问 ───
+- id: week_01_three_questions
+  claim: 统计分析目标可以分为三类：描述、推断、预测
+  evidence: CHAPTER.md 第 1 节（第 71-139 行）
+  verification: examples/01_three_questions.py 可运行并展示三类问题的区别
 
-- id: data_type_determines_method
-  claim: 数据类型（数值型/分类型，连续/离散）直接决定了可以使用哪些统计方法和可视化方式。
-  evidence: 对类别数据计算均值没有意义；对连续数据做频数统计会丢失信息。
-  verification: examples/02_data_types.py
+# ─── 数据类型 ───
+- id: week_01_data_types
+  claim: 数据类型（数值型/分类型）决定了适用的分析方法
+  evidence: CHAPTER.md 第 2 节（第 161-237 行），包含分析类型与数据类型对照表
+  verification: examples/02_data_types.py 展示类型错误（算平均邮政编码）和正确转换
 
-- id: dataframe_is_tabular
-  claim: pandas DataFrame 是一个带有行列索引的表格数据结构，理解索引机制是避免常见错误的关键。
-  evidence: loc vs iloc 的区别；行列选择是 pandas 操作的基础。
-  verification: examples/03_pandas_basics.py
+# ─── pandas 基础 ───
+- id: week_01_pandas_basics
+  claim: pandas 可以读取数据并自动推断类型，但有时需要手动指定
+  evidence: CHAPTER.md 第 3 节（第 239-344 行）
+  verification: examples/03_pandas_basics.py 展示 read_csv、shape、dtypes、类型转换
 
-- id: data_card_enables_audit
-  claim: 没有数据卡的分析是不可审计的；数据卡记录了数据来源、字段含义和基本限制，是可复现分析的第一步。
-  evidence: 三个月后看自己的代码，如果没有数据卡，无法回忆起字段含义；没有数据来源的结论无法被验证。
-  verification: examples/04_data_card.py
+# ─── 数据卡生成 ───
+- id: week_01_data_card
+  claim: 数据卡函数可以自动生成包含字段字典、规模、缺失概览的 Markdown 文档
+  evidence: CHAPTER.md 第 4 节（第 346-510 行）
+  verification: examples/04_data_card.py 运行后生成 examples/data_card.md
+
+# ─── StatLab 起步 ───
+- id: week_01_statlab
+  claim: StatLab 脚本可以从原始数据一键生成可复现的 report.md
+  evidence: CHAPTER.md 第 5 节（第 535-648 行）
+  verification: examples/99_statlab.py 运行后生成 output/report.md

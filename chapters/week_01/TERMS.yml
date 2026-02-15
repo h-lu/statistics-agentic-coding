@@ -1,24 +1,23 @@
 # Week 01 术语表
 #
-# 本周新术语（4 个，预算上限 4 个）
-# 这些术语会被合入 shared/glossary.yml
+# 本周新引入的术语，需同步到 shared/glossary.yml
 
 - term_zh: 统计三问
-  term_en: description/inference/prediction
-  definition_zh: 统计分析最常见的三类目标：描述数据是什么样、推断总体是什么样、预测未来或未知样本。
+  term_en: three questions of statistics
+  definition_zh: 统计分析最常见的三类目标：描述数据是什么样（描述）、推断总体是什么样（推断）、预测未来或未知样本（预测）。
   first_seen: week_01
 
 - term_zh: 数据类型
-  term_en: data types
-  definition_zh: 数据在统计意义上的分类方式（如连续、离散、分类型），决定了该用什么指标和方法。
-  first_seen: week_01
-
-- term_zh: pandas DataFrame
-  term_en: DataFrame
-  definition_zh: pandas 的表格型数据结构，通常用于承载数据集并进行清洗、统计与建模前处理。
+  term_en: data type
+  definition_zh: 数据在统计学上的分类：数值型（连续/离散）vs 分类型（名义型/有序型）。类型决定了适用的分析方法。
   first_seen: week_01
 
 - term_zh: 数据卡
   term_en: data card
-  definition_zh: 用于说明数据集来源、字段含义、规模、缺失情况与限制的"数据说明书"，帮助读者审计分析前提。
+  definition_zh: 一份数据的"身份证"，包含数据来源、字段字典、规模概览、缺失概览等信息，用于提高数据透明度和可复现性。
+  first_seen: week_01
+
+- term_zh: StatLab
+  term_en: StatLab
+  definition_zh: 本书贯穿项目的代号：一条可复现的统计分析报告流水线，每周增量迭代输出 report.md（可选导出 report.html）。
   first_seen: week_01

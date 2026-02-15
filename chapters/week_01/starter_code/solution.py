@@ -1,390 +1,209 @@
 """
-Week 01: Solution Template
+Week 01 作业参考实现
 
-这是学生需要实现的函数模板。包含以下核心功能：
-1. classify_question(): 统计三问分类器
-2. detect_data_type(): 数据类型检测器
-3. create_data_card(): 数据卡生成器
+本文件提供了 Week 01 作业的参考答案。
+当你在作业中遇到困难时，可以查看此文件来理解正确的实现方式。
 
-测试用例会测试这些函数的实现。
+建议：先自己尝试完成作业，实在卡住时再参考答案。
 """
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any
-
 import pandas as pd
+import seaborn as sns
+from typing import Dict, Any
 
 
-# ---------------------------------------------------------------------------
-# 1. 统计三问分类器
-# ---------------------------------------------------------------------------
-
-class QuestionType(Enum):
-    """统计分析的三类目标"""
-    DESCRIPTION = "description"
-    INFERENCE = "inference"
-    PREDICTION = "prediction"
-
-
-def classify_question(question: str) -> QuestionType | None:
+def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
     """
-    根据问题文本判断其属于哪类统计问题（描述/推断/预测）
+    生成数据卡（Markdown 格式）
 
-    Args:
-        question: 分析问题文本
+    Parameters
+    ----------
+    df : pd.DataFrame
+        数据集
+    metadata : dict
+        数据的元信息，包含 source、description、collection_date 等
 
-    Returns:
-        QuestionType 枚举值，如果无法分类则返回 None
-
-    Examples:
-        >>> classify_question("这批用户的平均消费金额是多少？")
-        QuestionType.DESCRIPTION
-        >>> classify_question("根据这1000个样本，全国用户的平均消费金额落在什么范围？")
-        QuestionType.INFERENCE
-        >>> classify_question("这个新用户下周会不会购买？")
-        QuestionType.PREDICTION
+    Returns
+    -------
+    str
+        Markdown 格式的数据卡
     """
-    # TODO: 实现分类逻辑
-    # 提示：
-    # 1. 描述性关键词: "平均", "中位数", "分布", "占比", "有多少", "前几", "排名"
-    # 2. 推断性关键词: "推断", "总体", "样本", "范围", "差异是否", "显著", "a/b"
-    # 3. 预测性关键词: "预测", "会", "将", "未来", "下周", "下个月", "新用户", "会不会"
-    #
-    # 注意：预测性关键词优先级最高，推断性其次，描述性最低
+    lines = []
+    lines.append("# 数据卡（Data Card）\n")
 
-    question_lower = question.lower()
+    # 1. 数据来源
+    lines.append("## 数据来源\n")
+    for key, value in metadata.items():
+        lines.append(f"- **{key}**：{value}")
+    lines.append("\n")
 
-    desc_keywords = ["平均", "中位数", "分布", "占比", "有多少", "前几", "前", "排名"]
-    infer_keywords = ["推断", "总体", "样本", "范围", "差异是否", "显著", "a/b"]
-    pred_keywords = ["预测", "会", "将", "未来", "下周", "下个月", "新用户", "会不会"]
-
-    desc_score = sum(1 for kw in desc_keywords if kw in question_lower)
-    infer_score = sum(1 for kw in infer_keywords if kw in question_lower)
-    pred_score = sum(1 for kw in pred_keywords if kw in question_lower)
-
-    if pred_score > 0:
-        return QuestionType.PREDICTION
-    elif infer_score > 0:
-        return QuestionType.INFERENCE
-    elif desc_score > 0:
-        return QuestionType.DESCRIPTION
-    return None
-
-
-# ---------------------------------------------------------------------------
-# 2. 数据类型检测器
-# ---------------------------------------------------------------------------
-
-class DataType(Enum):
-    """数据类型分类"""
-    NUMERICAL_CONTINUOUS = "numerical_continuous"  # 连续数值
-    NUMERICAL_DISCRETE = "numerical_discrete"      # 离散数值
-    CATEGORICAL_NOMINAL = "categorical_nominal"    # 无序类别
-    CATEGORICAL_ORDINAL = "categorical_ordinal"    # 有序类别
-
-
-def detect_data_type(series: pd.Series, domain_hint: str | None = None) -> DataType:
-    """
-    根据数据特征检测列的类型
-
-    Args:
-        series: pandas Series
-        domain_hint: 业务语义提示（如"这是性别列"）
-
-    Returns:
-        DataType 枚举值
-
-    Examples:
-        >>> import pandas as pd
-        >>> s1 = pd.Series([18, 25, 30, 42, 55])
-        >>> detect_data_type(s1)
-        DataType.NUMERICAL_DISCRETE
-        >>> s2 = pd.Series([170.5, 165.2, 180.3])
-        >>> detect_data_type(s2)
-        DataType.NUMERICAL_CONTINUOUS
-        >>> s3 = pd.Series(["北京", "上海", "深圳"])
-        >>> detect_data_type(s3)
-        DataType.CATEGORICAL_NOMINAL
-    """
-    # TODO: 实现类型检测逻辑
-    # 提示：
-    # 1. 如果不是数值类型 → CATEGORICAL_NOMINAL
-    # 2. 如果是数值类型：
-    #    - 检查是否有浮点数（浮点数 → NUMERICAL_CONTINUOUS）
-    #    - 唯一值很少（<= 10）且是整数：
-    #      - 唯一值 <= 2 → CATEGORICAL_NOMINAL（可能是编码类别）
-    #      - domain_hint 包含 "count" → NUMERICAL_DISCRETE
-    #      - 其他 → NUMERICAL_DISCRETE（如年龄范围）
-    #    - 唯一值很多：
-    #      - 整数且唯一值 < 100 → NUMERICAL_DISCRETE
-    #      - 其他 → NUMERICAL_CONTINUOUS
-
-    if not pd.api.types.is_numeric_dtype(series):
-        return DataType.CATEGORICAL_NOMINAL
-
-    unique_count = series.nunique()
-    total_count = len(series)
-
-    # 检查是否有浮点数
-    has_floats = not (series.dropna() % 1 == 0).all()
-
-    if unique_count <= 10:
-        if has_floats:
-            return DataType.NUMERICAL_CONTINUOUS
-        elif domain_hint and "count" in domain_hint.lower():
-            return DataType.NUMERICAL_DISCRETE
-        elif unique_count <= 2:
-            return DataType.CATEGORICAL_NOMINAL
-        else:
-            return DataType.NUMERICAL_DISCRETE
-    else:
-        all_ints = (series.dropna() % 1 == 0).all()
-
-        if all_ints and unique_count < 100:
-            return DataType.NUMERICAL_DISCRETE
-        else:
-            return DataType.NUMERICAL_CONTINUOUS
-
-
-# ---------------------------------------------------------------------------
-# 3. 数据卡生成器
-# ---------------------------------------------------------------------------
-
-def create_data_card(
-    df: pd.DataFrame,
-    title: str,
-    data_source: str,
-    description: str,
-    field_meanings: dict[str, str] | None = None,
-    time_range: str | None = None,
-    analysis_type: str = "描述（Description）",
-    limitations: str | None = None,
-) -> str:
-    """
-    生成数据卡的 Markdown 文本
-
-    Args:
-        df: pandas DataFrame
-        title: 数据集标题
-        data_source: 数据来源描述
-        description: 数据描述
-        field_meanings: 字段含义字典 {列名: 业务含义}
-        time_range: 时间范围
-        analysis_type: 分析类型（描述/推断/预测）
-        limitations: 使用限制说明
-
-    Returns:
-        Markdown 格式的数据卡文本
-
-    Examples:
-        >>> import pandas as pd
-        >>> df = pd.DataFrame({"age": [25, 30, 35], "city": ["北京", "上海", "深圳"]})
-        >>> card = create_data_card(df, "测试数据卡", "测试来源", "测试描述")
-        >>> "# 测试数据卡" in card
-        True
-        >>> "## 数据来源" in card
-        True
-        >>> "age" in card
-        True
-    """
-    from datetime import datetime
-
-    card_lines = [
-        f"# {title}",
-        "",
-        "## 数据来源",
-        f"- **来源**：{data_source}",
-        f"- **生成时间**：{datetime.now().strftime('%Y-%m-%d')}",
-        "",
-        "## 数据描述",
-        description,
-        "",
-        "## 统计三问",
-        f"本周的分析目标属于：**{analysis_type}**",
-        "",
-        "**三类目标的区别：**",
-        "- **描述（Description）**：说明数据本身的特点，结论只适用于这批数据",
-        "- **推断（Inference）**：从样本推断总体，结论带有不确定性",
-        "- **预测（Prediction）**：对未来或未见样本做出判断，需要建模",
-        "",
-        "## 样本规模",
-        f"- **行数**：{df.shape[0]:,}",
-        f"- **列数**：{df.shape[1]}",
-        "",
-    ]
-
-    # 时间范围
-    if time_range:
-        card_lines.extend([
-            "## 时间范围",
-            time_range,
-            "",
-        ])
-
-    # 字段字典
-    card_lines.extend([
-        "## 字段字典",
-        "",
-        "| 字段名 | 数据类型 | 业务含义 | 缺失率 |",
-        "|--------|----------|----------|--------|",
-    ])
+    # 2. 字段字典
+    lines.append("## 字段字典\n")
+    lines.append("| 字段名 | 数据类型 | 描述 | 缺失率 |")
+    lines.append("|--------|---------|------|--------|")
 
     for col in df.columns:
         dtype = str(df[col].dtype)
-        missing_rate = df[col].isna().mean() * 100
-        meaning = field_meanings.get(col, "待补充") if field_meanings else "待补充"
-        card_lines.append(f"| {col} | {dtype} | {meaning} | {missing_rate:.1f}% |")
+        missing_rate = round(df[col].isna().sum() / len(df) * 100, 1)
+        lines.append(f"| {col} | {dtype} | （待补充） | {missing_rate}% |")
+    lines.append("\n")
 
-    card_lines.append("")
+    # 3. 规模概览
+    lines.append("## 规模概览\n")
+    lines.append(f"- **行数**：{len(df)}")
+    lines.append(f"- **列数**：{len(df.columns)}")
+    lines.append("\n")
 
-    # 缺失概览
-    card_lines.extend([
-        "## 缺失概览",
-        "",
-    ])
-
-    missing_summary = df.isna().sum()
-    missing_summary = missing_summary[missing_summary > 0].sort_values(ascending=False)
-
-    if len(missing_summary) > 0:
-        for col, count in missing_summary.items():
-            rate = count / len(df) * 100
-            card_lines.append(f"- **{col}**：{count} 个缺失 ({rate:.1f}%)")
+    # 4. 缺失概览
+    lines.append("## 缺失概览\n")
+    missing = df.isna().sum()
+    missing = missing[missing > 0].sort_values(ascending=False)
+    if len(missing) > 0:
+        for col, count in missing.items():
+            rate = round(count / len(df) * 100, 1)
+            lines.append(f"- **{col}**：{count} ({rate}%)")
     else:
-        card_lines.append("- ✅ 无缺失值")
+        lines.append("- 无缺失值")
+    lines.append("\n")
 
-    card_lines.append("")
+    # 5. 数据类型分布
+    lines.append("## 数据类型分布\n")
+    type_counts = df.dtypes.value_counts()
+    for dtype, count in type_counts.items():
+        lines.append(f"- **{dtype}**：{count} 列")
+    lines.append("\n")
 
-    # 使用限制
-    if limitations:
-        card_lines.extend([
-            "## 使用限制与注意事项",
-            "",
-            limitations,
-            "",
-        ])
-    else:
-        card_lines.extend([
-            "## 使用限制与注意事项",
-            "",
-            "待补充：本数据集能回答什么问题？不能回答什么问题？",
-            "",
-        ])
-
-    return "\n".join(card_lines)
+    return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# 4. pandas 基础操作辅助函数
-# ---------------------------------------------------------------------------
-
-def get_df_info(df: pd.DataFrame) -> dict[str, Any]:
+def identify_data_type(df: pd.DataFrame, col_name: str) -> str:
     """
-    获取 DataFrame 的基本信息
+    判断某列的数据类型（统计学角度，不是 pandas dtype）
 
-    Args:
-        df: pandas DataFrame
+    Parameters
+    ----------
+    df : pd.DataFrame
+        数据集
+    col_name : str
+        列名
 
-    Returns:
-        包含以下信息的字典：
-        - shape: (行数, 列数)
-        - columns: 列名列表
-        - dtypes: 每列的数据类型
-        - null_counts: 每列的缺失值数量
-        - memory_usage: 内存使用量（字节）
-
-    Examples:
-        >>> import pandas as pd
-        >>> df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-        >>> info = get_df_info(df)
-        >>> info["shape"]
-        (3, 2)
-        >>> info["columns"]
-        ['a', 'b']
+    Returns
+    -------
+    str
+        数据类型描述：'数值型（连续）'、'数值型（离散）'、'分类型（名义）'、'分类型（有序）'
     """
-    return {
-        "shape": df.shape,
-        "columns": df.columns.tolist(),
-        "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
-        "null_counts": df.isna().sum().to_dict(),
-        "memory_usage": df.memory_usage(deep=True).sum(),
-    }
+    if col_name not in df.columns:
+        return f"错误：列 '{col_name}' 不存在"
 
+    col = df[col_name]
+    dtype = col.dtype
 
-# ---------------------------------------------------------------------------
-# 别名函数（为兼容测试文件期望的函数名）
-# ---------------------------------------------------------------------------
+    # 数值型判断
+    if pd.api.types.is_numeric_dtype(dtype):
+        # 判断是连续还是离散
+        unique_count = col.nunique()
+        if unique_count > 10:  # 经验法则：唯一值超过10个可能是连续型
+            return "数值型（连续）"
+        else:
+            return "数值型（离散）"
 
-def classify_analysis_goal(question: str) -> str:
-    """classify_question 的字符串返回版本（兼容测试）"""
-    result = classify_question(question)
-    if result is None:
-        return "description"
-    return result.value
-
-
-def detect_column_type(series: pd.Series, business_meaning: str | None = None) -> dict[str, Any]:
-    """detect_data_type 的字典返回版本（兼容测试）"""
-    dtype = detect_data_type(series, business_meaning)
-
-    # 确定技术类型和是否可计算均值
-    if dtype in [DataType.NUMERICAL_CONTINUOUS, DataType.NUMERICAL_DISCRETE]:
-        technical = "numerical"
-        can_calc_mean = True
+    # 分类型判断
     else:
-        technical = "categorical"
-        can_calc_mean = False
+        # 判断是有序还是名义
+        if dtype.name == "category" and col.cat.ordered:
+            return "分类型（有序）"
+        else:
+            return "分类型（名义）"
 
-    # 映射枚举到简化的 statistical 值
-    statistical_map = {
-        DataType.NUMERICAL_CONTINUOUS: "continuous",
-        DataType.NUMERICAL_DISCRETE: "discrete",
-        DataType.CATEGORICAL_NOMINAL: "nominal",
-        DataType.CATEGORICAL_ORDINAL: "ordinal",
+
+def load_and_inspect_data(source: str = "seaborn") -> pd.DataFrame:
+    """
+    加载数据并进行基础检查
+
+    Parameters
+    ----------
+    source : str
+        数据来源：'seaborn' 使用内置数据集，其他值视为文件路径
+
+    Returns
+    -------
+    pd.DataFrame
+        加载的数据集
+    """
+    if source == "seaborn":
+        df = sns.load_dataset("penguins")
+        print(f"成功加载 seaborn 内置数据集：Palmer Penguins")
+    else:
+        try:
+            df = pd.read_csv(source)
+            print(f"成功加载文件：{source}")
+        except FileNotFoundError:
+            print(f"错误：文件 '{source}' 未找到")
+            raise
+        except UnicodeDecodeError:
+            print(f"错误：文件编码问题，尝试指定 encoding='gbk' 或 'gb18030'")
+            raise
+
+    # 打印基础信息
+    print(f"\n数据规模：{df.shape[0]} 行 × {df.shape[1]} 列")
+    print(f"\n数据类型：")
+    print(df.dtypes)
+    print(f"\n缺失值统计：")
+    missing = df.isna().sum()
+    missing_cols = missing[missing > 0]
+    if len(missing_cols) > 0:
+        for col, count in missing_cols.items():
+            rate = round(count / len(df) * 100, 1)
+            print(f"  - {col}: {count} ({rate}%)")
+    else:
+        print("  无缺失值")
+
+    return df
+
+
+def main() -> None:
+    """主函数：演示完整的数据卡生成流程"""
+    print("=" * 70)
+    print("Week 01 参考实现：数据卡生成器")
+    print("=" * 70)
+    print()
+
+    # 1. 加载数据
+    df = load_and_inspect_data("seaborn")
+    print()
+
+    # 2. 演示数据类型判断
+    print("数据类型判断示例：")
+    for col in ["species", "bill_length_mm", "island", "body_mass_g"]:
+        data_type = identify_data_type(df, col)
+        print(f"  - {col}: {data_type}")
+    print()
+
+    # 3. 生成数据卡
+    metadata = {
+        "数据集名称": "Palmer Penguins",
+        "来源": "seaborn 内置数据集",
+        "原始来源": "Palmer Station, Antarctica LTER",
+        "描述": "南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据",
+        "收集时间": "2007-2009 年",
+        "单位说明": "长度单位为毫米（mm），重量单位为克（g）"
     }
-    statistical = statistical_map.get(dtype, "unknown")
 
-    # 特殊情况：编码的类别不应计算均值
-    if business_meaning and any(kw in business_meaning for kw in ["性别", "类别", "是否"]):
-        can_calc_mean = False
+    data_card = generate_data_card(df, metadata)
 
-    return {
-        "technical": technical,
-        "statistical": statistical,
-        "can_calculate_mean": can_calc_mean,
-    }
+    # 4. 保存数据卡
+    output_file = "starter_code_data_card.md"
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(data_card)
 
-
-def explore_dataset(df: pd.DataFrame) -> dict[str, Any]:
-    """get_df_info 的增强版本（兼容测试）"""
-    base_info = get_df_info(df)
-
-    # 添加 numeric_summary
-    numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
-    if numeric_cols:
-        base_info["numeric_summary"] = df[numeric_cols].describe().to_dict()
-
-    return base_info
+    print(f"数据卡已生成：{output_file}")
+    print()
+    print("=" * 70)
+    print("数据卡内容预览：")
+    print("=" * 70)
+    print(data_card)
 
 
-def generate_data_card(
-    df: pd.DataFrame,
-    title: str,
-    data_source: str,
-    description: str,
-    field_meanings: dict[str, str] | None = None,
-    time_range: str | None = None,
-    analysis_type: str = "描述（Description）",
-) -> str:
-    """create_data_card 的别名（兼容测试）"""
-    return create_data_card(
-        df=df,
-        title=title,
-        data_source=data_source,
-        description=description,
-        field_meanings=field_meanings,
-        time_range=time_range,
-        analysis_type=analysis_type,
-    )
-
+if __name__ == "__main__":
+    main()

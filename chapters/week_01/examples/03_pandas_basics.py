@@ -1,183 +1,134 @@
 """
-示例：pandas 基础操作 —— DataFrame 索引机制详解。
+示例：演示 pandas 基础操作（read_csv、shape、dtypes、head）及常见错误恢复。
 
 运行方式：python3 chapters/week_01/examples/03_pandas_basics.py
-预期输出：stdout 输出 pandas 选择操作的对比和常见错误。
+预期输出：展示数据加载、基本信息检查、类型转换、常见错误与恢复方式
 """
 from __future__ import annotations
 
 import pandas as pd
-import numpy as np
+import seaborn as sns
+from pathlib import Path
 
 
-def create_sample_df() -> pd.DataFrame:
-    """创建示例 DataFrame"""
-    df = pd.DataFrame({
-        "name": ["张三", "李四", "王五", "赵六"],
-        "age": [25, 30, 35, 28],
-        "city": ["北京", "上海", "深圳", "杭州"],
-        "salary": [8000, 12000, 15000, 9000]
-    })
-    return df
-
-
-def demo_select_column(df: pd.DataFrame) -> None:
-    """演示列选择"""
+def demo_basic_operations(df: pd.DataFrame) -> None:
+    """演示 pandas 基础操作"""
     print("=" * 70)
-    print("1. 列选择（df['列名']）")
+    print("Pandas 基础操作")
     print("=" * 70)
+    print()
 
-    print("\n选择一列：")
-    print(df['name'])
-    print(f"  返回类型：{type(df['name'])}")
+    # 1. 查看数据形状
+    print("1. 数据规模（shape）：")
+    print(f"   行数：{df.shape[0]}，列数：{df.shape[1]}")
+    print()
 
-    print("\n选择多列：")
-    print(df[['name', 'age']])
+    # 2. 查看前几行
+    print("2. 前 3 行数据（head）：")
+    print(df.head(3))
+    print()
 
-
-def demo_select_row(df: pd.DataFrame) -> None:
-    """演示行选择 —— 这是容易出错的地方"""
-    print("\n" + "=" * 70)
-    print("2. 行选择（loc vs iloc）")
-    print("=" * 70)
-
-    print("\n❌ 坏示例：df[0] 会报错（选择列，不是行）")
-    print("  df[0] → KeyError: 0")
-    print("  解释：pandas 把 0 当作列名，而不是行位置")
-
-    print("\n✅ 正确做法：用 iloc 按位置选择行")
-    print("df.iloc[0] → 选择第 1 行")
-    print(df.iloc[0])
-
-    print("\n✅ 正确做法：用 loc 按标签选择行")
-    print("df.loc[0] → 选择索引标签为 0 的行")
-    print(df.loc[0])
-
-    print("\n✅ 选择多行：")
-    print("df.iloc[1:3] → 第 2、3 行")
-    print(df.iloc[1:3])
-
-
-def demo_select_both(df: pd.DataFrame) -> None:
-    """演示同时选择行和列"""
-    print("\n" + "=" * 70)
-    print("3. 同时选择行和列")
-    print("=" * 70)
-
-    print("\n选择第 2 行的 name 列：")
-    print("df.loc[1, 'name'] =", df.loc[1, 'name'])
-    print("df.iloc[1, 0] =", df.iloc[1, 0])
-
-    print("\n选择第 2-3 行的 name 和 age 列：")
-    print(df.loc[1:2, ['name', 'age']])
-
-
-def demo_filter(df: pd.DataFrame) -> None:
-    """演示条件筛选"""
-    print("\n" + "=" * 70)
-    print("4. 条件筛选")
-    print("=" * 70)
-
-    print("\n选择 age > 28 的行：")
-    mask = df['age'] > 28
-    print(f"筛选条件：{mask.tolist()}")
-    print(df[mask])
-
-    print("\n链式写法：df[df['age'] > 28]")
-    print(df[df['age'] > 28])
-
-    print("\n多条件筛选：年龄>25 且城市是北京/上海")
-    print(df[(df['age'] > 25) & (df['city'].isin(['北京', '上海']))])
-
-
-def demo_common_mistakes(df: pd.DataFrame) -> None:
-    """演示常见错误"""
-    print("\n" + "=" * 70)
-    print("5. 常见错误与陷阱")
-    print("=" * 70)
-
-    print("\n❌ 错误 1：用 df[0] 选择第 1 行")
-    print("  会抛出 KeyError，因为 pandas 把 0 当作列名")
-
-    print("\n❌ 错误 2：链式赋值（SettingWithCopyWarning）")
-    print("  df[df['age'] > 30]['salary'] = 10000  # 警告！")
-    print("  正确做法：")
-    print("  df.loc[df['age'] > 30, 'salary'] = 10000")
-
-    print("\n⚠️  注意 3：iloc 切片是左闭右开，loc 切片是左闭右闭")
-    print("  df.iloc[0:2]  → 第 1、2 行（索引 0, 1）")
-    print(df.iloc[0:2])
-    print("  df.loc[0:2]   → 索引标签 0、1、2 的行")
-    print(df.loc[0:2])
-
-
-def demo_index_reset(df: pd.DataFrame) -> None:
-    """演示索引重置后的影响"""
-    print("\n" + "=" * 70)
-    print("6. 索引重置后的影响")
-    print("=" * 70)
-
-    print("\n原始 DataFrame：")
-    print(df)
-
-    print("\n删除第 1 行后：")
-    df_dropped = df.drop(0)
-    print(df_dropped)
-    print("注意：索引标签还是 1, 2, 3，不是 0, 1, 2")
-
-    print("\n此时 df_dropped.iloc[0] vs df_dropped.loc[0]：")
-    print(f"  df_dropped.iloc[0] = {df_dropped.iloc[0]['name']}  # 第 1 行")
-    try:
-        print(f"  df_dropped.loc[0] = KeyError  # 索引标签 0 已被删除！")
-    except KeyError:
-        print("  df_dropped.loc[0] → KeyError（索引标签 0 不存在）")
-
-    print("\n重置索引后：")
-    df_reset = df_dropped.reset_index(drop=True)
-    print(df_reset)
-    print("现在 iloc[0] 和 loc[0] 都指向同一行了")
-
-
-def demo_basic_info(df: pd.DataFrame) -> None:
-    """演示基本数据查看方法"""
-    print("\n" + "=" * 70)
-    print("7. 基本数据查看方法")
-    print("=" * 70)
-
-    print("\ndf.shape → (行数, 列数)")
-    print(f"  {df.shape}")
-
-    print("\ndf.columns → 列名列表")
-    print(f"  {df.columns.tolist()}")
-
-    print("\ndf.dtypes → 每列的数据类型")
+    # 3. 查看数据类型
+    print("3. 数据类型（dtypes）：")
     print(df.dtypes)
+    print()
 
-    print("\ndf.head(2) → 前 2 行")
-    print(df.head(2))
+    # 4. 缺失值统计
+    print("4. 缺失值统计（isna().sum()）：")
+    missing = df.isna().sum()
+    missing_cols = missing[missing > 0]
+    if len(missing_cols) > 0:
+        for col, count in missing_cols.items():
+            rate = round(count / len(df) * 100, 1)
+            print(f"   - {col}: {count} ({rate}%)")
+    else:
+        print("   无缺失值")
+    print()
 
-    print("\ndf.describe() → 数值列的统计摘要")
-    print(df.describe())
 
-    print("\ndf.info() → 完整的数据信息")
-    df.info()
+def demo_type_conversion(df: pd.DataFrame) -> None:
+    """演示类型转换"""
+    print("=" * 70)
+    print("类型转换：告诉 pandas '这列是什么'")
+    print("=" * 70)
+    print()
+
+    print("转换前的类型：")
+    print(df[["species", "island", "sex"]].dtypes)
+    print()
+
+    # 转换分类型数据
+    df_converted = df.copy()
+    df_converted["species"] = df_converted["species"].astype("category")
+    df_converted["island"] = df_converted["island"].astype("category")
+    df_converted["sex"] = df_converted["sex"].astype("category")
+
+    print("转换后的类型：")
+    print(df_converted[["species", "island", "sex"]].dtypes)
+    print()
+
+    # 内存使用对比
+    print("内存使用对比：")
+    print(f"   转换前: {df.memory_usage(deep=True).sum() / 1024:.2f} KB")
+    print(f"   转换后: {df_converted.memory_usage(deep=True).sum() / 1024:.2f} KB")
+    print()
+
+
+def demo_common_errors() -> None:
+    """演示常见错误与恢复方式"""
+    print("=" * 70)
+    print("常见错误与恢复方式")
+    print("=" * 70)
+    print()
+
+    # 错误 1：路径问题
+    print("1. 路径问题（FileNotFoundError）")
+    print("-" * 70)
+    print("   ❌ 错误：路径写死")
+    print('   df = pd.read_csv("/Users/xiaobei/Desktop/data.csv")')
+    print()
+    print("   ✅ 正确：使用相对路径或 pathlib")
+    print('   df = pd.read_csv("data/data.csv")')
+    print('   df = pd.read_csv(Path("data") / "data.csv")')
+    print()
+
+    # 错误 2：编码问题
+    print("2. 编码问题（UnicodeDecodeError）")
+    print("-" * 70)
+    print("   如果文件包含中文，可能会遇到编码错误：")
+    print('   df = pd.read_csv("data.csv", encoding="utf-8")  # 默认')
+    print('   df = pd.read_csv("data.csv", encoding="gbk")    # 中文 Windows')
+    print('   df = pd.read_csv("data.csv", encoding="gb18030")  # 更广泛的中文支持')
+    print()
+
+    # 错误 3：日期没被解析
+    print("3. 日期没被解析")
+    print("-" * 70)
+    print("   pandas 可能把日期列当成字符串：")
+    print('   df = pd.read_csv("data.csv", parse_dates=["date_column"])')
+    print()
 
 
 def main() -> None:
-    """主函数"""
-    df = create_sample_df()
+    # 方法 1：使用 seaborn 内置数据集（最简单，无路径问题）
+    print("方法 1：使用 seaborn 内置数据集")
+    print("-" * 70)
+    penguins = sns.load_dataset("penguins")
+    demo_basic_operations(penguins)
+    demo_type_conversion(penguins)
+    demo_common_errors()
 
-    print("示例 DataFrame：")
-    print(df)
+    # 方法 2：从本地文件读取（示例代码，不实际执行）
     print()
-
-    demo_select_column(df)
-    demo_select_row(df)
-    demo_select_both(df)
-    demo_filter(df)
-    demo_common_mistakes(df)
-    demo_index_reset(df)
-    demo_basic_info(df)
+    print("=" * 70)
+    print("方法 2：从本地文件读取（示例）")
+    print("=" * 70)
+    print()
+    print("# 假设你的文件在 data/penguins.csv")
+    print('df = pd.read_csv("data/penguins.csv")           # 相对路径')
+    print('df = pd.read_csv("/absolute/path/to/data.csv")  # 绝对路径')
+    print('df = pd.read_csv("../data/penguins.csv")        # 上级目录')
+    print()
 
 
 if __name__ == "__main__":

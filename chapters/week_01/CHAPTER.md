@@ -1,537 +1,724 @@
-# Week 01：数据思维入门 —— 从"看数字"到"问问题"
+# Week 01：拿到数据先别急着跑模型 —— 统计三问与数据卡
 
-> "In God we trust; all others must bring data."
+> "In God we trust, all others must bring data."
 > — W. Edwards Deming
 
-2026 年的数据分析现场已经和几年前大不相同了：你上传一个 CSV 文件，Claude 或 ChatGPT 就能在几秒钟内给你生成图表、计算统计量，甚至直接"下结论"。这很诱人，也很危险。
+2026 年，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。Stack Overflow 2025 年开发者调查显示，84% 的开发者已经在使用或计划使用 AI 工具，GitHub Copilot 的用户数量在一年内增长了 400%，超过 1500 万开发者用它来辅助编码。这很诱人，也很危险。
 
-因为 AI 可以比你更快地算出一个 p 值，却不会替你问：**样本是谁？缺失意味着什么？我们在比较多少个指标？** 换个切分方式结论还成立吗？GitHub Copilot 在 2025 年已经有超过两千万用户，AI 目前正在编写接近一半的代码——但代码只是工具，问题才是灵魂。
+因为 AI 可以比你更快地算出一个均值、画出一张分布图，却不会替你问：这份数据到底在讲谁？每个字段是什么意思？缺失值是怎么产生的？样本有没有代表性？如果你连"数据的地基"都没看清楚，后面的任何结论——无论 p 值多小、模型多复杂——都可能建在沙滩上。
 
-更现实的问题是：当 AI 一键生成 EDA（探索性数据分析）报告时，你如何判断它做对了什么？2025 年的学术研究已经在反复提醒：ChatGPT 在卡方检验、单因素方差分析等基础统计方法上的表现并不稳定。如果你不理解背后的逻辑，就容易被误导。
+<!-- 参考（访问日期：2026-02-15）：
+- Stack Overflow Developer Survey 2025 - AI Tools: https://survey.stackoverflow.co/2025/ai
+- GitHub Copilot Statistics 2026 (Panto AI): https://panto.ai/insights/github-copilot-statistics-2026
+- State of Code Developer Survey 2026 (Sonar): https://www.sonarsource.com/developer-survey
+-->
 
-所以本周我们从一个反直觉的起点开始：**慢下来，先问问题，再找答案。** 我们要学的是"数据卡"——不是炫酷的预测模型，而是给数据办一张"身份证"，把数据的来源、边界、缺失情况写清楚。这是任何可复现分析的真正地基。
+本周我们不急着跑模型。从"统计三问"和"数据卡"开始，先把数据的边界写清楚：来源是什么、字段怎么定义的、有多大、缺多少。这不是"准备工作"，这是分析本身。
 
 ---
 
 ## 本章学习目标
 
 完成本周学习后，你将能够：
-1. 用"统计三问"（描述/推断/预测）明确你的分析目标
-2. 识别数据类型并理解它们如何决定分析方法的选择
-3. 用 pandas 加载和初步探索数据集
-4. 为你的数据集创建一份"数据卡"（Data Card）
-5. 理解"先问问题，再找答案"的统计思维模式
+1. 用"统计三问"（描述/推断/预测）识别自己的分析目标
+2. 用 pandas 读取数据并判断数据类型（数值型/分类型，连续/离散）
+3. 编写一份**数据卡**（data card）：数据来源、字段解释、规模概览、缺失概览
+4. 建立最小可用的 StatLab 报告（`report.md`）
 
 ---
-
 <!--
-贯穿案例：数据卡生成器
-- 第 1 节：统计三问 → 案例从"拿到数据不知道做什么"变成"明确我要回答什么类型的问题"
-- 第 2 节：数据类型 → 案例从"把所有列当成数字"变成"识别每列的统计类型"
-- 第 3 节：pandas 入门 → 案例从"无法读数据"变成"加载成功并看到前几行"
-- 第 4 节：数据卡 → 案例从"零散的数据信息"变成"一份完整的数据说明文档"
-最终成果：读者为选定的数据集写出一份可读、可审计的数据卡（report.md 的第一版）
+贯穿案例：数据卡生成器（Data Card Generator）
+
+案例演进路线：
+- 第 1 节：统计三问 → 让读者识别"我要回答的问题类型"（描述/推断/预测）
+- 第 2 节：数据类型判断 → 识别每列是数值还是类别，是连续还是离散
+- 第 3 节：pandas 读数据与类型推断 → 把数据加载进 Python 并检查 dtype
+- 第 4 节：数据卡生成 → 编写函数，自动生成数据卡（字段字典、规模、缺失概览）
+- 第 5 节：写入 report.md → 把数据卡写入 Markdown 文件，建立 StatLab 基础
+
+最终成果：读者拥有一份可读的 `data_card.md`，清楚回答"这份数据在讲谁、有哪些字段、有多大、缺多少"
+
+数据集建议：使用公开数据集（如 Titanic、Penguins、或某城市的房价/空气质量数据），让案例有意义
+
+---
 
 认知负荷预算：
-- 本周新概念（4 个，预算上限 4 个）：
+- 本周新概念（3 个，预算上限 4 个）：
   1. 统计三问（description/inference/prediction）
   2. 数据类型（数值型/分类型，连续/离散）
-  3. pandas DataFrame
-  4. 数据卡（Data Card）
+  3. 数据卡（data card）
 - 结论：✅ 在预算内
 
-回顾桥设计：
-- 本周是第一周，无需回顾桥
+回顾桥设计：Week 01 豁免（前情提要）
 
 AI 小专栏规划：
-AI 小专栏 #1（放在第 2 节之后）：
-- 主题：AI 可以一键生成 EDA，为什么还要学基础？
-- 连接点：呼应第 2 节的"数据类型识别"——AI 可能自动推断类型，但它不知道你的业务语义
-- 建议搜索词：
-  - "AI automated EDA tools 2025 2026"
-  - "ChatGPT data analysis limitations statistics"
-  - "human-in-the-loop data analysis 2025"
+- 第 1 个侧栏（第 2 节之后）：
+  - 主题："AI 能替你做 EDA 吗？"
+  - 连接点：刚学完"数据类型"，讨论 AI 自动类型推断的边界
+  - 建议搜索词："AI automated EDA tools 2026", "pandas AI tools 2026", "data profiling automation 2025"
 
-AI 小专栏 #2（放在第 4 节之后）：
-- 主题：Data Card —— AI 时代的"数据身份证"
-- 连接点：呼应第 4 节的"数据卡"实践——数据集越来越多来自各种来源，没有数据卡的分析是不可审计的
-- 建议搜索词：
-  - "dataset data cards machine learning 2025 2026"
-  - "datasheet for datasets best practices"
-  - "data documentation standards AI"
+- 第 2 个侧栏（第 4 节之后）：
+  - 主题："数据卡：AI 时代的'数据身份证'"
+  - 连接点：刚生成数据卡，讨论工业界/开源项目的数据卡实践
+  - 建议搜索词："datasheet for datasets 2026", "data card documentation best practices 2025", "model card data card 2026"
 
 角色出场规划：
-- 小北（第 1 节）：拿到数据就急着算均值，被引导思考"你想回答什么问题"
-- 阿码（第 3 节）：尝试用 AI 生成 pandas 代码，但因为没有理解 DataFrame 的索引机制而出错
-- 老潘（第 4 节）：指出"在公司里，没有数据卡的数据分析报告是不会被 review 的"
+- 小北（第 1 节）：拿到数据就想"能不能直接训练模型"，引出"统计三问"的必要性
+- 阿码（第 3 节）：用 pandas 读数据时遇到类型推断问题（如 zipcode 被当成整数），引出"类型判断很重要"
+- 老潘（第 5 节）：看到生成的 report.md，点评"可复现性"的价值，铺垫 StatLab 超级线
+
+StatLab 本周推进：
+- 上周状态：无（第一周）
+- 本周改进：选择数据集，生成最小可用 report.md（数据来源、字段字典、规模、缺失概览）
+- 涉及的本周概念：统计三问（识别研究问题类型）、数据类型（字段字典）
+- 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
 
-## 1. 你拿到数据，第一件事该做什么？
+## 1. 你到底想回答什么问题？
 
-小北拿到一份电商用户数据，第一反应是："老师，怎么算均值？"
+小北第一次拿到 Palmer Penguins 数据集，第一反应是："我们能不能直接训练一个模型，预测企鹅的物种？"
 
-这是个极其常见、但极其危险的问题。不是"均值不好"，而是——**在算均值之前，你还没想清楚自己在做什么。**
+这很正常。在你还没见过这份数据的时候，"预测"听起来是最酷的事。但老潘会立刻问你一句："那你到底想回答什么问题？"
 
-阿码去年就闹过一次笑话。他拿到一份"双十一期间用户消费数据"，兴冲冲算出"平均消费 5000 元"，然后在汇报里写了句结论："我们的用户很富裕。"
-
-结果老板问了一句："这份数据包含了多少人？"
-
-"呃……500 人。"阿码查了一下。
-
-"双十一当天全站交易额是多少？"
-
-"大概……几千万？"
-
-老板的表情让阿码明白了问题所在：**500 个用户的均值，根本不能代表"整体用户"**。这是一个"推断问题"被当成"描述问题"处理的典型翻车现场。
-
-所以在你算任何数字之前，先问自己三个问题：
-1. 你想描述这批数据本身的特点吗？
-2. 你想从这批数据推断整体的情况吗？
-3. 你想预测未来或未见样本会怎样吗？
-
-这就是**统计三问**：描述（Description）、推断（Inference）、预测（Prediction）。
-
-描述问题最简单：你只想说"手头这批数据长什么样"。算算均值、画个直方图，结论只适用于这份样本，不往外推。推断问题复杂一步：你想从样本说"总体大概怎么样"，这时候就需要抽样分布、置信区间、假设检验——任何结论都要带上不确定性。预测问题走得更远：你不是在描述已知，而是在对未来下注，需要建模、评估、检验泛化能力，本质上是在说"新情况来了，大概率会怎样"。
-
-小北的反应很诚实："我就是想看看用户平均花多少钱……"好，那这是一个描述问题。但如果你想基于这个结论说"下个月也会差不多"，那就变成预测了——你得问自己：数据来自哪个月？季节性呢？促销活动呢？
-
-**记住：先问问题，再找答案。** 问题决定了答案的边界——也决定了你什么时候会越界。
-
-现在你已经知道自己要回答什么类型的问题了。下一步自然会冒出来：我要用哪些列来回答？这些列可以被怎样"对待"？
+这听起来像废话，但它决定了你接下来要走的路。
 
 ---
 
-## 2. 这列数据到底是什么"类型"？
+### 从"想做模型"到"想回答问题"
 
-阿码举着手，问了一个让他自己都意外尴尬的问题："老师……如果我把性别（编码成 0 和 1）拿去算均值，会怎样？"
+统计学家 Andrew Gelman 说过："统计学不是计算，是提问。"在你写任何代码之前，先搞清楚你的分析属于哪一类：
 
-你当然可以算——pandas 不会拦着你。但算出来的"平均性别 0.52"有什么意义？
+**1. 描述（Description）**：数据长什么样？
 
-小北在旁边补刀："意思是……我们班一半男一半女？还是……我们要成立一个'性别合成'部门？"
+典型问题：
+- 这三种企鹅的嘴峰长度平均是多少？
+- 哪个岛屿的企鹅最多？
+- 数据里有没有缺失值？有多少？
 
-全班笑了。连阿码自己都笑了——他突然意识到自己刚才想问的其实是个伪问题。数据的"类型"不是数学能替你决定的，而是业务语义决定的。编码成 0 和 1，不代表它就变成了数字。
+这类问题不需要"推断到总体"，你只是在"描述手头的样本"。比如你算出 Adelie 企鹅的平均嘴峰长度是 38.8 mm——这就是一个描述性统计。
 
-"不，"你说，"意思是阿码搞错了数据类型——而且 pandas 不会阻止他。"
+**2. 推断（Inference）**：从这个样本，能对总体说什么？
 
-这正是问题所在：pandas 是个工具，不是顾问。你把**分类型数据**当成了**数值型数据**，算出来的数字在数学上是对的，但在语义上是空的。
+典型问题：
+- Adelie 和 Chinstrap 企鹅的嘴峰长度差异是"真差异"，还是抽样造成的偶然？
+- 我们能不能说"雄性企鹅的体重比雌性大"这个结论对整个南极企鹅种群都成立？
 
-数据类型是统计分析的"交通规则"。如果你选错了车道，后面的分析都会走偏：
+这类问题需要引入"不确定性"：你看到的差异，可能只是运气。我们会在 Week 06-08 学习假设检验和置信区间来回答这类问题。
 
-| 维度 | 数值型 | 分类型 |
-|------|--------|--------|
-| **可以做什么** | 加减乘除、求均值、做回归 | 计数、求比例、分组比较 |
-| **不能做什么** | 对没有序关系的类别做加减 | 对没有序关系的类别求均值 |
-| **例子** | 年龄、收入、身高 | 性别、城市、是否购买 |
+**3. 预测（Prediction）**：给定一个新样本，能猜出它的 Y 吗？
 
-但这还不够细。数值型内部还有一个重要区别：**连续 vs 离散**。
+典型问题：
+- 给定一只新企鹅的嘴峰长度、嘴峰深度、鳍肢长度，能不能猜出它的物种？
+- 给定一套房子的面积、房龄、位置，能不能预测它的价格？
 
-连续型可以取任意值——比如身高可以是 170.2 厘米，也可以是 170.23 厘米，取决于你测量的精度。离散型只能取某些值——比如你本月的外卖订单数可以是 5 单、6 单，但不可能是 5.3 单；再比如 APP 的评分是 1 到 5 星，你给不了 3.7 星（虽然你心里可能是这么想的）。
-
-小北问："这不就是个数学定义吗？为什么要分这么细？"
-
-因为在统计推断中，**方法的选择依赖于数据类型**。连续变量常常假设正态分布；离散变量可能用泊松分布；分类型变量用卡方检验。选错了，结论就不可靠。
-
-再说一个真实的翻车现场：去年有个分析报告写"用户平均评分 3.77 星，标准差 1.23"，然后煞有介事地给出结论："95% 的用户评分在 [1.31, 6.23] 之间"。
-
-小北看着这个数字愣了三秒："等等……6 星？五星好评系统里哪来的 6 星？"
-
-阿码捂脸："这是把离散变量当连续变量算的翻车现场……"
-
-"对了一半。"你说，"但问题不是'算错了'，而是'问错问题了'。" 对 1-5 星的评分来说，更有意义的描述是"40% 的用户给了 5 星，25% 给了 4 星"，而不是"平均 3.77 星 ± 1.23"。
-
-离散变量可以算均值和标准差，但解释方式完全不同。对评分来说，更有意义的描述是"40% 的用户给了 5 星，25% 给了 4 星"，而不是"平均 3.77 星"。
-
-更现实的问题是：pandas 不会替你思考。`df['gender'].mean()` 会给你一个数字，但不会告诉你"这可能不对"。2025 年的研究发现，ChatGPT 在处理数据类型识别时也会犯错——它可能把邮政编码当成连续数值，或者把评分当成纯类别。
-
-所以：**在看数据之前，先问每一列的"类型是什么"**，并把它们写下来。这不是形式主义，是在为后面所有分析铺路。
-
-想一个问题：如果这份数据丢给 AI，它会不会替你做这件事？好问题——我们正好来聊聊。
-
-> **AI 时代小专栏 #1：AI 可以一键生成 EDA，为什么还要学基础？**
-
-2025-2026 年，数据科学家用 ChatGPT、Claude 或专门的 AI 工具一键生成 EDA 报告已经很常见了。AI 可以在几秒钟内为你计算均值、标准差、相关性，甚至画出漂亮的图表。
-
-但这里有个真实的翻车案例：2025 年，一位研究者让 ChatGPT 分析一份健康数据，AI 自动把"邮政编码"当成连续数值，计算出"平均邮政编码 45623.5，标准差 1234.6"，甚至还给出了"邮政编码与收入显著正相关"的结论。
-
-问题来了：邮政编码是地点标识，不是数值，算均值和相关性在数学上可以跑，但在语义上是胡扯。AI 不会替你思考这个——它只会按照你的指令"跑统计"。
-
-更重要的是，"统计直觉"是你判断 AI 输出是否可靠的前提。如果你不理解数据类型、分布假设、效应量的含义，就无法审查 AI 给出的结论。
-
-更现实的问题是：尽管 2025-2026 年 AI 在准确性上有明显提升（GPT-5 带来了 45% 更少的事实错误、6 倍更少的幻觉），但在复杂数据分析中仍有局限。它可能会忽略前提假设、错误选择检验方法、或给出过度自信的结论——特别是在处理大型数据集、实时数据、或需要深度业务理解的场景。
-
-所以本周学的东西——统计三问、数据类型识别——不是"过时的手工工作"，而是你在 AI 时代必备的"审查能力"。**AI 可以加速你的计算，但只有你能回答"这个问题是否有意义"。**
-
-**参考（访问日期：2026-02-15）：**
-- [The 6 Biggest ChatGPT Limitations for 2026 - WebFX](https://www.webfx.com/blog/ai/chatgpt-fails/)
-- [ChatGPT Statistics 2026 - Incremys](https://www.incremys.com/en/resources/blog/chatgpt-statistics)
-- [Is ChatGPT Accurate? (2026) - Chatbase](https://www.chatbase.co/blog/is-chatgpt-accurate)
-
-现在你知道每列的数据类型了，也知道了 AI 可能会在这些地方翻车。下一步：怎么在 Python 里和这些数据打交道？
-
----
-
-## 3. 用 pandas 说话：DataFrame 是什么？
-
-好了，现在你手里有了一份带着"身份证"的数据，每一列是什么类型也搞清楚了。下一个问题自然就来了：**用什么工具来操作这些数据？**
-
-答案有很多种：SQL、R、Excel、Python……但我们选 pandas——因为它是 Python 数据分析的"通用语言"，而且和后面要学的机器学习库无缝衔接。
-
-如果你之前用过 Excel，可能会想："直接打开看不就行了？"
-
-可以。但有代价。
-
-小北试过一次。他打开一个 50 万行的 CSV，等了三分钟，Excel 直接弹窗："文件未完全加载"。他刷新了一次，电脑直接卡死。
-
-那一刻他意识到：该换工具了。
-
-老潘后来吐槽说："Excel 就像自行车，适合短途和载人；pandas 就像卡车，适合拉货和长途。你不会骑自行车去搬家——同理，别用 Excel 去处理 50 万行数据。"
-
-这不是 Excel 的错——它本来就不是为"几十万行数据+复杂计算"设计的。pandas 的 DataFrame 是一张**活在内存里的表格**：可以行索引、列索引、筛选、分组、合并，比 Excel 快得多，而且所有操作都能写成代码——这意味着三个月后你还能复现今天做的一切。
+这类问题的目标是"猜得准"，你甚至不需要理解变量之间的关系（虽然理解会帮到你）。我们会在 Week 09-12 学习回归和分类。
 
 ```python
+# examples/01_three_questions.py
+import seaborn as sns
+
+penguins = sns.load_dataset("penguins")
+
+# 1. 描述：数据长什么样？
+print("描述：三种企鹅的平均嘴峰长度")
+print(penguins.groupby("species")["bill_length_mm"].mean())
+
+# 2. 推断：差异是真差异吗？（Week 06 会学）
+# from scipy import stats
+# stats.ttest_ind(...)
+
+# 3. 预测：给定特征，猜物种（Week 09-10 会学）
+# from sklearn.ensemble import RandomForestClassifier
+# ...
+```
+
+运行上面的代码，你会看到三个物种的平均嘴峰长度被打印出来。这就是一个"描述"——你在回答"数据长什么样"，而不是"这个差异在总体中是否成立"或"能不能预测新企鹅"。
+
+### 为什么这很重要？
+
+小北想做的"预测模型"当然是可行的，但她跳过了一步：先描述，再预测。如果你连"三种企鹅的嘴峰长度大概是多少"都不知道，又怎么能判断你的模型预测得对不对？
+
+阿码举手："那我是不是每次分析都要回答这三类问题？"
+
+也不是。更准确的说法是：**明确你在回答哪一类问题**。不要算了一个均值（描述），就立刻下结论说"总体就是这样"（推断），也不要跑了一个回归（预测），就以为你理解了变量之间的关系（推断）。
+
+所以本周的任务是：先用"描述"把数据看清楚，把数据卡写好。预测和推断，我们在后面几周会慢慢来。
+
+---
+
+> **AI 时代小专栏：AI 能替你做 EDA 吗？**
+>
+> 2026 年的 AI 工具确实能自动生成描述性统计和可视化。它们可以在几秒钟内计算出均值、中位数、标准差，甚至画出相关性热图和分布图。一些工具如 Ataccama ONE 和 Atlan 等数据平台已经集成了自动化数据画像（profiling）功能[来源]。
+>
+> 但这里有三个 AI 替不了你的判断：
+>
+> **第一，业务背景**。AI 可以告诉你 "bill_length_mm 的均值是 43.9"，但不会告诉你"嘴峰长度是区分物种的关键特征之一"。这个知识需要你去查企鹅的生物学文献，或者请教领域专家。
+>
+> **第二，异常值的解释**。AI 可以标出"这个值离群"，但不会告诉你"这可能是一次测量错误"还是"这是一个真实但罕见的极端样本"。判断需要人。
+>
+> **第三，分析目标**。AI 可以给出所有可能的统计量，但不会帮你筛选"哪些和我真正的问题相关"。如果你想做推断，AI 可能给你一堆预测准确率——方向错了。
+>
+> 所以你刚学的"统计三问"，在 AI 时代其实更重要了：AI 是执行者，你是提问者。你不告诉它你想回答什么类型的问题，它就会什么都给你算一遍。
+>
+> 参考（访问日期：2026-02-15）：
+> - [Best Intelligent AI Data Copilot Comparison 2026](https://www.energent.ai/use-cases/en/compare/best-intelligent-ai-data-copilot-comparison)
+> - [Best Data Analysis Tools in 2026: Complete Comparison Guide](https://www.findanomaly.ai/best-data-analysis-tools-2026)
+
+## 2. 这列数字到底算什么类型？
+
+阿码用 pandas 读取了一份包含美国邮政编码（zipcode）的数据，发现 pandas 自动把它识别成了 `int64` 类型。他挺满意："挺好，整数类型，节省内存。"
+
+但这里有个陷阱：**数值型（numeric）不等于可以用来算均值**。
+
+---
+
+### 数值型 vs 分类型：能算什么，不代表该算什么
+
+数据类型可以分为两大类：
+
+**1. 数值型数据（Numeric）**
+- **连续（Continuous）**：可以取任意值，如身高、体重、温度
+- **离散（Discrete）**：只能取整数，如孩子数量、访问次数
+
+**2. 分类型数据（Categorical）**
+- **名义型（Nominal）**：没有顺序，如物种、岛屿、性别
+- **有序型（Ordinal）**：有顺序但间隔不等，如满意度评分（低/中/高）
+
+ zipcode 看起来像数字（90210），但它实际上是**名义型分类数据**。算它的均值（"平均邮政编码"）就像算"平均电话号码"——再精确的数字也没用。两个 zipcode 相减更没有意义：90210 减去 10001 等于 80209？不，这只是两个地区的代号，不能加减乘除。
+
+```python
+# examples/02_data_types.py
+import seaborn as sns
 import pandas as pd
 
-# 读取 CSV 文件
-df = pd.read_csv("data/users.csv")
+penguins = sns.load_dataset("penguins")
 
-# 查看数据的基本形状（行数、列数）
-print(df.shape)
+# 看 pandas 自动推断的类型
+print("Pandas 自动推断的类型：")
+print(penguins.dtypes)
+print()
 
-# 查看前几行
-print(df.head())
+# species 看起来是字符串，但应该是分类型
+print("species 的唯一值：", penguins["species"].unique())
+print("island 的唯一值：", penguins["island"].unique())
+print()
 
-# 一键查看"数据全貌"：列名、类型、非空数量
-print(df.info())
-
-# 查看列名和数据类型
-print(df.dtypes)
-
-# 查看基本的统计摘要
-print(df.describe())
+# bill_length_mm 是连续数值型
+print("bill_length_mm 的描述统计：")
+print(penguins["bill_length_mm"].describe())
 ```
 
-阿码看完 `df.head()` 的输出，想起之前让 AI 生成过一些 pandas 代码，就试着写了 `df[50]`，想直接看看第 50 行长什么样。结果报错了——`KeyError: 50`。
+运行后你会发现，pandas 把 `species` 和 `island` 推断成了 `object` 类型（Python 字符串）。但从统计学的角度，它们是**分类型数据**。
 
-他盯着屏幕有点懵："但 AI 的代码里明明有 `df['列名']` 这种写法啊……"
+这里有个容易踩的坑：如果你把它们转成数值（比如 Adelie=0, Chinstrap=1, Gentoo=2），pandas 会很开心地让你算"平均物种"——结果是 0.92。这个数字看起来很精确，但没有任何意义。类型不对，统计量就是笑话。
 
-老潘在旁边看了一眼："你刚才选的是列，不是行。"
+### 为什么类型判断很重要？
 
-"啊？"阿码盯着屏幕。
+小北可能会问："我反正就是跑代码，类型对不对有什么关系？"
 
-先别急着记语法。理解一件事就够了：**DataFrame 的方括号 `[]` 默认是选列的**。`df[50]` 会被 pandas 理解为"选择列名为 50 的列"——当然，你的数据里没有这列，所以报错。
+关系很大。**类型决定了你能做什么分析**：
 
-那怎么选行？最常用的写法是：
+| 分析类型 | 适用的数据类型 | 示例 |
+|---------|--------------|------|
+| 计算均值、标准差 | 连续数值型 | 嘴峰长度、体重 |
+| 计算频数、比例 | 分类型 | 物种分布、岛屿分布 |
+| 分组比较 | 分类型（组） + 连续型（指标） | 不同物种的嘴峰长度 |
+| 相关性分析 | 两个连续数值型 | 嘴峰长度 vs 体重 |
+| 卡方检验 | 两个分类型 | 物种 vs 岛屿 |
 
-```python
-# 看"前几行"
-df.head(5)      # 前 5 行（最常用）
-df.head(10)     # 前 10 行
+如果你把 `species` 当成数值型算均值，会得到一个无意义的数字；如果你把 `bill_length_mm` 当成分类型，就无法使用很多强大的统计工具。
 
-# 看"第 N 行"（从 0 开始数）
-df.iloc[50]     # 第 51 行
-df.iloc[0:5]    # 前 5 行（和 head(5) 类似）
-```
+阿码眼睛一亮，突然问："那如果我把 species 转成整数（Adelie=0, Chinstrap=1, Gentoo=2），然后直接跑个随机森林，预测准确率会不会更高？"
 
-阿码问："那 `loc` 呢？AI 生成的代码里有时候用 `loc`，有时候用 `iloc`，到底什么区别？"
+这是个好问题——但也暴露了他还没真正理解"类型"的语义。随机森林确实可以接受数值输入，但当你把物种编码成 0、1、2 时，模型会误以为 Gentoo（2）"比" Chinstrap（1）"大"，而 Chinstrap 又"比" Adelie（0）"大"——这个顺序关系完全是虚构的。更关键的是，如果下周来了新数据，出现第四种物种（比如 Chinstrap penguin 的亚种），你的编码体系就崩了。
 
-好问题。用一个具体的例子说明：
-
-假设你的数据长这样（注意"索引"那一列）：
-
-| 索引 | name | age |
-|------|------|-----|
-| 0 | 小北 | 22 |
-| 1 | 阿码 | 23 |
-| 100 | 老潘 | 35 |
-
-```python
-df.iloc[0]      # 按位置：取"第 0 行" → 小北
-df.iloc[2]      # 按位置：取"第 2 行" → 老潘
-df.loc[0]       # 按标签：取"索引=0 的行" → 小北
-df.loc[100]     # 按标签：取"索引=100 的行" → 老潘（不是第100行！）
-```
-
-看到区别了吗？**`iloc` 是"数第几个"**（从 0 开始），**`loc` 是"找叫什么名字的"**（用索引标签）。
-
-用一个生活化的比喻：**`iloc` 像数座位第几排**（不管座位上贴的是谁的名字），**`loc` 像找叫什么名字的人**（不管他坐在哪排）。
-
-大多数情况下，索引是 0、1、2……连续的，所以 `iloc[0]` 和 `loc[0]` 结果一样。但一旦你做了筛选、删除，索引就会变得不连续——这时候 `iloc` 和 `loc` 就会指向不同的行了。
-
-新手阶段，记住这个就够了：**想看"第几行"，用 `iloc`；想用索引标签找，用 `loc`**。这些概念先记住基本用法，后面会逐渐熟悉。等你做数据清洗、重置索引的时候，自然会遇到需要区分的场景。
-
-这个区别看似琐碎，但当你让 AI 生成代码时，理解它可以帮你更快地定位错误。GitHub Copilot 现在有超过两千万用户，但它不会替你理解为什么 `iloc` 和 `loc` 的区别很重要——特别是在你做数据清洗、重置索引之后。
-
-小北有点崩溃："那我每次都要记这些吗？我连下周自己会不会记得都怀疑……"
-
-老潘笑了："忘了很正常。所以我们才要写数据卡、写注释、写 commit message。文档不是写给别人的，是写给三个月后的自己的。"
-
-阿码插嘴："所以你说的'工程化'，其实就是……给自己留后路？"
-
-"对，"老潘点头，"因为你三个月后一定会忘记今天写的东西。这是人类的天性，不是你的错。"
+类型转换不只是"让代码能跑"，而是让代码的**语义正确**。你可以在 `read_csv` 时指定 `dtype` 参数，或者在读取后用 `astype()` 转换类型。下一节我们会看到具体怎么做。
 
 ---
 
-## 4. 数据卡：给你的数据办张"身份证"
+### 小步快跑：检查你的数据类型
 
-老潘去年有过一次"血泪经历"。
+在写任何分析代码之前，先做三件事：
 
-三个月前，他跑了一份用户留存分析，结论很漂亮："新用户 7 日留存率 65%"。三个月后老板让他重跑一遍，结果——42%。
+1. **打印 `dtypes`**：看看每列被推断成什么类型
+2. **打印 `head()`**：看看前几行的实际值
+3. **打印 `unique()`（对分类型）**：看看有哪些类别，有没有拼写错误（比如 "Adelie" 和 "adelie" 同时出现）
 
-更糟的是，他盯着代码想了五分钟，完全记不起来三个月前用的数据从哪来的、导出条件是什么、"新用户"怎么定义的。那份 Excel 表早被覆盖了，代码里也没有数据源注释。
+这三步能帮你避开 80% 的类型相关错误。阿码试过一次：他把 `species` 当字符串处理，结果写了一堆 `if row["species"] == "Adelie"` 这样的代码，后来才发现用 `groupby("species")` 一行就能搞定。
 
-"那一刻我意识到，"老潘后来在组会上说，"我写的不是分析，是给自己挖的坑。"
+现在你学会了判断类型。但类型判断只是纸上谈兵——下一节我们把数据真正加载进 Python，看看 pandas 实际怎么推断类型，以及当它猜错时该怎么办。
 
-**数据卡**（Data Card）就是给数据办一张"身份证"，防止你掉进同一个坑。它是一份简短的文档，回答：
-1. **数据来源**：这份数据从哪来？采集时间是什么？
-2. **字段字典**：每一列是什么意思？单位是什么？
-3. **样本规模**：有多少行？代表什么群体？
-4. **时间范围**：数据覆盖的时间段是什么？有没有季节性？
-5. **缺失概览**：哪些列缺失值多？可能的原因是什么？
-6. **使用限制**：这份数据能回答什么问题？不能回答什么？
+## 3. 用 pandas 把数据请进 Python
 
-老潘现在说得很直接："在公司里，没有数据卡的数据分析报告是不会被 review 的。因为没人知道你的结论建立在什么数据地基上——包括三个月后的你自己。"
-
-我们来写一个最简单的数据卡：
+小北第一次尝试用 pandas 读取数据，写了这样一行代码：
 
 ```python
+df = pd.read_csv("data.csv")
+```
+
+运行后立刻报错：`FileNotFoundError: data.csv not found`。她盯着屏幕，一脸茫然："文件明明就在桌面上啊！"
+
+---
+
+### 第一次读数据：避开的坑
+
+这是新手最容易遇到的第一个坑：**路径问题**。pandas 默认从"当前工作目录"找文件，而你的工作目录可能不是你想象的那样。
+
+```python
+# examples/03_pandas_basics.py
 import pandas as pd
+import seaborn as sns
 
-def create_data_card(df: pd.DataFrame, data_source: str, description: str) -> str:
-    """生成数据卡的 Markdown 文本"""
-    card = f"""# 数据卡（Data Card）
+# 方法 1：使用 seaborn 内置数据集（最简单）
+penguins = sns.load_dataset("penguins")
+print("方法 1：seaborn 内置数据集")
+print(f"形状：{penguins.shape}")  # (344, 7)
+print()
 
-## 数据来源
-{data_source}
+# 方法 2：从本地文件读取（注意路径）
+# 假设你的文件在 data/penguins.csv
+# df = pd.read_csv("data/penguins.csv")  # 相对路径
+# df = pd.read_csv("/Users/yourname/project/data/penguins.csv")  # 绝对路径
+# df = pd.read_csv("../data/penguins.csv")  # 上级目录
 
-## 数据描述
-{description}
+# 检查数据的基本信息
+print("前 3 行数据：")
+print(penguins.head(3))
+print()
 
-## 样本规模
-- 行数：{df.shape[0]:,}
-- 列数：{df.shape[1]}
+print("数据类型：")
+print(penguins.dtypes)
+print()
 
-## 字段列表
-"""
-    # 添加字段信息
+print("数据规模：")
+print(f"行数：{penguins.shape[0]}，列数：{penguins.shape[1]}")
+print()
+
+print("缺失值统计：")
+print(penguins.isna().sum())
+```
+
+小北跑通后问："为什么要检查 `dtypes` 和 `shape`？我直接开始分析不就行了吗？"
+
+老潘的回答是："你总得知道你手里有多少行数据、有哪些列，才能判断后面的结论可信度。如果只有 30 行企鹅数据，你算出的均值就很不稳定；如果某一列缺失值超过 50%，你算任何统计量都要打个问号。"
+
+### 类型转换：告诉 pandas "这列是什么"
+
+pandas 的类型推断很聪明，但不是万能的。有时候你需要手动指定类型：
+
+```python
+# 指定列的数据类型
+penguins = penguins.astype({
+    "species": "category",
+    "island": "category",
+    "sex": "category"
+})
+
+print("转换后的类型：")
+print(penguins.dtypes)
+```
+
+把分类型数据转成 `category` 类型有两个好处：
+1. **节省内存**：存储重复字符串时更高效
+2. **语义明确**：你告诉 pandas（和你自己），这列不是用来算算术的
+
+### 常见错误与恢复
+
+**错误 1：路径问题**
+
+```python
+# ❌ 错误：路径写死
+df = pd.read_csv("/Users/xiaobei/Desktop/data.csv")
+
+# ✅ 正确：使用相对路径
+df = pd.read_csv("data/data.csv")
+```
+
+**错误 2：编码问题**
+
+如果你的文件包含中文，可能会遇到 `UnicodeDecodeError`：
+
+```python
+# 尝试不同编码
+df = pd.read_csv("data.csv", encoding="utf-8")  # 默认
+# df = pd.read_csv("data.csv", encoding="gbk")   # 中文 Windows
+# df = pd.read_csv("data.csv", encoding="gb18030")  # 更广泛的中文支持
+```
+
+**错误 3：日期没被解析**
+
+如果你的数据有日期列，pandas 可能把它当成字符串：
+
+```python
+# df = pd.read_csv("data.csv", parse_dates=["date_column"])
+```
+
+现在数据已经在 Python 里了，你知道它的规模、类型和缺失情况。但你可能会问：**然后呢？我总不能每次都重新跑一遍这些检查命令吧？**
+
+这就需要把信息写成一份人类可读的"数据卡"。它是你分析的起点，也是别人审核你工作的第一站。
+
+## 4. 把数据的"身份证"写清楚 —— 数据卡生成
+
+老潘看到小北的代码后，问了一句："这份数据从哪来的？每个字段是什么意思？"
+
+小北愣了一下："这个……我从一个教程里下载的，字段应该是……企鹅的属性？"
+
+这就是问题所在。**代码跑通 ≠ 分析可信**。如果你连数据的背景都说不清楚，后面的任何结论都可能被人质疑。
+
+---
+
+### 什么是数据卡？
+
+数据卡（data card）是一份数据的"身份证"，它用人类可读的方式回答：
+
+1. **数据来源**：数据从哪来？谁收集的？什么时候？
+2. **字段字典**：每列是什么意思？单位是什么？
+3. **规模概览**：有多少行？多少列？
+4. **缺失概览**：哪些列有缺失？缺失率多少？
+
+Google 和 MIT 的研究者提出了"Datasheets for Datasets"框架[来源]，建议每个数据集都配上一份标准化的文档。2026 年，这个实践已经被广泛应用于医疗 AI 和计算机视觉领域[来源]。
+
+### 编写数据卡生成函数
+
+让我们写一个函数，自动生成数据卡：
+
+```python
+# examples/04_data_card.py
+import pandas as pd
+import seaborn as sns
+from typing import Dict, Any
+
+def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
+    """
+    生成数据卡（Markdown 格式）
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        数据集
+    metadata : dict
+        数据的元信息，包含 source、description、collection_date 等
+
+    Returns
+    -------
+    str
+        Markdown 格式的数据卡
+    """
+    lines = []
+    lines.append("# 数据卡（Data Card）\n")
+
+    # 1. 数据来源
+    lines.append("## 数据来源\n")
+    for key, value in metadata.items():
+        lines.append(f"- **{key}**：{value}")
+    lines.append("\n")
+
+    # 2. 字段字典
+    lines.append("## 字段字典\n")
+    lines.append("| 字段名 | 数据类型 | 描述 | 缺失率 |")
+    lines.append("|--------|---------|------|--------|")
+
     for col in df.columns:
         dtype = str(df[col].dtype)
-        missing_rate = df[col].isna().mean() * 100
-        card += f"- **{col}** ({dtype}) - 缺失率: {missing_rate:.1f}%\n"
+        missing_rate = (df[col].isna().sum() / len(df) * 100).round(1)
+        lines.append(f"| {col} | {dtype} | （待补充） | {missing_rate}% |")
+    lines.append("\n")
 
-    card += f"""
-## 缺失概览
-"""
-    missing_summary = df.isna().sum()
-    for col, count in missing_summary[missing_summary > 0].items():
-        rate = count / len(df) * 100
-        card += f"- {col}: {count} ({rate:.1f}%)\n"
+    # 3. 规模概览
+    lines.append("## 规模概览\n")
+    lines.append(f"- **行数**：{len(df)}")
+    lines.append(f"- **列数**：{len(df.columns)}")
+    lines.append("\n")
 
-    return card
+    # 4. 缺失概览
+    lines.append("## 缺失概览\n")
+    missing = df.isna().sum()
+    missing = missing[missing > 0].sort_values(ascending=False)
+    if len(missing) > 0:
+        for col, count in missing.items():
+            rate = (count / len(df) * 100).round(1)
+            lines.append(f"- **{col}**：{count} ({rate}%)")
+    else:
+        lines.append("- 无缺失值")
+    lines.append("\n")
+
+    return "\n".join(lines)
+
 
 # 使用示例
-df = pd.read_csv("data/users.csv")
-card = create_data_card(
-    df,
-    data_source="公司内部用户行为数据库，导出时间：2026-01-15",
-    description="2025 年全年活跃用户的交易记录，包含注册、浏览、购买三个环节的数据。"
-)
+penguins = sns.load_dataset("penguins")
 
-# 保存到 report.md
-with open("report.md", "w", encoding="utf-8") as f:
-    f.write(card)
+metadata = {
+    "数据集名称": "Palmer Penguins",
+    "来源": "seaborn 内置数据集",
+    "原始来源": "Palmer Station, Antarctica LTER",
+    "描述": "南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据",
+    "收集时间": "2007-2009 年",
+    "单位说明": "长度单位为毫米（mm），重量单位为克（g）"
+}
+
+data_card = generate_data_card(penguins, metadata)
+print(data_card)
+
+# 写入文件
+with open("data_card.md", "w", encoding="utf-8") as f:
+    f.write(data_card)
 ```
 
-小北问："这不就是个格式化的数据摘要吗？为什么要搞得这么正式？"
+运行后，你会得到一份 `data_card.md` 文件，内容大致如下：
 
-阿码在旁边补刀："等你三个月后看着 `df['col_42']` 这列，完全不知道它是什么的时候，你就明白了。"
+```markdown
+# 数据卡（Data Card）
 
-"但我到时候可以查代码啊！"
+## 数据来源
+- **数据集名称**：Palmer Penguins
+- **来源**：seaborn 内置数据集
+- **原始来源**：Palmer Station, Antarctica LTER
+- **描述**：南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据
+- **收集时间**：2007-2009 年
+- **单位说明**：长度单位为毫米（mm），重量单位为克（g）
 
-老潘笑了："查代码是最慢的方式。而且如果你的数据源变了、导出条件改了，代码不会告诉你——只有数据卡会提醒你'这份数据覆盖的时间范围是 2025-01-01 到 2025-03-31'。"
+## 字段字典
+| 字段名 | 数据类型 | 描述 | 缺失率 |
+|--------|---------|------|--------|
+| species | object | （待补充） | 0.0% |
+| island | object | （待补充） | 0.0% |
+| bill_length_mm | float64 | （待补充） | 2.4% |
+| bill_depth_mm | float64 | （待补充） | 2.4% |
+| flipper_length_mm | float64 | （待补充） | 2.4% |
+| body_mass_g | float64 | （待补充） | 2.4% |
+| sex | object | （待补充） | 2.8% |
 
-因为**可复现性**。三个月后，如果你想把这份分析交给同事，或者重新跑一遍脚本，数据卡会告诉你：
-- 数据的边界是什么（时间范围、样本来源）
-- 哪些列的缺失值很多（分析时要小心）
-- 每一列的业务含义是什么（不会误用字段）
+## 规模概览
+- **行数**：344
+- **列数**：7
 
-更重要的是，2025-2026 年，**数据卡已经成为 AI 和数据科学社区的标准实践**。Google 的 Data Cards Playbook（2022）、NIST 的 AI 数据集文档标准（2025）、NeurIPS 的数据集提交要求（2025），都在强调同一个事情：没有清晰文档的数据集，其结论无法被审计和复现。2026 年的最新研究甚至提出了"机器可读的元数据捕获方法"，让数据文档成为 FAIR（可发现、可访问、可互操作、可复用）生态的一部分。
+## 缺失概览
+- **sex**：10 (2.8%)
+- **bill_length_mm**：8 (2.4%)
+- **bill_depth_mm**：8 (2.4%)
+- **flipper_length_mm**：8 (2.4%)
+- **body_mass_g**：8 (2.4%)
+```
 
-老潘会这么说："你写的不是数据卡，是你给自己和别人的'免责声明'——告诉大家这份数据能干什么、不能干什么。"
+### 数据卡的价值
 
-这听起来很"工程化"，但在这个 AI 可以生成海量分析结论的时代，"免责声明"恰恰是最稀缺的东西。因为你不仅要让人相信你的结论，还得让他们知道——什么情况下你的结论会失效。
+小北看完这份数据卡，愣了一下："原来这么多列有缺失值，而且缺失率还不一样！"
 
-> **AI 时代小专栏 #2：Data Card —— AI 时代的"数据身份证"**
+这就是数据卡的价值：**让问题暴露出来**。如果缺失值被藏在数据里，你可能算出一个均值，却不知道它只基于 95% 的数据；如果数据卡把缺失率写得清清楚楚，你在读任何结论时都会问"这个统计量是基于多少数据算出来的？"
 
-2025-2026 年，数据集的来源越来越多样：爬虫抓取的公开数据、第三方 API 购买的数据、企业内部数据库的导出文件。如果这些数据没有清晰的文档，任何基于它们的分析结论都无法被审计和复现。
+阿码问："字段字典里的'描述'为什么是（待补充）？我能不能让 AI 帮我填？"
 
-"数据卡"（Data Card）或"数据表"（Datasheet for Datasets）的概念正在成为标准：
-- **Google 的 Data Cards Playbook**（2022）为团队提供了创建透明数据文档的框架，将数据卡定义为"透明度神器"——提供结构化的数据集摘要，解释数据的过程和理由
-- **NIST AI 标准**（2025）发布了 AI 数据集和模型文档的公开草案，正在制定文档规范
-- **NeurIPS**（2025）提高了数据集提交的标准，要求提交的必须是"良好文档化、可复现、可访问"的数据
-- 2026 年的最新研究提出了"机器可读的元数据捕获方法"，让数据文档符合 FAIR 原则（可发现、可访问、可互操作、可复用）
+1. AI 不知道你的**业务背景**——它可能把 `bill_length_mm` 解释成"鸟嘴长度"，但准确的术语是"嘴峰长度"（从嘴基部到顶端的距离）
+2. AI 不知道你的**分析目标**——如果是为了比较物种差异，你需要强调"这是区分物种的关键特征之一"
 
-为什么这很重要？因为 AI 模型的训练数据越来越不透明，而模型的偏见、公平性问题往往追溯到数据本身。如果你不知道数据是从哪来的、覆盖了哪些群体、缺失值的机制是什么，就无法评估模型的适用范围和风险。
+你需要自己补充（或者让 AI 生成候选后人工核实）：
 
-所以本周你学的"数据卡"不只是"文档作业"，而是 AI 时代任何可信赖数据分析的前提。当你让 AI 帮你分析数据时，第一步应该是：先写数据卡，再问 AI 问题。
+| 字段名 | 描述 |
+|--------|------|
+| species | 企鹅物种：Adelie（阿德利）、Chinstrap（颈带）、Gentoo（巴布亚） |
+| island | 采集岛屿：Biscoe、Dream、Torgersen |
+| bill_length_mm | 嘴峰长度（从嘴基部到顶端的距离） |
+| bill_depth_mm | 嘴峰深度（嘴巴最薄处的厚度） |
+| flipper_length_mm | 鳍肢长度 |
+| body_mass_g | 体重 |
+| sex | 性别：Male（雄）、Female（雌） |
 
-**参考（访问日期：2026-02-15）：**
-- [The Data Cards Playbook - Google Research](https://research.google/blog/the-data-cards-playbook-a-toolkit-for-transparency-in-dataset-documentation/)
-- [Extended Outline for AI Datasets Documentation Standard - US Chamber (2025)](https://www.uschamber.com/technology/extended-outline-proposed-zero-draft-for-a-standard-on-documentation-of-ai-datasets-and-ai-models)
-- [Raising the Bar for Dataset Submissions - NeurIPS Blog (2025)](https://blog.neurips.cc/2025/03/10/neurips-datasets-benchmarks-raising-the-bar-for-dataset-submissions/)
-- [FAIR Data Management and AI - Data Science Journal (2026)](https://datascience.codata.org/articles/10.5334/dsj-2026-001)
+补充完字段字典，你的数据卡就完整了。现在你回答了第 1 节的"统计三问"中的第一问：**描述**——你知道了数据长什么样、字段是什么意思、缺失情况如何。
 
-好了，概念都讲完了。但我们不是来"背定义"的——我们是来"做一个东西"的。这个东西就是 StatLab。
+---
+
+> **AI 时代小专栏：数据卡：AI 时代的"数据身份证"**
+>
+> 2026 年，"Datasheets for Datasets"已经从学术论文的标准实践变成了工业界的共识[来源]。Google 发布了《Data Cards Playbook》工具包，帮助团队系统化地记录数据集的透明度信息[来源]。
+>
+> 在 AI 时代，数据卡的重要性不减反增：
+>
+> **第一，模型审计需要**。如果你训练了一个预测模型，别人（或者你自己三个月后）会问："你的训练数据是什么？有没有代表性？缺失值怎么处理的？"数据卡就是这些问题的答案。
+>
+> **第二，伦理审查需要**。2026 年的医学 AI 论文中，数据集文档（datasheet）已经是标准配置[来源]。你需要说明数据的来源、收集过程、潜在偏见，否则审稿人会问"你的模型对哪些人群有效？对哪些可能失效？"
+>
+> **第三，可复现性需要**。阿码把代码发给小北，但小北跑出来结果不一样。为什么？因为数据集版本不同、预处理方式不同。数据卡把这些信息写清楚，才能真正"可复现"。
+>
+> 所以你刚学的"生成数据卡"，在 AI 时代不是"额外的 paperwork"，而是"数据项目的基础设施"。Open Trusted Data Initiative 等组织正在推动统一的数据卡片标准，包括来源、许可证、用途、限制和风险等元数据[来源]。
+>
+> 参考（访问日期：2026-02-15）：
+> - [Datasheets for Datasets](https://cacm.acm.org/research/datasheets-for-datasets/)
+> - [The Data Cards Playbook](https://research.google/blog/the-data-cards-playbook-a-toolkit-for-transparency-in-dataset-documentation/)
+> - [Transparency-First Medical Language Models (arXiv, 2026)](https://arxiv.org/pdf/2601.19191)
+> - [From Datasheets to Model Cards](https://mindfulmodeler.substack.com/p/from-datasheets-to-model-cards)
+> - [Dataset Specification - Open Trusted Data Initiative](https://the-ai-alliance.github.io/open-trusted-data-initiative/dataset-requirements/)
+
+## 5. 从脚本到可复现报告 —— StatLab 起步
+
+小北下周打开电脑，想重新跑一次上周的分析，结果发现："我当时是在 Jupyter 里跑的，还是存成了 .py 文件？数据放在哪了？我是不是改过什么参数？"
+
+这就是没有"可复现性"的典型场景。老潘看到后会摇摇头："能跑的烂代码，比不能跑的好代码有用。但能复现的结论，才有长期价值。"
+
+---
+
+### StatLab：一条可复现的报告流水线
+
+从这周开始，你要建立一条**可复现分析报告流水线**——我们叫它 StatLab。
+
+它不是一堆散落的 Jupyter notebook，也不是手工复制粘贴出来的 Word 文档，而是一个可以从原始数据一键生成 `report.md`（可选导出 `report.html`）的脚本。
+
+每周你都在上周的基础上增量修改，到 Week 16，你手里会有一份**可审计、可展示、可复现**的完整报告。
+
+### 本周里程碑：最小可用报告
+
+本周的 StatLab 目标很简单：**生成一份包含数据卡的 `report.md`**。
+
+```python
+# examples/99_statlab.py
+import pandas as pd
+import seaborn as sns
+from pathlib import Path
+
+def generate_data_card(df: pd.DataFrame, metadata: dict) -> str:
+    """生成数据卡（同第 4 节）"""
+    # ...（代码同上，省略）
+
+
+def generate_report(data_df: pd.DataFrame, output_path: str = "report.md"):
+    """
+    生成 StatLab 报告
+
+    Parameters
+    ----------
+    data_df : pd.DataFrame
+        数据集
+    output_path : str
+        输出文件路径
+    """
+    metadata = {
+        "数据集名称": "Palmer Penguins",
+        "来源": "seaborn 内置数据集",
+        "原始来源": "Palmer Station, Antarctica LTER",
+        "描述": "南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据",
+        "收集时间": "2007-2009 年",
+        "单位说明": "长度单位为毫米（mm），重量单位为克（g）"
+    }
+
+    # 1. 生成数据卡
+    data_card = generate_data_card(data_df, metadata)
+
+    # 2. 组装报告
+    report = f"""# StatLab 分析报告
+
+> 本报告由 StatLab 流水线自动生成
+> 生成时间：{pd.Timestamp.now().strftime('%Y-%m-%d')}
+
+{data_card}
+
+---
+
+## 下一步
+
+- [ ] 补充字段字典的业务含义
+- [ ] 补充描述统计（Week 02）
+- [ ] 生成可视化图表（Week 02）
+"""
+
+    # 3. 写入文件
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(report)
+
+    print(f"报告已生成：{output_file.absolute()}")
+    return output_file
+
+
+# 运行
+if __name__ == "__main__":
+    penguins = sns.load_dataset("penguins")
+    generate_report(penguins, "output/report.md")
+```
+
+运行后，你会得到 `output/report.md`，它是一份完整的、可读的 Markdown 报告。
+
+### 为什么要这样做？
+
+小北可能会问："我直接在 Jupyter 里看不好吗？为什么要生成 .md 文件？"
+
+老潘会这样回答：
+
+**第一，可审计。** 别人（或者三个月后的你）打开报告，一眼就能看到数据来源、字段解释、缺失情况。如果是 Jupyter，你得翻很多 cell 才能找到这些信息。老潘当年就吃过这个亏：三个月后被问到"你当时的数据是什么版本"，他翻遍了 notebook 也找不到数据来源。
+
+**第二，可版本控制。** `.md` 文件是纯文本，可以用 git 追踪改动。你知道哪一周改了什么，为什么要改。如果是手工复制的 Word 文档，版本控制几乎不可能。
+
+**第三，可导出。** Markdown 可以用工具（如 pandoc）一键转换成 HTML、PDF，甚至 PPT。你只需要维护一份源文件，就能生成多种输出格式。
+
+**第四，可复现。** 只要数据和代码都在，任何人运行 `python examples/99_statlab.py` 都能得到完全相同的报告。这就是"可复现分析"的起点。
+
+### 本周小结（供 Week 02 参考）
+
+这周你做的不是"准备工作"，而是建立了整个分析的地基。你学会了先问清楚"我想回答什么问题"——是描述数据的样子、推断总体的规律，还是预测新样本？这个问题决定了后续每一步怎么走。你也学会了判断数据类型： zipcode 看起来像数字，但它和物种一样是分类型，不能算均值；bill_length_mm 是数值型，可以算均值、画分布图。你还用 pandas 把数据真正加载进 Python，检查了它的规模、类型和缺失情况。
+
+最后一项技能是数据卡——一份人类可读的"数据身份证"。它回答了"数据从哪来、字段是什么意思、有多少缺失"，这些信息不是"额外工作"，而是任何统计分析的起点。StatLab 报告流水线也从这周起步：从脚本到可复现的 `report.md`，任何人运行 `examples/99_statlab.py` 都能得到完全相同的报告。
+
+下周，我们会在这份数据卡的基础上加入描述统计和可视化，把"数据长什么样"这个问题回答得更清楚。
 
 ---
 
 ## StatLab 进度
 
-StatLab 是什么？它是贯穿 16 周的"超级线"：你要从本周开始，逐周把同一个分析项目打磨成**可复现、可审计、可对外展示**的统计分析报告。
+### 本周改进：从零到可复现报告
 
-本周 StatLab 的目标非常明确：**写出第一版 `report.md`**。
+本周是 StatLab 的起点。在之前的"没有流水线"状态下，你可能习惯在 Jupyter 里做分析——能跑，但不方便审计和复现。
 
-这不是随便写写的 Markdown 文件，而是你整个项目的"数据地基"。它包含：
+我们做了三件事：
 
-```python
-# examples/01_init_statlab.py
-import pandas as pd
+**1. 选择数据集**：我们用 Palmer Penguins 作为贯穿案例。它比 Titanic 更适合教学（无敏感内容），字段简单但足够展示所有概念，并且自带少量缺失值。
 
-def generate_data_card(data_path: str, metadata: dict) -> str:
-    """为 StatLab 生成初始数据卡"""
-    df = pd.read_csv(data_path)
+**2. 生成数据卡**：我们把第 4 节学的"数据卡生成器"集成进了报告流水线。现在 `report.md` 的开头会自动包含：
+- 数据来源和背景
+- 字段字典（包括缺失率）
+- 规模概览
+- 缺失概览
 
-    card = f"""# {metadata['title']}
+**3. 建立脚本入口**：`examples/99_statlab.py` 是这周的 StatLab 入口脚本。运行它就能生成 `output/report.md`。任何人拿到代码和数据，运行这个脚本，都能得到完全相同的报告。
 
-## 数据来源
-- **来源**：{metadata['source']}
-- **采集时间**：{metadata['collection_date']}
-- **数据联系人**：{metadata.get('contact', 'N/A')}
+### 与本周知识的连接
 
-## 数据描述
-{metadata['description']}
+**统计三问** → 在数据卡中补充字段字典时，你要思考"这个字段将来可能用来回答哪类问题"。比如 `species` 是分类型，适合做分组比较；`bill_length_mm` 是连续数值型，适合计算均值和画分布图。
 
-## 统计三问
-本周的分析目标属于：**{metadata['analysis_type']}**
-- 描述（Description）：说明数据本身的特点
-- 推断（Inference）：从样本推断总体
-- 预测（Prediction）：对未来或未见样本做出判断
+**数据类型判断** → 我们在字段字典中记录了每列的数据类型，为下周的"描述统计"打基础——不同类型的字段要用不同的统计量和图表。
 
-## 样本规模
-- **行数**：{df.shape[0]:,}
-- **列数**：{df.shape[1]}
+**pandas 基础** → `generate_data_card` 函数用到了 `dtypes`、`isna().sum()`、`shape` 等操作，这些都是本周学的基础技能。
 
-## 时间范围
-{metadata.get('time_range', '未指定')}
+### 下周预告
 
-## 字段字典
-| 字段名 | 数据类型 | 业务含义 | 缺失率 |
-|--------|----------|----------|--------|
-"""
-    for col in df.columns:
-        dtype = str(df[col].dtype)
-        missing_rate = df[col].isna().mean() * 100
-        meaning = metadata['field_meanings'].get(col, '待补充')
-        card += f"| {col} | {dtype} | {meaning} | {missing_rate:.1f}% |\n"
+本周的 `report.md` 只有一份数据卡。下周我们会：
+- 加入描述统计（均值、中位数、标准差、分位数）
+- 生成 2-3 张诚实的数据可视化
+- 更新 `generate_report` 函数，让这些新内容自动进入报告
 
-    card += f"""
-## 缺失概览
-"""
-    missing_summary = df.isna().sum()
-    missing_summary = missing_summary[missing_summary > 0].sort_values(ascending=False)
-    for col, count in missing_summary.items():
-        rate = count / len(df) * 100
-        card += f"- **{col}**：{count} ({rate:.1f}%)\n"
-
-    if len(missing_summary) == 0:
-        card += "- 无缺失值\n"
-
-    card += """
-## 使用限制与注意事项
-"""
-    card += metadata.get('limitations', '待补充')
-
-    return card
-
-# 使用示例
-if __name__ == "__main__":
-    # 准备元数据（你需要根据实际数据集填写）
-    metadata = {
-        'title': '电商用户行为分析数据卡',
-        'source': '公司内部数据库，SQL 导出',
-        'collection_date': '2026-01-15',
-        'contact': 'data-team@example.com',
-        'description': '2025 年全年活跃用户的注册、浏览、购买行为数据。',
-        'analysis_type': '描述（Description）',  # 或推断/预测
-        'time_range': '2025-01-01 至 2025-12-31',
-        'field_meanings': {
-            'user_id': '用户唯一标识',
-            'register_date': '注册日期',
-            'age': '用户年龄（岁）',
-            'gender': '性别（0=未知，1=男，2=女）',
-            'city': '所在城市',
-            'total_spend': '年度消费金额（元）',
-            'purchase_count': '年度购买次数',
-            # ... 其他字段
-        },
-        'limitations': '本数据仅包含活跃用户，不包含注册后未购买的用户；因此不适用于"新用户转化率"等分析。'
-    }
-
-    # 生成数据卡
-    card = generate_data_card("data/users.csv", metadata)
-
-    # 保存到 report.md
-    with open("report.md", "w", encoding="utf-8") as f:
-        f.write(card)
-
-    print("✅ 数据卡已生成到 report.md")
-```
-
-老潘看到这个脚本会说什么？"不错。但你记住——数据卡不是写一次就完的。每做一步清洗、每加一个特征，都要回来更新这个文档。不然三个月后你自己都不知道这列是从哪来的。"
-
-本周 StatLab 的交付物就是这份 `report.md`。它可能不完美，但它是你所有后续分析的起点。没有它，任何结论都缺乏"审计地基"。
+老潘看到这份基础的 `report.md`，会说："路还很长，但至少你迈出了第一步——先看清楚数据是什么，再谈任何结论。"
 
 ---
 
 ## Git 本周要点
 
 本周必会命令：
-- `git init`：初始化仓库
-- `git status`：查看工作区状态
-- `git add -A`：添加所有改动
-- `git commit -m "draft: initial data card"`：提交改动
-- `git log --oneline -n 5`：查看最近 5 条提交
+- `git init`（如果还没有仓库）
+- `git status`
+- `git add -A`
+- `git commit -m "feat: week_01 data card generator"`
 
 常见坑：
-- 不写提交信息：`git commit -m "draft"` 比 `git commit` 不写信息好一百倍
-- 只提交代码不提交数据说明：`report.md` 和代码一样重要
-- 把大文件（如原始 CSV）也提交进仓库：建议用 `.gitignore` 排除数据文件，只提交脚本和报告
-
-Pull Request (PR)：
-- Gitea 上也叫 Pull Request，流程等价 GitHub：push 分支 → 开 PR → review → merge
+- 只在 Jupyter 里写代码，不存成 `.py` 文件：下周无法复现
+- 路径写死（如 `/Users/xxx/data.csv`）：换个电脑就跑不了
 
 ---
 
-## 本周小结（供下周参考）
-
-本周你只学了四件事，但它们会贯穿整门课：先问"你在做什么"（统计三问），再看"数据长什么样"（数据类型），然后用 pandas 把数据"请进内存"，最后给数据办一张"身份证"（数据卡）。
-
-小北说："听起来好多……我什么时候能算 p 值？"
-
-老潘在旁边听到，笑了："算 p 值很容易，让 AI 一行代码就给你了。但问题是——你知道自己在算什么吗？"
-
-小北愣住了。
-
-"所以这周不是'多'，"老潘说，"是'地基'。下周我们就在这份有'身份证'的数据上画图、算均值、看分布。那时候你会发现——数据卡不是额外的负担，是让你以后少走弯路的提前投资。每次清洗、每加一个特征，记得回来更新它。"
-
----
 
 ## Definition of Done（学生自测清单）
 
-- [ ] 我能用自己的话解释"统计三问"（描述/推断/预测）
-- [ ] 我能识别一个数据集中各列的数据类型（数值/分类，连续/离散）
-- [ ] 我能用 pandas 读取 CSV 并查看基本形状和前几行
-- [ ] 我能解释什么是"数据卡"以及它为什么重要
-- [ ] 我为自己的数据集写了一份完整的数据卡（包含：数据来源、字段字典、样本规模、时间范围、缺失概览）
-- [ ] 我把这份数据卡保存成了 `report.md`
-- [ ] 我用 git 提交了本周的工作（至少一次 commit）
-- [ ] 我理解"先问问题，再找答案"的统计思维
+- [ ] 我能用自己的话解释"描述/推断/预测"的区别
+- [ ] 我能判断一列数据是"数值型"还是"分类型"
+- [ ] 我能用 pandas 读取数据并打印 shape 和 dtypes
+- [ ] 我能编写函数生成数据卡（字段字典、规模、缺失概览）
+- [ ] 我能把数据卡写入 report.md，且能重新运行生成相同内容
+- [ ] 我知道为什么不能"拿到数据就训练模型"
