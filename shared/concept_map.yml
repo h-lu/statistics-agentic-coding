@@ -75,3 +75,90 @@
   revisited: [week_09, week_10]
   bloom_level: apply
 
+# ─── Week 04 ───
+- concept_zh: 相关分析
+  concept_en: correlation analysis
+  introduced: week_04
+  revisited: [week_06, week_09]
+  bloom_level: understand
+
+- concept_zh: 分组比较
+  concept_en: group comparison
+  introduced: week_04
+  revisited: [week_05, week_07]
+  bloom_level: apply
+
+- concept_zh: 多变量可视化
+  concept_en: multivariate visualization
+  introduced: week_04
+  revisited: [week_09, week_10]
+  bloom_level: apply
+
+- concept_zh: EDA 假设生成
+  concept_en: EDA hypothesis generation
+  introduced: week_04
+  revisited: [week_05, week_06]
+  bloom_level: analyze
+
+# ─── Week 05 ───
+- concept_zh: 随机性
+  concept_en: randomness
+  introduced: week_05
+  revisited: [week_06, week_08]
+  bloom_level: understand
+
+- concept_zh: 抽样分布
+  concept_en: sampling distribution
+  introduced: week_05
+  revisited: [week_06, week_07, week_08]
+  bloom_level: understand
+
+- concept_zh: 中心极限定理
+  concept_en: Central Limit Theorem (CLT)
+  introduced: week_05
+  revisited: [week_06, week_09]
+  bloom_level: understand
+
+- concept_zh: Bootstrap 方法
+  concept_en: Bootstrap method
+  introduced: week_05
+  revisited: [week_06, week_08, week_10]
+  bloom_level: apply
+
+- concept_zh: 标准误
+  concept_en: standard error (SE)
+  introduced: week_05
+  revisited: [week_06, week_07, week_08]
+  bloom_level: apply
+
+# ─── Week 06 ───
+- concept_zh: 假设检验框架
+  concept_en: hypothesis testing framework
+  introduced: week_06
+  revisited: [week_07, week_08, week_09]
+  bloom_level: understand
+
+- concept_zh: p 值
+  concept_en: p-value
+  introduced: week_06
+  revisited: [week_07, week_08, week_13]
+  bloom_level: understand
+
+- concept_zh: 显著性水平与两类错误
+  concept_en: significance level and error types
+  introduced: week_06
+  revisited: [week_07, week_08]
+  bloom_level: understand
+
+- concept_zh: 效应量
+  concept_en: effect size
+  introduced: week_06
+  revisited: [week_08, week_09, week_12]
+  bloom_level: apply
+
+- concept_zh: 检验前提假设
+  concept_en: test assumptions
+  introduced: week_06
+  revisited: [week_07, week_09, week_10]
+  bloom_level: analyze
+

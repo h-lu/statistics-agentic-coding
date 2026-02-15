@@ -1,0 +1,52 @@
+# Week 06 锚点（ANCHORS）
+# 本周的关键统计断言及其验证方式
+
+- id: week_06_p_value_definition
+  claim: p 值不是"结论成立的概率"，而是"在原假设成立时，观察到当前数据或更极端数据的概率"
+  evidence: "CHAPTER.md 第 1 节用模拟可视化展示了 p 值是抽样分布中极端区域的面积。ASSIGNMENT.md 第 1 题要求学生辨析常见误解。"
+  verification: "学生能正确辨析至少 3 个 p 值误解（ASSIGNMENT.md 题 1，评分项'误解辨析正确'）"
+  concept_links:
+    - week_05_sampling_distribution
+
+- id: week_06_significance_not_importance
+  claim: 统计显著（p < 0.05）不等于实际意义（效应量大）
+  evidence: "CHAPTER.md 第 3 节用大样本'伪显著'例子说明：同样的差异，样本量越大，p 值越小。ASSIGNMENT.md 题 3 要求学生计算并解释效应量。"
+  verification: "学生能计算 Cohen's d 并区分'统计显著'和'实际意义'（ASSIGNMENT.md 题 3，评分项'区分显著和重要'）"
+  concept_links:
+    - week_05_confidence_interval
+    - week_06_effect_size
+
+- id: week_06_assumption_matters
+  claim: 假设检验的前提假设（正态性、方差齐性、独立性）必须检查，否则结论可能不可靠
+  evidence: "CHAPTER.md 第 4 节展示了 Q-Q 图、Shapiro-Wilk、Levene 检验等假设检查方法。ASSIGNMENT.md 题 4 要求学生检查假设并据此选择检验方法。"
+  verification: "学生能执行正态性和方差齐性检查，并根据结果选择合适的检验方法（ASSIGNMENT.md 题 4，评分项'检验方法选择'）"
+  concept_links:
+    - week_02_distribution_shape
+
+- id: week_06_ci_p_value_equivalence
+  claim: 95% 置信区间不包含 0 等价于 p < 0.05（双尾检验）
+  evidence: "CHAPTER.md 第 1 节说明'置信区间与 p 值：一枚硬币的两面'。"
+  verification: "学生能在报告中同时报告置信区间和 p 值，并理解两者的关系（ASSIGNMENT.md 题 2，评分项'结果报告完整'）"
+  concept_links:
+    - week_05_confidence_interval
+
+- id: week_06_ai_limitations
+  claim: AI 工具通常不会自动检查前提假设、不报告效应量、容易过度解读 p 值
+  evidence: "CHAPTER.md 第 5 节展示了 AI 生成的报告有 5 个问题（无假设检查、无效应量、无置信区间、多重比较、过度解读）。ASSIGNMENT.md 题 7 和 AI 练习要求学生审查 AI 结论。"
+  verification: "学生能识别 AI 结论中至少 3 个问题（ASSIGNMENT.md 题 7，评分项'问题识别准确'）"
+  concept_links:
+    - week_05_ai_limitations
+
+- id: week_06_effect_size_interpretation
+  claim: Cohen's d = 0.2/0.5/0.8 分别对应小/中/大效应，但这只是惯例
+  evidence: "CHAPTER.md 第 3 节给出了 Cohen's d 的解释惯例。ASSIGNMENT.md 题 3 要求学生解释效应量的实际含义。"
+  verification: "学生能正确解释 Cohen's d 的实际含义（ASSIGNMENT.md 题 3，评分项'效应量解释准确'）"
+  concept_links:
+    - week_02_standard_deviation
+
+- id: week_06_parametric_vs_nonparametric
+  claim: 当数据严重偏离正态时，应使用非参数检验（如 Mann-Whitney U）
+  evidence: "CHAPTER.md 第 4 节给出了参数检验和非参数检验的对照表。ASSIGNMENT.md 题 5 要求学生使用非参数检验并对比结果。"
+  verification: "学生能在数据非正态时选择 Mann-Whitney U 检验（ASSIGNMENT.md 题 5，评分项'非参数检验正确'）"
+  concept_links:
+    - week_02_distribution_shape

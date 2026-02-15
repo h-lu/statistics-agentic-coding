@@ -145,3 +145,130 @@
   definition_zh: 从探索性分析中发现有趣的模式，并将其转化为"可检验假设"的过程。每个假设应包含观察、问题和后续检验计划。
   first_seen: week_04
 
+# ─── Week 05 ───
+- term_zh: 随机性
+  term_en: randomness
+  definition_zh: 事件结果的不确定性。在统计学中，随机性是抽样波动的来源——同样的总体，每次抽样会得到不同的结果。
+  first_seen: week_05
+
+- term_zh: 抽样分布
+  term_en: sampling distribution
+  definition_zh: 统计量的分布。比如"样本均值"的抽样分布，描述的是"如果重复抽样100次，样本均值会如何变化"。区别于"数据分布"（原始数据的分布）。
+  first_seen: week_05
+
+- term_zh: 中心极限定理
+  term_en: Central Limit Theorem (CLT)
+  definition_zh: 统计学核心定理。无论总体分布是什么形状，只要样本量足够大，样本均值的分布会近似正态分布。这是为什么正态分布在统计推断中如此重要。
+  first_seen: week_05
+
+- term_zh: Bootstrap 方法
+  term_en: Bootstrap method
+  definition_zh: 一种重采样技术。从原始样本中有放回地抽取样本，模拟"从总体重复抽样"的过程，用于估计统计量的抽样分布、标准误和置信区间。由 Bradley Efron 于 1979 年提出。
+  first_seen: week_05
+
+- term_zh: 标准误
+  term_en: standard error (SE)
+  definition_zh: 抽样分布的标准差。描述统计量（如样本均值）的不确定性。与标准差不同：标准差描述数据的波动，标准误描述统计量的波动。公式：SE = SD / sqrt(n)。
+  first_seen: week_05
+
+# ─── Week 06 ───
+- term_zh: 假设检验
+  term_en: hypothesis testing
+  definition_zh: 一种统计推断方法，通过设定原假设和备择假设，用样本数据判断是否拒绝原假设。
+  first_seen: week_06
+
+- term_zh: p 值
+  term_en: p-value
+  definition_zh: 在原假设成立时，观察到当前数据或更极端数据的概率。不是"原假设成立的概率"。
+  first_seen: week_06
+
+- term_zh: 显著性水平
+  term_en: significance level
+  definition_zh: 预先设定的拒绝原假设的概率阈值，通常记作 α，常用 0.05。0.05 是历史惯例而非自然法则。
+  first_seen: week_06
+
+- term_zh: 效应量
+  term_en: effect size
+  definition_zh: 量化"差异有多大"的指标，不受样本量影响。p 值小不等于效应量大。
+  first_seen: week_06
+
+- term_zh: 检验前提假设
+  term_en: test assumptions
+  definition_zh: 参数检验（如 t 检验）成立所需的前提条件，包括正态性、方差齐性、独立性。
+  first_seen: week_06
+
+- term_zh: 原假设
+  term_en: null hypothesis
+  definition_zh: 通常假设"无差异"或"无效果"，记作 H0，是假设检验试图拒绝的假设。
+  first_seen: week_06
+
+- term_zh: 备择假设
+  term_en: alternative hypothesis
+  definition_zh: 你希望证明的"有差异"或"有效果"，记作 H1 或 Ha。
+  first_seen: week_06
+
+- term_zh: 第一类错误
+  term_en: type I error
+  definition_zh: 原假设为真时，错误地拒绝原假设（假阳性）。
+  first_seen: week_06
+
+- term_zh: 第二类错误
+  term_en: type II error
+  definition_zh: 原假设为假时，错误地无法拒绝原假设（假阴性）。
+  first_seen: week_06
+
+- term_zh: t 检验
+  term_en: t-test
+  definition_zh: 用于比较两组均值是否显著不同的参数检验方法，需满足正态性和方差齐性假设。
+  first_seen: week_06
+
+- term_zh: 卡方检验
+  term_en: chi-square test
+  definition_zh: 用于检验分类变量之间是否独立的非参数检验，基于列联表。
+  first_seen: week_06
+
+- term_zh: Cohen's d
+  term_en: Cohen's d
+  definition_zh: 用于比较两组均值差异的标准化效应量。d < 0.2 小效应，0.2-0.8 中等效应，≥ 0.8 大效应。
+  first_seen: week_06
+
+- term_zh: 正态性假设
+  term_en: normality assumption
+  definition_zh: 参数检验（如 t 检验）要求数据或残差来自正态分布。大样本时 t 检验对此偏离较稳健。
+  first_seen: week_06
+
+- term_zh: 方差齐性
+  term_en: homogeneity of variance
+  definition_zh: 多组数据的方差相等的假设。方差不齐时应使用 Welch's t 检验。
+  first_seen: week_06
+
+- term_zh: Shapiro-Wilk 检验
+  term_en: Shapiro-Wilk test
+  definition_zh: 用于检验数据是否来自正态分布的统计检验。大样本时过于敏感，需结合 Q-Q 图判断。
+  first_seen: week_06
+
+- term_zh: Levene 检验
+  term_en: Levene's test
+  definition_zh: 用于检验多组数据方差是否相等的统计检验。对非正态数据比 Bartlett 检验更稳健。
+  first_seen: week_06
+
+- term_zh: 非参数检验
+  term_en: non-parametric test
+  definition_zh: 不依赖分布假设的统计检验方法，如 Mann-Whitney U 检验。更稳健但功效通常较低。
+  first_seen: week_06
+
+- term_zh: Mann-Whitney U 检验
+  term_en: Mann-Whitney U test
+  definition_zh: 比较两组分布是否相同的非参数检验，是 t 检验的非参数替代。
+  first_seen: week_06
+
+- term_zh: Welch's t 检验
+  term_en: Welch's t-test
+  definition_zh: 不假设方差齐性的 t 检验变体。当 Levene 检验拒绝方差齐性时使用。
+  first_seen: week_06
+
+- term_zh: Q-Q 图
+  term_en: quantile-quantile plot
+  definition_zh: 用于检验数据是否符合正态分布的图形方法。正态数据的点会落在一条直线上。
+  first_seen: week_06
+
