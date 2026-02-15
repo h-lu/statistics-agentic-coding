@@ -1570,14 +1570,14 @@ class SiteBuilder:
         """生成每周页面"""
         total_weeks = sum(len(phase.weeks) for phase in phases)
         processed = 0
-        
+
         for phase in phases:
             for week in phase.weeks:
                 processed += 1
                 self.logger.info(f"  [{processed}/{total_weeks}] Week {week.number:02d}: {week.title}")
-                
+
                 week_dir = self.docs_dir / 'weeks' / f'{week.number:02d}'
-                
+
                 # 生成各页面
                 self._write_file(week_dir / 'index.mdx', self.content_generator.generate_week_index(week))
                 self._write_file(week_dir / 'chapter.mdx', self.content_generator.generate_chapter(week))
@@ -1586,6 +1586,9 @@ class SiteBuilder:
                 self._write_file(week_dir / 'code.mdx', self.content_generator.generate_code(week))
                 self._write_file(week_dir / 'anchors.mdx', self.content_generator.generate_anchors(week))
                 self._write_file(week_dir / 'terms.mdx', self.content_generator.generate_terms(week))
+
+                # 复制图片目录
+                self._copy_week_images(week.number)
     
     def _generate_global_pages(self) -> None:
         """生成全局页面"""
@@ -1614,6 +1617,35 @@ class SiteBuilder:
             self.logger.debug(f"  写入文件: {path}")
         except Exception as e:
             self.logger.warning(f"  写入文件失败: {path} - {e}")
+
+    def _copy_week_images(self, week_number: int) -> None:
+        """复制每周的图片目录到输出目录"""
+        source_images_dir = self.chapters_dir / f'week_{week_number:02d}' / 'images'
+        target_images_dir = self.docs_dir / 'weeks' / f'{week_number:02d}' / 'images'
+
+        if not source_images_dir.exists():
+            self.logger.debug(f"  图片目录不存在，跳过: {source_images_dir}")
+            return
+
+        # 创建目标目录
+        target_images_dir.mkdir(parents=True, exist_ok=True)
+
+        # 复制所有图片文件
+        image_extensions = {'.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.ico'}
+        copied_count = 0
+
+        for image_file in source_images_dir.iterdir():
+            if image_file.is_file() and image_file.suffix.lower() in image_extensions:
+                target_file = target_images_dir / image_file.name
+                try:
+                    shutil.copy2(image_file, target_file)
+                    copied_count += 1
+                    self.logger.debug(f"  复制图片: {image_file.name}")
+                except Exception as e:
+                    self.logger.warning(f"  复制图片失败: {image_file} -> {target_file}: {e}")
+
+        if copied_count > 0:
+            self.logger.debug(f"  复制了 {copied_count} 张图片到 {target_images_dir}")
 
 
 # =============================================================================
