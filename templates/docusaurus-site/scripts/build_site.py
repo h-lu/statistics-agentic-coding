@@ -975,8 +975,8 @@ class ContentGenerator:
             placeholder_id += 1
             return ph
 
-        # 步骤0: 首先保护代码块（```...```），避免代码块内的内容被转义
-        # 同时对代码块内的 URL 进行特殊处理以避免 MDX 解析问题
+        # 步骤0: 首先处理 mermaid 代码块，将它们转换为 <Mermaid> 组件
+        # 然后保护其他代码块（```...```），避免代码块内的内容被转义
         def protect_code_blocks(text):
             result = []
             i = 0
@@ -992,10 +992,21 @@ class ContentGenerator:
                     # 包含结束的 ``` 和后面的换行
                     end_idx = end_idx + 4
                     code_block = text[i:end_idx]
-                    placeholder = make_placeholder()
-                    # 存储原始代码块用于恢复
-                    placeholders[placeholder] = code_block
-                    result.append(placeholder)
+
+                    # 检查是否是 mermaid 代码块
+                    # 格式: ```mermaid\n...\n```
+                    mermaid_match = re.match(r'^```mermaid\s*\n(.*)\n```$', code_block, re.DOTALL)
+                    if mermaid_match:
+                        # 保持 mermaid 代码块不变，让 @docusaurus/theme-mermaid 自动处理
+                        # 使用占位符保护 mermaid 代码块，避免后续转义影响
+                        placeholder = make_placeholder()
+                        placeholders[placeholder] = code_block
+                        result.append(placeholder)
+                    else:
+                        # 非 mermaid 代码块，使用占位符保护
+                        placeholder = make_placeholder()
+                        placeholders[placeholder] = code_block
+                        result.append(placeholder)
                     i = end_idx
                 else:
                     result.append(text[i])
