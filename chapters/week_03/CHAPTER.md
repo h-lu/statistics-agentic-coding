@@ -168,13 +168,37 @@ print("图表已保存到 output/missing_fill_zero.png")
 
 ### 缺失值不是"空白"，而是"信息"
 
-缺失值本身也是一种信息。统计学把缺失机制分成三类：
+先看一个场景：你在分析一份用户调查问卷，发现"收入"这一栏有 20% 的人没填。
 
-**MCAR（Missing Completely At Random，完全随机缺失）**：缺失和任何变量都无关。比如调查问卷随机丢失了几页。这种缺失最"安全"，可以直接删除或用简单方法填充。
+为什么会缺失？可能的原因很多：
+- 系统故障，数据没存进去
+- 用户漏看了这一题
+- 用户故意不填，因为收入是敏感信息
+- 高收入者更不愿意透露
 
-**MAR（Missing At Random，随机缺失）**：缺失和观测变量有关，但和未观测的变量无关。比如年龄大的受访者更不愿意填收入——缺失和"年龄"（已观测）有关，但和"收入"（未观测）本身无关。
+不同的原因，对应不同的处理方式。这就是为什么你需要理解**缺失机制**——缺失不是随机的空白，而是有原因的"信息"。
 
-**MNAR（Missing Not At Random，非随机缺失）**：缺失和未观测的变量本身有关。比如收入越高的人越不愿意填收入——缺失和"收入"（未观测）直接相关。这种最危险，因为缺失本身就是一种"选择性偏差"。
+---
+
+统计学把缺失机制分成三类，我们逐个来看：
+
+**第一类：MCAR（完全随机缺失）**
+
+想象你打印了 100 份问卷，结果打印机油墨不够，随机有几页模糊了。这种缺失和任何变量都无关——纯粹是运气不好。
+
+MCAR 是最"安全"的情况。因为缺失是随机的，删除或简单填充都不会引入系统性偏差。
+
+**第二类：MAR（随机缺失）**
+
+现在假设：年龄大的受访者更不愿意填收入。这里，缺失和"年龄"（你已经知道的变量）有关，但和"收入"本身（你不知道的值）无关。
+
+这种情况比 MCAR 复杂，但至少你能从"年龄"变量推断出一些信息。用多重插补等方法可以处理。
+
+**第三类：MNAR（非随机缺失）**
+
+最棘手的情况：收入越高的人，越不愿意填收入。这里缺失和"收入"本身（你不知道的值）直接相关——缺失本身就是一种"选择性偏差"。
+
+MNAR 最危险，因为你无法从已有数据推断缺失值。你可能需要外部数据或领域知识来处理。
 
 ### 如何诊断缺失机制？
 
@@ -207,7 +231,7 @@ diagnose_missing(df, "age")
 
 阿码举手："那我用 AI 自动检测缺失机制不就行了？"
 
-技术上可以。AI 可以用统计检验（如 Little's MCAR test）告诉你"这份数据不是 MCAR"。但这里有个更大的问题：**即使 AI 告诉你这是 MAR 或 MNAR，你还是要做决定：填还是删？**
+技术上可以。AI 可以用统计检验告诉你"这份数据不是 MCAR"。但这里有个更大的问题：**即使 AI 告诉你这是 MAR 或 MNAR，你还是要做决定：填还是删？**
 
 AI 可以给你一个分类标签，但不会替你回答：这份数据的业务背景是什么？缺失意味着什么？填充后的结论还可靠吗？
 
@@ -345,9 +369,11 @@ df_filled_const["age"] = df_filled_const["age"].fillna(-1)  # -1 表示"未知"
 
 ---
 
-### 两种检测方法：IQR 规则和 Z-score
+### 先掌握一种：IQR 规则
 
 上周你学过**箱线图**：须通常延伸到 Q1-1.5×IQR 和 Q3+1.5×IQR，超出这个范围的点会被标记为异常值。这就是 **IQR 规则**——一种不依赖分布形态的稳健方法。
+
+为什么先学 IQR？因为它"不求人"：你不需要知道数据是不是正态分布，也不需要算均值和标准差，只要算出四分位数就行了。
 
 ```python
 # examples/03_outlier_detection.py
@@ -358,7 +384,7 @@ import matplotlib.pyplot as plt
 
 penguins = sns.load_dataset("penguins")
 
-# 方法 1：IQR 规则（箱线图默认）
+# IQR 规则（箱线图默认）
 def detect_outliers_iqr(series: pd.Series, multiplier: float = 1.5) -> pd.Series:
     """用 IQR 规则检测异常值"""
     q25 = series.quantile(0.25)
@@ -372,10 +398,22 @@ def detect_outliers_iqr(series: pd.Series, multiplier: float = 1.5) -> pd.Series
 body_mass = penguins["body_mass_g"].dropna()
 outliers_iqr = detect_outliers_iqr(body_mass)
 print(f"IQR 规则检测到 {outliers_iqr.sum()} 个异常值")
-print(f"异常值：{body_mass[outliers_iqr].tolist()}")
-print()
+```
 
-# 方法 2：Z-score（假设数据近似正态分布）
+企鹅体重数据比较"干净"，IQR 规则检测到 0 个异常值。这是好事——说明数据没有明显的错误。
+
+---
+
+### 另一种思路：Z-score
+
+如果你有理由相信数据**近似正态分布**（比如身高、体重这类自然现象），可以用 **Z-score** 方法：任何偏离均值超过 3 个标准差的值，都是"可疑的"。
+
+阿码问："为什么是 3 个标准差？"
+
+因为在正态分布中，99.7% 的数据落在 ±3σ 范围内。所以超出这个范围的值，出现概率不到 0.3%——确实值得怀疑。
+
+```python
+# Z-score 方法（假设数据近似正态分布）
 def detect_outliers_zscore(series: pd.Series, threshold: float = 3) -> pd.Series:
     """用 Z-score 检测异常值"""
     mean = series.mean()
@@ -385,37 +423,16 @@ def detect_outliers_zscore(series: pd.Series, threshold: float = 3) -> pd.Series
 
 outliers_zscore = detect_outliers_zscore(body_mass)
 print(f"Z-score 规则检测到 {outliers_zscore.sum()} 个异常值")
-print(f"异常值：{body_mass[outliers_zscore].tolist()}")
-print()
-
-# 可视化对比
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-# 左图：箱线图（IQR 规则）
-sns.boxplot(data=penguins, y="body_mass_g", ax=axes[0])
-axes[0].set_ylabel("Body Mass (g)")
-axes[0].set_title("Boxplot (IQR Rule)")
-
-# 右图：带阈值线的直方图
-axes[1].hist(body_mass, bins=30, edgecolor="black", alpha=0.7)
-axes[1].axvline(body_mass.mean() - 3*body_mass.std(), color="red", linestyle="--", label="-3 SD")
-axes[1].axvline(body_mass.mean() + 3*body_mass.std(), color="red", linestyle="--", label="+3 SD")
-axes[1].set_xlabel("Body Mass (g)")
-axes[1].set_ylabel("Frequency")
-axes[1].set_title("Histogram with Z-score Threshold")
-axes[1].legend()
-
-plt.tight_layout()
-plt.savefig("output/outlier_detection_methods.png", dpi=100)
-print("图表已保存到 output/outlier_detection_methods.png")
 ```
 
-运行后你会发现：IQR 规则检测到 0 个异常值（企鹅体重分布比较干净），而 Z-score 规则也检测到 0 个异常值。但如果数据有极端值，两种方法的结果可能不同。
+对企鹅体重数据，Z-score 也检测到 0 个异常值。两种方法结论一致，说明数据确实干净。
 
 ![](images/outlier_detection_body_mass_(g).png)
-*图：箱线图（IQR 规则）和直方图（Z-score 阈值）两种检测方法的对比。IQR 基于四分位数，Z-score 基于均值和标准差*
+*图：箱线图（IQR 规则）和直方图（Z-score 阈值）的对比。左图的箱线图没有超出须的点，右图的 ±3SD 阈值（红色虚线）也没有数据超出*
 
-### IQR vs Z-score：该用哪个？
+---
+
+### 两种方法，一个选择
 
 阿码问："那我用哪种方法更好？"
 
@@ -444,9 +461,7 @@ print("图表已保存到 output/outlier_detection_methods.png")
 
 **统计规则**（IQR、Z-score）是数据驱动的"可疑标准"。它们能帮你发现"看起来奇怪"的值，但不能替你判断这些值是"错误"还是"发现"。
 
-这一步你学会了：**不要看到异常值就删。先用 IQR 或 Z-score 标记候选异常值，再用业务规则判断它们是什么。**
-
-但统计规则只是"候选异常值清单"。真正的问题不是"这个数字是不是太奇怪"，而是"这个数字到底是什么"？——是错误、发现，还是边界情况？这正是下一节要解决的问题。
+这一步你学会了：**不要看到异常值就删。先用 IQR 或 Z-score 标记候选异常值，再用业务规则判断它们是什么。** 这正是下一节要解决的问题。
 
 > **AI 时代小专栏：异常值——错误还是发现？**
 >
@@ -763,7 +778,7 @@ print(f"  偏度：{pd.Series(np.log(income_data)).skew():.2f}")
 
 阿码追问："那我用 AI 自动判断是否需要变换？"
 
-技术上可以。AI 可以用统计检验（如 Shapiro-Wilk）告诉你"这份数据不符合正态分布"，然后建议对数变换。但这里有个问题：**正态性不是所有分析的前提**。很多现代方法（如决策树、随机森林）对分布形态不敏感。你不需要"为了变换而变换"。
+技术上可以。AI 可以用统计检验告诉你"这份数据不符合正态分布"，然后建议对数变换。但这里有个问题：**正态性不是所有分析的前提**。很多现代方法（如决策树、随机森林）对分布形态不敏感。你不需要"为了变换而变换"。
 
 ### 特征编码：让分类变量也能进模型
 
