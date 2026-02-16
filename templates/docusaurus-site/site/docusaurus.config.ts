@@ -179,6 +179,7 @@ const config: Config = {
     ],
   ],
 
+  // 主题配置
   themes: [],
 
   // 客户端模块 - mermaid 图表渲染
