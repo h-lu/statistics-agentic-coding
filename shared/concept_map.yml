@@ -44,12 +44,6 @@
   revisited: [week_04, week_10, week_16]
   bloom_level: evaluate
 
-- concept_zh: 箱线图
-  concept_en: boxplot
-  introduced: week_02
-  revisited: [week_03, week_06]
-  bloom_level: apply
-
 # ─── Week 03 ───
 - concept_zh: 缺失值机制
   concept_en: missing data mechanism

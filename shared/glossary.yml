@@ -88,14 +88,15 @@
   definition_zh: 用矩形条表示数据频率分布的图表。X 轴是数据范围，Y 轴是频数或频率。能直观显示分布形状、双峰、长尾等特征。
   first_seen: week_02
 
-- term_zh: 箱线图
-  term_en: boxplot
-  definition_zh: 用"箱子+须"显示数据分布的图表。箱子表示 Q25-Q75（IQR），箱内线表示中位数，须延伸到 1.5×IQR，超出须的点标记为异常值。
-  first_seen: week_02
 
 - term_zh: 异常值
   term_en: outlier
   definition_zh: 明显偏离其他数据的观测值。可能来自录入错误、测量误差，或真实但极端的样本。不应直接删除，需要先调查原因。
+  first_seen: week_02
+
+- term_zh: 箱线图
+  term_en: boxplot
+  definition_zh: 用"箱子+须"显示数据分布的图表。箱子表示 Q25-Q75（IQR），箱内线表示中位数，须延伸到 1.5×IQR，超出须的点标记为异常值。
   first_seen: week_02
 
 - term_zh: 诚实可视化

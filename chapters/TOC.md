@@ -27,7 +27,7 @@
 | 周次 | 章节 | 本周交付（StatLab 报告线） |
 |---|---|---|
 | 09 | [回归不是预测工具,而是理解关系的工具](week_09/CHAPTER.md) | 回归报告 + 诊断（`report.md` v0.9） |
-| 10 | [从准确率到 AUC——分类器的评估陷阱](week_10/CHAPTER.md) | CV + 防数据泄漏 Pipeline（`report.md` v1.0） |
+| 10 | [预测的艺术——分类模型与逻辑回归入门](week_10/CHAPTER.md) | CV + 防数据泄漏 Pipeline（`report.md` v1.0） |
 | 11 | [从决策树到随机森林——用"群体智慧"提升预测](week_11/CHAPTER.md) | 树模型 + 基线对比（`report.md` v1.1） |
 | 12 | [让模型说话——可解释AI与伦理审查](week_12/CHAPTER.md) | 解释报告 + 风险清单（`report.md` v1.2） |
 
