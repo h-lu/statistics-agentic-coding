@@ -66,17 +66,26 @@ async function renderMermaid() {
     return;
   }
 
-  // 查找所有 mermaid 代码块
-  const codeBlocks = document.querySelectorAll('.language-mermaid');
-  console.log(`[Mermaid] Found ${codeBlocks.length} code blocks`);
+  // 查找所有 mermaid 代码块 - 使用更具体的选择器
+  // Prism 处理后，language-mermaid 在 pre 元素上
+  const codeBlocks = document.querySelectorAll('pre.language-mermaid, pre.prism-code.language-mermaid');
+  console.log(`[Mermaid] Found ${codeBlocks.length} code blocks with pre.language-mermaid`);
 
-  if (codeBlocks.length === 0) {
+  // 如果没找到，尝试备用选择器
+  let blocks = codeBlocks;
+  if (blocks.length === 0) {
+    blocks = document.querySelectorAll('.language-mermaid');
+    console.log(`[Mermaid] Fallback found ${blocks.length} blocks with .language-mermaid`);
+  }
+  const finalBlocks = blocks;
+
+  if (finalBlocks.length === 0) {
     console.log('[Mermaid] No code blocks found');
     return;
   }
 
-  for (let i = 0; i < codeBlocks.length; i++) {
-    const block = codeBlocks[i];
+  for (let i = 0; i < finalBlocks.length; i++) {
+    const block = finalBlocks[i];
 
     // 检查是否已经渲染过
     if (block.dataset.mermaidRendered === 'true') {
@@ -86,6 +95,8 @@ async function renderMermaid() {
 
     // 获取 mermaid 代码
     const code = block.textContent || '';
+    console.log(`[Mermaid] Block ${i} code length: ${code.length}, first 50 chars: "${code.substring(0, 50).replace(/\n/g, '\\n')}"`);
+
     if (!code.trim()) {
       console.log(`[Mermaid] Block ${i} is empty`);
       continue;
@@ -102,11 +113,12 @@ async function renderMermaid() {
       // 标记为已渲染
       block.dataset.mermaidRendered = 'true';
 
-      // 找到代码块容器 - 尝试多种选择器
+      // 找到代码块容器 - 从 pre 元素向上找到最外层容器
+      // HTML 结构: div.codeBlockContainer > div.codeBlockContent > pre.prism-code
       const container = block.closest('.codeBlockContainer_Ckt0') ||
                         block.closest('.codeBlockContent_biex') ||
-                        block.closest('pre')?.parentElement ||
-                        block.parentElement;
+                        block.closest('[class*="codeBlockContainer"]') ||
+                        block.parentElement?.parentElement;
 
       if (container) {
         // 创建 SVG 容器
