@@ -1,0 +1,14 @@
+# Evidence anchors for this week.
+#
+# Each item must contain:
+# - id (unique within week)
+# - claim
+# - evidence
+# - verification
+#
+# Example:
+# - id: W06-A01
+#   claim: ...
+#   evidence: "CHAPTER.md#某小节"
+#   verification: "pytest:tests/test_smoke.py::test_solution_import_and_solve_returns_str"
+[]
