@@ -76,7 +76,9 @@ def test_can_access_dataframe_dtypes():
     assert len(dtypes) == 3
     assert 'int' in str(dtypes['int_col'])
     assert 'float' in str(dtypes['float_col'])
-    assert 'object' in str(dtypes['str_col'])
+    # Newer pandas versions use 'str' instead of 'object' for string columns
+    str_dtype = str(dtypes['str_col'])
+    assert 'object' in str_dtype or 'str' in str_dtype
 
 
 def test_can_calculate_missing_values():
