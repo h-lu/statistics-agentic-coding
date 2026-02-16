@@ -1246,28 +1246,50 @@ class ContentGenerator:
 
         # 步骤4.5: 对代码块内的 URL 进行转义，避免 MDX 的 URL 解析问题
         # Docusaurus/MDX 在某些情况下会尝试解析代码块内的 URL，导致错误
-        # 使用零宽断言来匹配代码块内的 http:// 和 https://
+        # 注意：这里只处理顶层代码块，不处理嵌套的情况
         def escape_urls_in_code_blocks(text):
             result = []
             i = 0
+            in_code_block = False
+            code_fence_length = 0
+
             while i < len(text):
-                # 只匹配行首的 ```
-                if text[i:i+3] == '```' and (i == 0 or text[i-1] == '\n'):
-                    # 找到代码块结束
-                    end_idx = text.find('\n```', i + 3)
-                    if end_idx == -1:
-                        result.append(text[i:])
-                        break
-                    end_idx = end_idx + 4
-                    code_block = text[i:end_idx]
+                # 检查是否是行首
+                is_line_start = (i == 0 or text[i-1] == '\n')
+
+                if is_line_start and text[i:i+3] == '```':
+                    # 计算反引号数量
+                    fence_end = i
+                    while fence_end < len(text) and text[fence_end] == '`':
+                        fence_end += 1
+                    current_fence_length = fence_end - i
+
+                    if not in_code_block:
+                        # 开始一个代码块
+                        in_code_block = True
+                        code_fence_length = current_fence_length
+                        result.append(text[i:fence_end])
+                        i = fence_end
+                    elif current_fence_length >= code_fence_length:
+                        # 结束代码块（只有当结束的反引号数量 >= 开始时才结束）
+                        in_code_block = False
+                        result.append(text[i:fence_end])
+                        i = fence_end
+                    else:
+                        # 嵌套的反引号，保持原样
+                        result.append(text[i:fence_end])
+                        i = fence_end
+                elif in_code_block and text[i:i+7] == 'http://':
                     # 转义 URL 中的冒号
-                    code_block = code_block.replace('http://', 'http&#58;//')
-                    code_block = code_block.replace('https://', 'https&#58;//')
-                    result.append(code_block)
-                    i = end_idx
+                    result.append('http&#58;//')
+                    i += 7
+                elif in_code_block and text[i:i+8] == 'https://':
+                    result.append('https&#58;//')
+                    i += 8
                 else:
                     result.append(text[i])
                     i += 1
+
             return ''.join(result)
 
         content = escape_urls_in_code_blocks(content)
