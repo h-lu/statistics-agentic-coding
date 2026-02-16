@@ -182,11 +182,6 @@ const config: Config = {
   // 主题配置
   themes: [],
 
-  // 客户端模块 - mermaid 图表渲染
-  clientModules: [
-    require.resolve('./src/clientModules/mermaid.js'),
-  ],
-
   customFields: {
     courseName: '统计学与 Agentic 数据分析',
     courseVersion: '2026.1',

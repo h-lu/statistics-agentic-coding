@@ -113,32 +113,27 @@ StatLab 本周推进：
 
 这类问题的目标是"猜得准"，你甚至不需要理解变量之间的关系（虽然理解会帮到你）。我们会在 Week 09-12 学习回归和分类。
 
-```mermaid
-flowchart TB
-    subgraph Q["🎯 你想回答什么问题？"]
-        direction TB
-        A["拿到一份数据"]
-    end
-
-    A --> B{"需要超出<br/>手头样本吗？"}
-
-    B -->|"不需要，只想<br/>知道数据长啥样"| D["📊 描述"]
-    B -->|"需要"| C{"目标是什么？"}
-
-    C -->|"判断总体特征<br/>（真差异 vs 运气）"| I["🔬 推断"]
-    C -->|"预测新样本的 Y"| P["🔮 预测"]
-
-    D --> D1["• 均值、中位数、标准差<br/>• 可视化分布<br/>• 缺失值统计"]
-    I --> I1["• 假设检验<br/>• 置信区间<br/>• Week 06-08"]
-    P --> P1["• 回归、分类<br/>• 交叉验证<br/>• Week 09-12"]
-
-    style Q fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style D fill:#c8e6c9,stroke:#388e3c,color:#1b5e20
-    style I fill:#fff3e0,stroke:#f57c00,color:#e65100
-    style P fill:#fce4ec,stroke:#c2185b,color:#880e4f
-    style D1 fill:#f1f8e9,stroke:#7cb342
-    style I1 fill:#fff8e1,stroke:#ffa726
-    style P1 fill:#f3e5f5,stroke:#ab47bc
+```
+                    🎯 你想回答什么问题？
+                              │
+                    ┌─────────┴─────────┐
+                    ▼                   ▼
+              "需要超出样本吗？"
+                    │
+        ┌───────────┼───────────┐
+        ▼           ▼           ▼
+   不需要         判断        预测
+   (长啥样)      (真差异?)    (新样本Y)
+        │           │           │
+        ▼           ▼           ▼
+   ┌─────────┐ ┌─────────┐ ┌─────────┐
+   │ 📊 描述 │ │ 🔬 推断 │ │ 🔮 预测 │
+   └────┬────┘ └────┬────┘ └────┬────┘
+        │           │           │
+        ▼           ▼           ▼
+   • 均值      • 假设检验    • 回归/分类
+   • 中位数    • 置信区间    • 交叉验证
+   • 可视化    • Week 06-08  • Week 09-12
 ```
 
 ```python
@@ -212,40 +207,25 @@ print(penguins.groupby("species")["bill_length_mm"].mean())
 - **名义型（Nominal）**：没有顺序，如物种、岛屿、性别
 - **有序型（Ordinal）**：有顺序但间隔不等，如满意度评分（低/中/高）
 
-```mermaid
-flowchart LR
-    subgraph Types["数据类型"]
-        direction TB
-
-        subgraph Num["🔢 数值型"]
-            direction TB
-            Cont["连续 Continuous"]
-            Disc["离散 Discrete"]
-        end
-
-        subgraph Cat["📝 分类型"]
-            direction TB
-            Nom["名义型 Nominal"]
-            Ord["有序型 Ordinal"]
-        end
-    end
-
-    Cont --> C1["身高、体重、温度<br/>可取任意值"]
-    Disc --> D1["孩子数量、访问次数<br/>只能取整数"]
-    Nom --> N1["物种、性别、邮政编码<br/>无顺序，不能比较大小"]
-    Ord --> O1["满意度（低/中/高）<br/>有顺序，但间隔不等"]
-
-    style Types fill:#fafafa,stroke:#424242,stroke-width:2px
-    style Num fill:#e3f2fd,stroke:#1976d2
-    style Cat fill:#fce4ec,stroke:#c2185b
-    style Cont fill:#bbdefb,stroke:#1976d2
-    style Disc fill:#bbdefb,stroke:#1976d2
-    style Nom fill:#f8bbd9,stroke:#c2185b
-    style Ord fill:#f8bbd9,stroke:#c2185b
-    style C1 fill:#e3f2fd,stroke:#90caf9
-    style D1 fill:#e3f2fd,stroke:#90caf9
-    style N1 fill:#fce4ec,stroke:#f48fb1
-    style O1 fill:#fce4ec,stroke:#f48fb1
+```
+                        数据类型
+                           │
+           ┌───────────────┴───────────────┐
+           ▼                               ▼
+    ┌──────────────┐               ┌──────────────┐
+    │  🔢 数值型   │               │  📝 分类型   │
+    └──────┬───────┘               └──────┬───────┘
+           │                              │
+     ┌─────┴─────┐                  ┌─────┴─────┐
+     ▼           ▼                  ▼           ▼
+  连续型       离散型            名义型       有序型
+(Continuous) (Discrete)       (Nominal)    (Ordinal)
+     │           │                  │           │
+     ▼           ▼                  ▼           ▼
+ • 身高      • 孩子数量         • 物种      • 满意度
+ • 体重      • 访问次数         • 性别      (低/中/高)
+ • 温度      • 只能取整数       • 邮政编码   • 有顺序
+ • 任意值                       • 无顺序     • 间隔不等
 ```
 
 想象一下衣服尺码：S、M、L、XL。你能算出"平均尺码"吗？(S + M + L) / 3 = ? 没有意义对吧？但如果编码成 1、2、3、4，计算机可不知道它们不能相加——它会很乐意地告诉你"平均尺码是 2.5"。
