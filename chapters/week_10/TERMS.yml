@@ -1,0 +1,54 @@
+# Week 10 术语表
+#
+# 本周新概念（5 个，预算上限 5 个）
+# 每个术语必须同步到 shared/glossary.yml
+
+- term_zh: 分类
+  term_en: Classification
+  definition_zh: 预测类别（离散值）的机器学习任务，如预测"是否会流失"（是/否）
+  first_seen: week_10
+
+- term_zh: 逻辑回归
+  term_en: Logistic Regression
+  definition_zh: 用于二分类的统计模型，通过 Sigmoid 函数将线性组合映射到 [0,1] 区间的概率
+  first_seen: week_10
+
+- term_zh: 混淆矩阵
+  term_en: Confusion Matrix
+  definition_zh: 展示分类模型预测结果的 2×2 表格，包含 TP、TN、FP、FN 四个值
+  first_seen: week_10
+
+- term_zh: 精确率
+  term_en: Precision
+  definition_zh: 预测为正类的样本中真正为正类的比例，TP / (TP + FP)
+  first_seen: week_10
+
+- term_zh: 召回率
+  term_en: Recall
+  definition_zh: 实际为正类的样本中被正确预测为正类的比例，TP / (TP + FN)，也叫敏感度（Sensitivity）
+  first_seen: week_10
+
+- term_zh: F1 分数
+  term_en: F1 Score
+  definition_zh: 精确率和召回率的调和平均数，用于综合评估分类模型
+  first_seen: week_10
+
+- term_zh: ROC 曲线
+  term_en: ROC Curve
+  definition_zh: 以 FPR 为横轴、TPR 为纵轴的曲线，展示不同阈值下分类器的表现
+  first_seen: week_10
+
+- term_zh: AUC
+  term_en: Area Under Curve
+  definition_zh: ROC 曲线下的面积，范围 [0,1]，衡量分类器区分正负类的能力
+  first_seen: week_10
+
+- term_zh: 数据泄漏
+  term_en: Data Leakage
+  definition_zh: 测试集的信息（直接或间接）进入训练集，导致评估指标虚高
+  first_seen: week_10
+
+- term_zh: Sigmoid 函数
+  term_en: Sigmoid Function
+  definition_zh: 将任意实数映射到 (0,1) 区间的 S 型函数，σ(z) = 1 / (1 + e^(-z))
+  first_seen: week_10

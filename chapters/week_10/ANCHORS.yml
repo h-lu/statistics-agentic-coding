@@ -1,0 +1,82 @@
+# Week 10 锚点定义
+#
+# 每个锚点包含：
+# - id: 唯一标识符
+# - claim: 可验证的声明
+# - evidence: 验证方法（代码/测试/图表）
+# - verification: 验证位置（文件:行号）
+
+- id: week_10_classification_definition
+  claim: 分类预测的是类别（离散值），回归预测的是连续值
+  evidence: 代码示例对比 LinearRegression vs LogisticRegression 的输出
+  verification: examples/01_classification_vs_regression.py
+
+- id: week_10_linear_regression_fails_classification
+  claim: 线性回归用于分类会产生超出 [0,1] 范围的预测值
+  evidence: 代码演示 LinearRegression 预测二分类目标时输出负数或大于1的值
+  verification: examples/01_classification_vs_regression.py
+
+- id: week_10_sigmoid_range
+  claim: Sigmoid 函数将任意实数映射到 (0,1) 区间
+  evidence: Sigmoid 函数可视化图表
+  verification: examples/02_logistic_regression.py
+
+- id: week_10_logistic_predict_proba
+  claim: LogisticRegression.predict_proba() 返回样本属于正类的概率
+  evidence: 代码验证 predict_proba 输出在 [0,1] 范围且两列之和为1
+  verification: tests/test_assignment.py
+
+- id: week_10_confusion_matrix_components
+  claim: 混淆矩阵包含 TP（真正类）、TN（真负类）、FP（假正类）、FN（假负类）
+  evidence: confusion_matrix 输出 2x2 矩阵
+  verification: examples/03_confusion_matrix_metrics.py
+
+- id: week_10_accuracy_trap
+  claim: 类别不平衡时，永远预测多数类也能获得高准确率
+  evidence: 80% 不流失数据中，DummyClassifier 准确率 = 80%
+  verification: examples/03_confusion_matrix_metrics.py
+
+- id: week_10_precision_formula
+  claim: 精确率 = TP / (TP + FP)
+  evidence: precision_score 计算结果与手动计算一致
+  verification: tests/test_assignment.py
+
+- id: week_10_recall_formula
+  claim: 召回率 = TP / (TP + FN)
+  evidence: recall_score 计算结果与手动计算一致
+  verification: tests/test_assignment.py
+
+- id: week_10_f1_harmonic_mean
+  claim: F1 = 2 × (精确率 × 召回率) / (精确率 + 召回率)
+  evidence: f1_score 计算结果与公式手动计算一致
+  verification: tests/test_assignment.py
+
+- id: week_10_auc_range
+  claim: AUC 取值范围是 [0,1]，0.5 表示随机猜测，1.0 表示完美分类
+  evidence: roc_auc_score 对不同模型输出的 AUC 值
+  verification: tests/test_assignment.py
+
+- id: week_10_roc_curve_axes
+  claim: ROC 曲线以 FPR（假正率）为横轴，TPR（真正率/召回率）为纵轴
+  evidence: roc_curve 返回 fpr, tpr, thresholds
+  verification: examples/04_roc_auc.py
+
+- id: week_10_leakage_before_split
+  claim: 在 train_test_split 之前做预处理（如 fillna）会导致数据泄漏
+  evidence: 对比有无泄漏的模型 AUC 差异
+  verification: examples/05_pipeline_data_leakage.py
+
+- id: week_10_pipeline_prevents_leakage
+  claim: Pipeline 确保 fit 只在训练集上执行，transform 应用训练集统计量到测试集
+  evidence: cross_val_score(Pipeline(...)) 与错误做法的 AUC 对比
+  verification: examples/05_pipeline_data_leakage.py
+
+- id: week_10_column_transformer_mixed_types
+  claim: ColumnTransformer 可以对数值型和分类型特征分别做预处理
+  evidence: Pipeline + ColumnTransformer 处理混合类型数据
+  verification: examples/99_statlab_classification.py
+
+- id: week_10_statlab_classification_report
+  claim: StatLab 分类报告包含评估指标、混淆矩阵、ROC-AUC、交叉验证
+  evidence: format_classification_report 输出 Markdown 报告
+  verification: examples/99_statlab_classification.py

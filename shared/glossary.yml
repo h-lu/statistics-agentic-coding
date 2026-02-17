@@ -438,3 +438,80 @@
   term_en: model diagnostics
   definition_zh: 检查模型假设是否满足、识别异常值和高影响点的过程。常用工具包括：残差图（检查线性和等方差）、QQ 图（检查正态性）、Cook's 距离（识别高影响点）、VIF（检测多重共线性）、Breusch-Pagan 检验（检验等方差）。
   first_seen: week_09
+
+# ─── Week 10 ───
+
+- term_zh: 分类
+  term_en: Classification
+  definition_zh: 预测类别（离散值）的机器学习任务，如预测"是否会流失"（是/否）。与回归（预测连续值）不同，分类的输出是类别标签。
+  first_seen: week_10
+
+- term_zh: 逻辑回归
+  term_en: Logistic Regression
+  definition_zh: 用于二分类的统计模型，通过 Sigmoid 函数将线性组合映射到 [0,1] 区间的概率。名字有误导性——它用回归的方法（拟合系数）来解决分类问题（预测概率）。
+  first_seen: week_10
+
+- term_zh: 混淆矩阵
+  term_en: Confusion Matrix
+  definition_zh: 展示分类模型预测结果的 2×2 表格，包含四个值：TP（真正类）、TN（真负类）、FP（假正类）、FN（假负类）。告诉你模型在哪些地方预测对了、哪些地方预测错了。
+  first_seen: week_10
+
+- term_zh: 精确率
+  term_en: Precision
+  definition_zh: 预测为正类的样本中真正为正类的比例，TP / (TP + FP)。回答："模型说'会流失'的客户，有多少真的流失了？"适用于"不要误判"的场景（如欺诈检测）。
+  first_seen: week_10
+
+- term_zh: 召回率
+  term_en: Recall
+  definition_zh: 实际为正类的样本中被正确预测为正类的比例，TP / (TP + FN)。也叫敏感度（Sensitivity）或 TPR。回答："所有流失的客户中，模型抓到了多少？"适用于"不要漏掉"的场景（如流失预测、医疗诊断）。
+  first_seen: week_10
+
+- term_zh: F1 分数
+  term_en: F1 Score
+  definition_zh: 精确率和召回率的调和平均数，F1 = 2 × (精确率 × 召回率) / (精确率 + 召回率)。在精确率和召回率之间找平衡，适用于需要同时关注两者的场景。
+  first_seen: week_10
+
+- term_zh: ROC 曲线
+  term_en: ROC Curve
+  definition_zh: 以 FPR（假正率）为横轴、TPR（真正率/召回率）为纵轴的曲线，展示不同阈值下分类器的表现。理想分类器的 ROC 曲线靠近左上角，随机猜测的 ROC 曲线是对角线。
+  first_seen: week_10
+
+- term_zh: AUC
+  term_en: Area Under Curve
+  definition_zh: ROC 曲线下的面积，范围 [0,1]。0.5 表示随机猜测，1.0 表示完美分类，0.9+ 为优秀，0.8-0.9 为良好。AUC 的优点是不依赖阈值选择，衡量"排序能力"。
+  first_seen: week_10
+
+- term_zh: 数据泄漏
+  term_en: Data Leakage
+  definition_zh: 测试集的信息（直接或间接）进入训练集，导致评估指标虚高。常见场景：预处理在划分之前、交叉验证中的泄漏、目标泄漏（特征包含目标信息）。防御方法：使用 Pipeline 确保预处理只在训练集上学习。
+  first_seen: week_10
+
+- term_zh: Sigmoid 函数
+  term_en: Sigmoid Function
+  definition_zh: 将任意实数映射到 (0,1) 区间的 S 型函数，σ(z) = 1 / (1 + e^(-z))。逻辑回归用它把线性组合转换为概率。输入为 0 时输出 0.5，输入趋向 ±∞ 时输出趋向 1 或 0。
+  first_seen: week_10
+
+- term_zh: 几率与对数几率
+  term_en: Odds and Log-odds (Logit)
+  definition_zh: 几率 = P(发生) / P(不发生) = p / (1-p)。对数几率 = log(几率)。逻辑回归假设特征与对数几率之间是线性关系：对数几率 = a + b₁x₁ + b₂x₂ + ...
+  first_seen: week_10
+
+- term_zh: 类别不平衡
+  term_en: Class Imbalance
+  definition_zh: 正负类样本数量差异巨大的情况，如 1:10 或 1:100 的比例。类别不平衡时准确率会误导——永远预测多数类也能获得高准确率。应使用精确率、召回率、F1、AUC 等指标。
+  first_seen: week_10
+
+- term_zh: 精确率-召回率权衡
+  term_en: Precision-Recall Tradeoff
+  definition_zh: 降低阈值会提高召回率（抓到更多正类），但降低精确率（抓到更多负类）。选择阈值需要根据业务场景：医疗诊断倾向低阈值（宁可误诊），风控倾向高阈值（宁可漏掉）。
+  first_seen: week_10
+
+- term_zh: Pipeline
+  term_en: Pipeline
+  definition_zh: scikit-learn 的核心工具，把多个步骤（预处理、特征选择、模型）绑定在一起，确保预处理只在训练集上学习（fit），应用到测试集时只用训练集的统计量（transform）。是防止数据泄漏的标准方法。
+  first_seen: week_10
+
+- term_zh: ColumnTransformer
+  term_en: ColumnTransformer
+  definition_zh: scikit-learn 工具，用于对不同列应用不同的预处理。比如数值型特征做标准化，分类型特征做 One-hot 编码。通常与 Pipeline 结合使用。
+  first_seen: week_10
