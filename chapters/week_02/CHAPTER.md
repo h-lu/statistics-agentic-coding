@@ -1,7 +1,7 @@
 # Week 02：一页分布报告 —— 从"一个均值"到"看见数据的形状"
 
-> "The greatest value of a picture is when it forces us to notice what we never expected to see."
-> — John Tukey
+> "可视化最大的价值，在于迫使我们注意到那些从未料想会看到的东西。"
+> —— John Tukey
 
 近年来，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。GitHub Copilot 在 2026 年用户已超过 2000 万开发者，AI 正在编写约 46% 的代码。这很诱人，也很危险。
 

@@ -1,7 +1,7 @@
 # Week 07：你检验了 20 次，它总会有 1 次显著——多组比较与多重校正
 
-> "If you torture the data long enough, it will confess to anything."
-> — Ronald Coase
+> "如果你折磨数据足够久，它最终会承认任何事。"
+> —— Ronald Coase
 
 2026 年，数据分析工具越来越智能。你可以让 AI 一口气检验 50 个假设，它会给你列出 50 个 p 值，自动标注哪些"显著"。但这有个被很多人忽略的陷阱：**当你检验的次数越多，你看到"假阳性"的概率就越大**。
 

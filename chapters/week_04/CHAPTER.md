@@ -1,7 +1,7 @@
 # Week 04：从"看数字"到"讲故事"——EDA 叙事与假设清单
 
-> "The greatest value of a picture is when it forces us to notice what we never expected to see."
-> — John Tukey
+> "数据分析的两大错误是：相信数据什么都能告诉你，或者相信数据什么都不告诉你。"
+> —— C.R. Rao
 
 2026 年的数据分析工具已经能让任何人在几秒钟内生成一堆图表：相关性热力图、散点图矩阵、分组统计表。AI 工具甚至能自动写出"数据洞察报告"：收入和年龄高度相关、A 组比 B 组均值高 20%、时间序列呈上升趋势。
 

@@ -1,7 +1,7 @@
 # Week 01：拿到数据先别急着跑模型 —— 统计三问与数据卡
 
-> "In God we trust, all others must bring data."
-> — W. Edwards Deming
+> "数据不是答案，数据是问题的起点。"
+> —— W. Edwards Deming
 
 2026 年，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。Stack Overflow 2025 年开发者调查显示，84% 的开发者已经在使用或计划使用 AI 工具，GitHub Copilot 的用户数量在一年内增长了 400%，超过 1500 万开发者用它来辅助编码。这很诱人，也很危险。
 
