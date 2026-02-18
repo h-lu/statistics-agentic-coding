@@ -1,0 +1,951 @@
+# Week 12：解释与伦理——从"能预测"到"能负责"
+
+> "With great power comes great responsibility."
+> — Voltaire (also attributed to Spider-Man)
+
+2024年，一家大型医疗AI公司被曝光其算法在分配医疗资源时存在系统性偏见：对白人患者的推荐优先级明显高于少数族裔患者，即使两者症状相似。问题不在"模型不准"，而在模型训练数据本身反映了历史上的医疗不平等——模型忠实地学到了数据中的偏见，并将其放大。
+
+这不是孤例。从招聘筛选算法对女性简历的系统性降权，到信用评分模型对低收入群体的隐性歧视，"能预测的模型"不等于"负责任的模型"。欧盟 GDPR 的"解释权"条款、美国 NIST 的 AI 风险管理框架、中国《深度合成管理规定》——各国监管都在强调同一个原则：**可解释性和公平性不再是可有可无的选项，而是模型部署的前提**。
+
+本周你将学习如何让模型"说话"：从特征重要性到 SHAP 值，从检测偏见到评估公平性。更重要的是，你将学会如何向非技术读者解释模型结论——不是用 AUC 和 p 值，而是用"对业务方有意义的语言"。
+
+AI 可以帮你训练 20 个模型，但只有你能回答"这个模型为什么做出这个预测"以及"这个预测是否公平"。
+
+---
+
+## 前情提要
+
+上周你学会了树模型与基线对比：决策树用一系列 if-else 规则做预测，随机森林用"群体智慧"提升预测力。你还学会了与基线对比——傻瓜基线、逻辑回归基线——来评估"更复杂的模型是否值得"。
+
+老潘当时说了一句话："模型选好了，但还有一个问题：你能解释它为什么这么预测吗？"
+
+小北当时以为这只是"向业务方汇报"的技巧。现在他开始理解：**可解释性不是沟通技巧，是风险管理**。如果模型拒绝了某个客户的贷款申请，你需要能告诉他"为什么"——不仅是为了客户体验，更是为了法律合规。
+
+这周，你要做的不是"追求更高 AUC"，而是学会"让模型负责"。
+
+---
+
+## 学习目标
+
+完成本周学习后，你将能够：
+
+1. 理解全局可解释性（特征重要性）与局部可解释性（SHAP、LIME）的区别
+2. 使用 SHAP 值解释单个预测的归因
+3. 检测模型中的偏见（数据偏见 vs 算法偏见）
+4. 理解基本的公平性指标（统计均等、机会均等）
+5. 为非技术读者撰写模型解释报告（避免技术黑话）
+
+---
+
+<!--
+贯穿案例：从"黑盒模型"到"可解释且有伦理审查的模型"
+
+案例演进路线：
+- 第 1 节（从特征重要性到归因）→ 从"随机森林告诉你哪些特征重要"到"SHAP 告诉你每个特征对预测的贡献"
+- 第 2 节（全局 vs 局部可解释性）→ 从"整体上模型怎么看"到"为什么这个样本被预测为流失"
+- 第 3 节（模型偏见的来源）→ 从"模型学了数据中的规律"到"模型学到了数据中的偏见"
+- 第 4 节（公平性评估）→ 从"单一准确率指标"到"分组评估：不同群体的表现差异"
+- 第 5 节（向非技术读者解释）→ 从"统计学术语"到"业务语言：写一份对非技术读者负责的解释"
+
+最终成果：读者能使用 SHAP 解释模型预测、检测模型中的偏见、评估分组公平性、用业务语言撰写模型解释报告
+
+数据集建议：
+- 复用电商流失预测数据
+- 新增敏感属性：性别、年龄段、地区（用于演示偏见检测）
+- 保持与 Week 10-11 一致的数据集，便于直接对比
+
+---
+
+认知负荷预算：
+- 本周新概念（5 个，预算上限 5 个）：
+  1. 特征重要性（Feature Importance）：全局可解释性，回顾 Week 11 的随机森林特征重要性
+  2. SHAP 值（SHAP values）：局部可解释性，Shapley Additive Explanations
+  3. 数据偏见与算法偏见（Data Bias vs Algorithmic Bias）：偏见的来源
+  4. 公平性指标（Fairness Metrics）：统计均等、机会均等、校准
+  5. 对非技术读者的解释（Non-technical Communication）：用业务语言翻译统计结论
+- 结论：✅ 在预算内
+
+回顾桥设计（至少 2 个，来自 week_05-10）：
+- [效应量]（来自 week_06）：在第 1 节，通过"特征重要性的大小是否对应实际业务影响"再次使用
+- [置信区间]（来自 week_08）：在第 2-3 节，通过"SHAP 值的不确定性可视化"再次连接
+- [回归系数]（来自 week_09）：在第 1 节，通过"逻辑回归系数是最简单的特征重要性"再次使用
+- [分组比较]（来自 week_04）：在第 4 节，通过"按敏感属性分组评估公平性"再次使用
+- [点估计与区间估计]（来自 week_08）：在第 2 节，通过"SHAP 值不只是点估计，还要看分布"再次使用
+
+AI 小专栏规划：
+- 第 1 个侧栏（第 1-2 节之后）：
+  - 主题："AI 时代的可解释性为什么更重要"
+  - 连接点：刚学完特征重要性和 SHAP，讨论 AI 模型的复杂性如何让可解释性成为监管要求
+  - 建议搜索词："explainable AI regulations 2026", "GDPR right to explanation", "AI Act transparency requirements"
+
+- 第 2 个侧栏（第 3-4 节之后）：
+  - 主题："AI 模型中的偏见检测与缓解"
+  - 连接点：刚学完偏见来源和公平性指标，讨论 AI 工具如何帮助检测偏见
+  - 建议搜索词："AI bias detection tools 2026", "fairness metrics machine learning", "algorithmic fairness audit"
+
+角色出场规划：
+- 小北（第 1 节）：看到特征重要性后说"这个特征最重要，所以我们应该去掉其他特征"，被老潘纠正
+- 阿码（第 2 节）：追问"为什么同一个特征对不同样本的 SHAP 值可以正负不同？"，引出局部可解释性的概念
+- 老潘（第 4 节）：看到"整体准确率很高但对某个群体很差"的模型后点评"这不是好模型，这是危险的模型"
+- 小北（第 5 节）：尝试用 p 值和 AUC 向业务方解释，发现对方听不懂，引出"翻译"的需求
+
+StatLab 本周推进：
+- 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志 + 相关分析 + 分组比较 + 假设清单 + 多组比较 + 区间估计 + Bootstrap + 置换检验 + 回归分析 + 模型诊断 + 分类评估（逻辑回归、混淆矩阵、ROC-AUC、Pipeline 防泄漏）+ 树模型 + 基线对比
+- 本周改进：添加可解释性模块（SHAP 值可视化）、偏见检测（分组公平性评估）、伦理风险清单、面向非技术读者的模型解释报告
+- 涉及的本周概念：SHAP 值、偏见检测、公平性指标、非技术沟通
+- 建议示例文件：examples/12_statlab_interpretability.py（本周报告生成入口脚本）
+-->
+
+## 1. 特征重要性的陷阱——知道"什么重要"够吗？
+
+"这就叫重要性。"小北指着屏幕上的柱状图，"`days_since_last_purchase` 排第一（0.42），`purchase_count` 第二（0.28），`avg_spend` 第三（0.15）。剩下那些加起来才 15%，干脆删了吧，模型跑得还快。"
+
+阿码在旁边皱眉："等等，删掉真的没问题吗？"
+
+"有什么问题？"小北说，"模型自己告诉我的，这三个占了 70% 的重要性。"
+
+老潘刚好路过，停了下来。"**模型告诉你它'用了什么'，可没告诉你'去掉之后会发生什么'**。"
+
+他拉开一把椅子坐下。"想象你在做一道菜。盐是最重要的调料——没有它，菜就没味。但如果你把盐的量加倍，菜会咸到不能吃。更重要的是，盐和辣味之间有'交互作用'——有些客户在'购买次数少 + 平均消费高'时反而不会流失，这种关系特征重要性根本看不到。"
+
+### 回归系数：最简单的"特征重要性"
+
+说到"特征重要性"，其实 Week 09 学的**回归系数**就是最古老的版本。逻辑回归的系数很直接：在其他特征不变的情况下，x 每增加 1 单位，y 的对数几率变化多少。
+
+```python
+# 逻辑回归系数（Week 09 回顾）
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+log_reg = LogisticRegression(max_iter=1000, random_state=42)
+log_reg.fit(X_train, y_train)
+
+# 系数表
+coef_df = pd.DataFrame({
+    'feature': X_train.columns,
+    'coefficient': log_reg.coef_[0],
+    'abs_coef': abs(log_reg.coef_[0])
+}).sort_values('abs_coef', ascending=False)
+
+print(coef_df)
+```
+
+阿码盯着输出看了半天，突然发现一个问题："**系数有正负**，为什么随机森林的特征重要性都是正的？"
+
+"问到点子上了。"老潘说，"逻辑回归的系数告诉你**方向**——x 增加，y 是涨是跌。随机森林的特征重要性只告诉你**强度**——x 对预测有多大贡献，但没说是往哪个方向推。"
+
+"所以这是第一个陷阱：**有强度，没方向**。"
+
+### 随机森林特征重要性的第二个陷阱
+
+"还有第二个问题。"老潘打开了一个新的 Notebook，"看这个实验——我把同一个特征复制了 10 次，然后重新训练。"
+
+特征重要性发生了巨大变化：被复制的特征重要性"稀释"了，每个副本看起来都不重要，但加起来其实是最强的。
+
+"**相关特征会互相'分票'**。"老潘解释，"如果'购买次数'和'总消费'高度相关，随机森林会随机选择其中一个做分裂，导致两个特征的重要性都被低估。你以为模型'没用'这个特征，其实它用了，只是把功劳分给了它的'兄弟'。"
+
+小北问："那怎么判断？"
+
+"看 SHAP 值。"老潘说，"但在此之前，先记住：**特征重要性是全局的、聚合的、不告诉你方向的**。它适合'快速理解模型看了什么'，不适合'解释单个预测'。"
+
+这引出了本周的核心问题：**如何解释单个预测？** 这是特征重要性无法回答的。
+
+---
+
+## 2. 为什么这个客户被预测为流失？——SHAP 值与局部可解释性
+
+小北遇到一个真实的业务场景：某个 VIP 客户被模型预测为"高流失风险"，业务方要求解释"为什么"。
+
+小北看了特征重要性：`days_since_last_purchase` 排第一。他告诉业务方："因为这位客户很久没买了。"
+
+"不对啊，"业务方说，"这位客户上周才买过，只是金额不大。"
+
+问题出在哪里？**特征重要性是全局的——它告诉你平均而言什么重要，但无法解释单个预测**。
+
+阿码问："逻辑回归的系数能解释单个预测吗？"
+
+"能，但不完整。"老潘说，"逻辑回归的系数告诉你'x 每增加 1 单位，y 的概率变化多少'，但这是**全局效应**——假设所有样本的斜率相同。如果某个客户在'高购买次数'的区间的行为和'低购买次数'区间不同，逻辑回归看不到。"
+
+### SHAP 值：局部可解释性
+
+**SHAP（SHapley Additive exPlanations）**是基于博弈论的方法，它回答："**每个特征对这个预测的贡献是多少**？"
+
+```python
+import shap
+
+# 训练 SHAP 解释器（使用随机森林）
+explainer = shap.TreeExplainer(rf)
+shap_values = explainer.shap_values(X_test)
+
+# 解释单个样本
+sample_idx = 0  # 选择一个被预测为流失的样本
+shap.force_plot(
+    explainer.expected_value[1],
+    shap_values[1][sample_idx],
+    X_test.iloc[sample_idx],
+    matplotlib=True
+)
+```
+
+阿码第一次看到 SHAP 图时的反应和你可能一样：一个"瀑布图"，每个特征是一个箭头，向右推表示增加流失概率，向左推表示降低流失概率。
+
+"这就是**归因（Attribution）**。"老潘说，"SHAP 告诉你：这个样本的预测概率是 0.72（基线 0.15），其中 `days_since_last_purchase=45` 贡献了 +0.31，`purchase_count=2` 贡献了 +0.18，`vip_status=True` 贡献了 -0.12……"
+
+"等等，"小北打断，"**同一个特征在不同样本上的贡献可以不同**？"
+
+"对。"老潘说，"这就是 SHAP 的核心——**局部可解释性**。`days_since_last_purchase` 对这个样本贡献 +0.31，但对另一个样本可能只贡献 +0.05。因为模型不是线性的，特征的贡献会因样本而异。"
+
+这正好呼应了 Week 08 学的**点估计与区间估计**：特征重要性是一个"点估计"（平均重要性），SHAP 值是一个"分布"（每个样本有不同的贡献）。
+
+### SHAP 汇总图：全局 + 局部
+
+SHAP 还可以画出"汇总图"，同时展示全局和局部信息：
+
+```python
+# SHAP 汇总图
+shap.summary_plot(shap_values[1], X_test, plot_type="dot")
+```
+
+这张图告诉你两件事：
+1. **全局**：哪些特征最重要（点的分布宽度）
+2. **局部**：同一特征对不同样本的贡献方向（红色=高特征值，蓝色=低特征值）
+
+小北看着图说："`days_since_last_purchase` 确实最重要，但高值和低值的贡献方向不同——值越高，越往右（增加流失概率）。"
+
+"对。"老潘说，"**特征重要性只给你一个数字，SHAP 给你一个分布**。这就像效应量（Week 06）——只说'有差异'不够，还要说'差异有多大'；同样，只说'这个特征重要'不够，还要说'它对哪些样本重要，方向是什么'。"
+
+### 全局 vs 局部：什么时候用哪个？
+
+| 类型 | 问题 | 工具 |
+|------|------|------|
+| **全局可解释性** | 模型整体上看什么特征？ | 特征重要性、SHAP 汇总图 |
+| **局部可解释性** | 为什么这个样本被预测为流失？ | SHAP 瀑布图、LIME |
+
+阿码问："那业务方问'为什么这个 VIP 客户被预测为流失'，我该用哪个？"
+
+"用局部。"老潘说，"但记得翻译成业务语言：不要说'SHAP 值是 0.31'，要说'这位客户最近 45 天没购买，这是流失风险的主要来源（贡献 +31% 概率），但他有 VIP 身份，这降低了风险（贡献 -12% 概率）'。"
+
+---
+
+> **AI 时代小专栏：AI 时代的可解释性为什么更重要**
+
+> 2026 年，模型可解释性不再只是"学术兴趣"，而是**法律和监管要求**。
+>
+> **监管趋势**：
+>
+> - **欧盟 GDPR**：第 22 条赋予个人"不接受纯自动化决策"的权利，包括"获得解释"的权利
+> - **欧盟 AI Act**：将 AI 系统按风险分类，"高风险"系统（如招聘、信贷、医疗）必须提供可解释性
+> - **美国 NIST AI RMF**：要求 AI 系统"透明、可解释、可问责"
+> - **中国《深度合成管理规定》**：要求深度合成服务提供者"在生成内容中添加不影响使用的标识"
+>
+> **为什么 AI 时代可解释性更重要？**
+>
+> - **模型更复杂**：深度学习、集成模型、AutoML——模型越强，越难解释
+> - **影响更广泛**：AI 被用于信贷、招聘、医疗、刑事司法——错误决策的影响更大
+> - **偏见更隐蔽**：模型可能学到历史数据中的偏见（如性别歧视、种族歧视），如果没有可解释性，偏见很难被发现
+> - **信任更脆弱**：一次"黑盒失败"可能让整个机构失去公众信任
+>
+> **行业实践**：
+>
+> - **Google 的模型卡片（Model Cards）**：每个 AI 模型必须附一张"卡片"，说明用途、性能、局限性、公平性评估
+> - **IBM 的 AI Facts 360**：开放源码工具，帮助开发者创建"模型事实说明"
+> - **Microsoft 的 InterpretML**：提供可解释性工具（包括 SHAP、LIME）
+> - **H2O.ai 的可解释性模块**：自动生成特征重要性、部分依赖图、SHAP 值
+>
+> **对你的启示**：
+>
+> 你本周学的 SHAP 值、特征重要性、公平性评估，不是"可选的附加功能"，而是"负责任建模"的核心部分。**能预测的模型不等于能部署的模型**——前者需要 AUC，后者需要可解释性和公平性。
+>
+> 参考（访问日期：2026-02-18）：
+> - [GDPR Article 22: Automated individual decision-making](https://gdpr-info.eu/art-22-gdpr/)
+> - [EU AI Act: High-Risk AI Systems](https://artificialintelligenceact.eu/)
+> - [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
+> - [Google Model Cards](https://modelcards.withgoogle.com/)
+
+---
+
+## 3. 模型学到了数据中的偏见——如何检测？
+
+老潘上周收到了一个真实案例：某公司的信贷模型拒绝率是 20%，但对某个地区（数据脱敏）的拒绝率是 45%。
+
+"模型有偏见吗？"业务方问。
+
+老潘的第一反应是："先别下结论。**拒绝率高 ≠ 偏见**。可能这个地区的客户确实信用风险更高。"
+
+"那怎么判断？"
+
+"看**分组指标**。"老潘说，"如果两个群体的'真实风险'相同，但模型给他们的预测风险不同，那就是偏见。"
+
+### 数据偏见 vs 算法偏见
+
+**偏见（Bias）**在机器学习中有两个来源：
+
+| 偏见类型 | 来源 | 示例 |
+|---------|------|------|
+| **数据偏见** | 训练数据本身有偏见 | 历史上女性获得贷款少，模型学到"女性=高风险" |
+| **算法偏见** | 算法放大了数据中的偏见 | 模型对少数群体使用更保守的阈值，导致拒绝率更高 |
+
+阿码问："如果数据有偏见，模型会不会自动'学到'偏见？"
+
+"会。"老潘说，"**模型忠实地学习数据中的模式，不管这些模式是'规律'还是'偏见'**。如果历史数据中女性获得的贷款少，模型会学到'女性=高风险'——即使这个'高风险'是社会偏见的结果，而非真实风险。"
+
+这正好呼应了 Week 04 学的**相关不等于因果**：模型学到的是相关（女性和拒绝率相关），但不是因果（女性导致被拒）。
+
+### 检测偏见：分组评估
+
+让我们按敏感属性（如性别、地区）分组评估模型：
+
+```python
+def fairness_evaluation(y_true, y_pred, sensitive_attr):
+    """
+    按敏感属性分组评估模型
+    """
+    df = pd.DataFrame({
+        'y_true': y_true,
+        'y_pred': y_pred,
+        'sensitive': sensitive_attr
+    })
+
+    results = {}
+    for group in df['sensitive'].unique():
+        group_df = df[df['sensitive'] == group]
+        results[group] = {
+            'count': len(group_df),
+            'positive_rate': group_df['y_pred'].mean(),
+            'accuracy': accuracy_score(group_df['y_true'], group_df['y_pred']),
+            'recall': recall_score(group_df['y_true'], group_df['y_pred'], zero_division=0)
+        }
+
+    return pd.DataFrame(results).T
+
+# 示例：按性别分组评估
+gender_results = fairness_evaluation(y_test, y_pred, X_test['gender'])
+print(gender_results)
+```
+
+小北看着输出说："男性的预测流失率是 18%，女性是 22%。这是偏见吗？"
+
+"不一定。"老潘说，"要看**真实流失率**。如果男性的真实流失率也是 18%，女性也是 22%，那模型是**校准的（Calibrated）**——预测概率和真实概率匹配。但如果真实流失率都是 20%，那模型对女性**系统性高估**，这就是偏见。"
+
+### 按群体分解：混淆矩阵告诉你哪里不公平
+
+更详细的偏见检测需要看混淆矩阵：
+
+```python
+from sklearn.metrics import confusion_matrix
+
+def group_confusion_matrices(y_true, y_pred, sensitive_attr):
+    """计算每个群体的混淆矩阵"""
+    groups = sensitive_attr.unique()
+    cms = {}
+
+    for group in groups:
+        mask = sensitive_attr == group
+        cm = confusion_matrix(y_true[mask], y_pred[mask])
+        cms[group] = cm
+
+    return cms
+
+# 可视化
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+for (group, cm), ax in zip(cms.items(), axes):
+    sns.heatmap(cm, annot=True, fmt='d', ax=ax, cmap='Blues')
+    ax.set_title(f'Confusion Matrix: {group}')
+    ax.set_xlabel('Predicted')
+    ax.set_ylabel('Actual')
+```
+
+老潘看着图说："看这里，女性群体的假阳性（FP=45）比男性（FP=28）高很多。这意味着**女性更容易被错误地预测为流失**。如果模型用于营销（给流失风险高的人发优惠券），女性会收到更多不必要的影响，男性会收不到——这是分配不公。"
+
+阿码问："怎么判断'假阳性高'是偏见还是合理？"
+
+"好问题。"老潘说，"这需要定义**公平性指标**——但在这之前，你做的其实就是 Week 04 学的**分组比较**，只是目的不同了。当时你分组是为了'发现差异'，现在你分组是为了'评估公平性'。"
+
+---
+
+## 4. 什么是"公平"？——公平性指标与权衡
+
+小北本周最大的困惑是："公平"不是一个定义清楚的概念。
+
+"如果我让模型对所有人的预测流失率一样，"小北说，"那是不是更公平？"
+
+老潘摇头。"**公平不是单一指标，而是多个相互冲突的目标之间的权衡**。"
+
+### 三种常见的公平性定义
+
+| 公平性定义 | 直觉含义 | 公式（简化） | 问题 |
+|-----------|---------|-------------|------|
+| **统计均等（Demographic Parity）** | 各群体的预测正率相同 | P(Ŷ=1\|A=0) = P(Ŷ=1\|A=1) | 忽略真实风险差异 |
+| **机会均等（Equalized Odds）** | 各群体的真阳性率、假阳性率相同 | TPR(A=0) = TPR(A=1)<br>FPR(A=0) = FPR(A=1) | 可能无法同时满足 |
+| **校准（Calibration）** | 各群体的预测概率与真实概率匹配 | P(Y=1\|Ŷ=p, A=0) = P(Y=1\|Ŷ=p, A=1) | 可能掩盖分配不公 |
+
+老潘解释："**统计均等**要求模型对男性和女性预测同样比例的流失。但如果男性的真实流失率是 25%，女性是 15%，强制让预测比例相同会导致模型对男性'低估'、对女性'高估'——这也不公平。"
+
+"**机会均等**要求模型对男性和女性的真阳性率相同（抓到真正流失客户的比例），以及假阳性率相同（误判为流失的比例）。但这往往无法同时满足——如果女性在训练数据中的正样本更少，模型很难有相同的召回率。"
+
+"**校准**要求'预测流失概率 70% 的客户，无论男女，真的流失概率都是 70%'。这听起来合理，但如果女性获得的贷款更少（历史原因），即使模型校准完美，女性收到的贷款批准还是更少——这是'公平的模型'产生'不公平的结果'。"
+
+阿码问："那到底用哪个？"
+
+"看业务场景。"老潘说。
+
+**场景驱动选择**：
+
+| 场景 | 优先级 | 推荐公平性指标 |
+|------|--------|---------------|
+| **信贷审批** | 避免歧视弱势群体 | 机会均等（控制假阳性） |
+| **医疗筛查** | 不要漏掉高风险患者 | 机会均等（控制真阳性） |
+| **营销定向** | 避免分配不公 | 统计均等（各群体获同样多的优惠） |
+| **风险评估** | 预测概率准确 | 校准（各群体的概率与真实匹配） |
+
+### 公平性-准确性权衡
+
+老潘打开了一个模拟实验："看，如果我们强制满足统计均等，模型整体准确率会下降 2-3%。"
+
+"**这是公平性-准确性的权衡**。"老潘说，"没有'完全公平且完全准确'的模型。你需要和业务方讨论：愿意牺牲多少预测准确性，来换取更公平的分配？"
+
+这正好呼应了 Week 06 学的**效应量**：p 值小不等于差异大。同样，"公平性改进"不等于"公平性完美"——你需要量化权衡，而不是二选一。
+
+```python
+# 第一步：计算原始模型的不公平程度
+from fairlearn.metrics import MetricFrame
+
+metric_frame = MetricFrame(
+    metrics={'accuracy': accuracy_score, 'recall': recall_score},
+    y_true=y_test,
+    y_pred=y_pred,
+    sensitive_features=X_test['gender']
+)
+
+print("原始模型:")
+print(f"整体准确率: {metric_frame.overall['accuracy']:.4f}")
+print(f"性别组准确率差异: {metric_frame.difference['accuracy']:.4f}")
+```
+
+"看到了吗？整体准确率 0.85，但性别组之间差了 0.12。"老潘指着输出说，"这就是'不公平的代价'——有人被优待了，有人被亏待了。"
+
+```python
+# 第二步：使用后处理技术减少不公平（简化示例）
+from fairlearn.postprocessing import ThresholdOptimizer
+
+postprocess_est = ThresholdOptimizer(
+    estimator=rf,
+    constraints="demographic_parity",
+    prefit=True
+)
+postprocess_est.fit(X_train, y_train, sensitive_features=X_train['gender'])
+y_pred_fair = postprocess_est.predict(X_test, sensitive_features=X_test['gender'])
+
+print("\n公平性优化后:")
+print(f"整体准确率: {accuracy_score(y_test, y_pred_fair):.4f}")
+print(f"性别组准确率差异: ...")
+```
+
+"准确率掉到了 0.83，但性别组差异缩小到了 0.03。"老潘说，"这就是权衡——你牺牲了 2 个百分点的准确性，换来了更公平的分配。业务方需要决定：这 2 个百分点值得吗？"
+
+小北看着输出说："所以公平性不是一个'达到/未达到'的指标，而是一个'有多接近'的连续值？"
+
+"对。"老潘说，"**公平性工程不是'消除偏见'（不可能），而是'管理偏见'（权衡）**。"
+
+---
+
+> **AI 时代小专栏：AI 模型中的偏见检测与缓解**
+
+> 2026 年，AI 偏见检测不再是"手动检查"，而是有专门的工具和框架。
+>
+> **开源偏见检测工具**：
+>
+> - **Fairlearn**（Microsoft）：用于评估和缓解 ML 模型不公平性的 Python 库，支持分组指标、后处理优化
+> - **AIF360**（IBM AI Fairness 360）：提供 70+ 公平性指标和 10+ 偏见缓解算法
+> - **What-If Tool**（Google）：交互式可视化工具，用于探测模型在不同切片上的表现
+> - **Fairness Indicators**（Google）：TensorFlow 扩展，用于计算和可视化公平性指标
+>
+> **行业偏见审计案例**：
+>
+> - **Amazon 招聘工具**（2018）：内部发现模型对女性简历有系统性降权，因为训练数据来自历史简历（男性居多）
+> - **COMPAS 累犯预测**（2016）：ProPublica 调查发现，黑人被误判为"高风险"的比例是白人的两倍
+> - **Healthcare 算法**（2019）：研究发现，使用医疗费用作为健康代理变量导致对黑人患者的系统性低估
+> - **Apple Card 信用额度**（2019）：用户投诉男性获得的信用额度是女性的 10-20 倍，引发监管调查
+>
+> **偏见缓解策略**：
+>
+> | 阶段 | 策略 | 示例 |
+> |------|------|------|
+> | **数据预处理** | 重采样、表示学习 | 过采样少数群体的样本、学习对敏感属性鲁棒的特征 |
+> | **模型训练** | 约束优化、正则化 | 在训练中加入公平性约束（如公平学习） |
+> | **模型后处理** | 阈值调整、校准 | 对不同群体使用不同的分类阈值 |
+>
+> **对你的启示**：
+>
+> 偏见检测不是"一次性检查"，而是**持续监控**。模型部署后，实际使用中的数据分布可能变化，导致新的偏见出现。本周学的分组评估、混淆矩阵分解、公平性指标，应该成为你模型报告的标准部分。
+>
+> 参考（访问日期：2026-02-18）：
+> - [Fairlearn Documentation](https://fairlearn.org/)
+> - [IBM AI Fairness 360](https://aif360.mybluemix.net/)
+> - [Google What-If Tool](https://pair-code.github.io/what-if-tool/)
+> - [Google Fairness Indicators](https://github.com/tensorflow/fairness-indicators)
+
+---
+
+## 5. 向非技术读者解释——从 p 值到业务语言
+
+小北本周最后的挑战是：向业务方（非技术背景）解释模型结论。
+
+他一开始写的解释是：
+
+> "本模型使用随机森林，AUC 为 0.89，显著高于基线（p < 0.05）。SHAP 分析显示 days_since_last_purchase 是最重要的特征（平均 SHAP 值 0.31）。"
+
+业务方的反应是："……你说人话？"
+
+老潘看完笑了。"**你不是在写论文，是在写一份业务方会看的报告**。"
+
+### 翻译：从统计术语到业务语言
+
+老潘给了小北一个"翻译表"：
+
+| 统计术语 | 业务语言翻译 |
+|---------|-------------|
+| "AUC = 0.89" | "模型区分流失和非流失客户的能力很强（满分1.0，0.89表示接近完美）" |
+| "p < 0.05" | "我们有 95% 的把握这个差异不是偶然的" |
+| "SHAP 值 = 0.31" | "最近购买天数是流失风险的最大来源（贡献 31% 的预测信号）" |
+| "假阳性率 = 15%" | "每 100 个'预测会流失'的客户中，有 15 个实际上不会流失" |
+| "召回率 = 72%" | "模型能抓到 72% 的真实流失客户" |
+| "置信区间 [0.45, 0.52]" | "真实流失率大约在 45%-52% 之间" |
+
+小北改写后的解释：
+
+> **客户流失预测模型——结论与建议**
+>
+> **模型性能**：
+> - 模型区分流失和非流失客户的能力很强（AUC = 0.89，满分1.0）
+> - 在 100 个真实会流失的客户中，模型能抓到 72 个（召回率 = 72%）
+> - 在 100 个被模型预测为流失的客户中，有 15 个实际上不会流失（误判率 = 15%）
+>
+> **风险信号**：
+> - **最近购买天数**是流失风险的最大来源：超过 30 天未购买的客户，流失风险增加 31 个百分点
+> - **购买次数少**（< 3 次）的客户流失风险是购买次数多（> 10 次）的客户的 2.5 倍
+> - **非会员客户**的流失概率是会员客户的 1.8 倍
+>
+> **行动建议**：
+> - 优先联系：超过 30 天未购买 + 购买次数 < 3 次的客户
+> - 考虑激励：向非会员客户推送会员优惠（可降低约 18% 的流失概率）
+> - 谨慎对待：模型预测"会流失"的 VIP 客户（建议人工复核）
+
+"这样好多了。"老潘说，"**业务方不关心你用什么算法，关心的是'我该做什么'**。"
+
+### 模型解释报告的结构
+
+老潘给出了一个"面向非技术读者的模型报告"模板：
+
+1. **一句话总结**：模型能做什么，准确率如何
+2. **关键发现**：最重要的 3 个风险信号（用业务语言）
+3. **行动建议**：基于模型结论的具体行动
+4. **模型边界**：模型在什么情况下可能不准（如训练数据之外的新客户群）
+5. **公平性说明**：模型对不同群体的表现差异（如有）
+
+小北问："要不要写 p 值和置信区间？"
+
+"看读者。"老潘说，"如果是给数据科学团队看的，写。如果是给业务方看的，**只写结论，不写统计检验细节**——但要在附录或技术文档中保留这些信息，方便审计。"
+
+### 伦理风险清单
+
+最后，老潘让小北在报告里加上"伦理风险清单"：
+
+```markdown
+## 伦理风险与缓解措施
+
+| 风险类型 | 描述 | 缓解措施 |
+|---------|------|---------|
+| **数据偏见** | 训练数据中某地区样本较少，可能导致该地区的预测不准 | 标注低样本量地区，建议增加数据收集 |
+| **分配不公** | 模型对某些群体的假阳性率更高，可能导致营销资源分配不均 | 定期审计分组指标，考虑使用后处理校准 |
+| **隐私风险** | 模型使用客户的购买历史，需确保符合隐私法规 | 数据匿名化，限制访问权限 |
+| **模型边界** | 模型未见过新的业务场景（如疫情期间），预测可能失效 | 明确模型有效期，定期重新训练 |
+```
+
+"这才是完整的报告。"老潘说，"**模型不只要有预测力，还要有责任**。"
+
+---
+
+## StatLab 进度
+
+到目前为止，StatLab 已经有了完整的建模流程：数据卡、描述统计、清洗日志、相关分析、回归诊断、分类评估、树模型和基线对比。但这里有一个"看不见的坑"：我们只报告了整体指标，没有检查**分组公平性**，也没有提供**面向非技术读者的解释**。
+
+这正是本周"解释与伦理"派上用场的地方。**本周的 StatLab 进展，是将"技术指标报告"升级为"负责任的模型报告"——从"我们能预测"到"我们能解释、能负责"。**
+
+### 第一步：SHAP 可解释性模块
+
+```python
+# examples/12_statlab_interpretability.py
+import shap
+import matplotlib.pyplot as plt
+from pathlib import Path
+
+def compute_shap_values(model, X_train, X_test, model_type='rf'):
+    """
+    计算 SHAP 值
+    """
+    if model_type == 'rf':
+        explainer = shap.TreeExplainer(model)
+    else:
+        explainer = shap.KernelExplainer(model.predict_proba, X_train[:100])
+
+    shap_values = explainer.shap_values(X_test)
+
+    return explainer, shap_values
+
+def plot_shap_summary(explainer, shap_values, X_test, output_dir='output'):
+    """
+    画出 SHAP 汇总图
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    fig = plt.figure(figsize=(10, 6))
+    shap.summary_plot(shap_values[1], X_test, plot_type="dot", show=False)
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/shap_summary.png", dpi=150, bbox_inches='tight')
+    plt.close()
+
+    return f"{output_dir}/shap_summary.png"
+
+def explain_single_prediction(explainer, shap_values, X_test, sample_idx,
+                             feature_names, output_dir='output'):
+    """
+    解释单个预测，返回 Markdown 文本和图
+    """
+    # 瀑布图
+    fig = shap.force_plot(
+        explainer.expected_value[1],
+        shap_values[1][sample_idx],
+        X_test.iloc[sample_idx],
+        matplotlib=True,
+        show=False
+    )
+    fig.savefig(f"{output_dir}/shap_sample_{sample_idx}.png",
+                dpi=150, bbox_inches='tight')
+    plt.close()
+
+    # 生成解释文本
+    sample = X_test.iloc[sample_idx]
+    shap_vals = shap_values[1][sample_idx]
+
+    # 找出贡献最大的 3 个特征
+    top_idx = np.argsort(np.abs(shap_vals))[-3:][::-1]
+
+    md = ["### 单样本预测解释\n\n"]
+    md.append(f"**样本 ID**: {sample_idx}\n\n")
+    md.append("**预测流失概率**: 基线 + 特征贡献\n\n")
+    md.append("**主要影响因素**:\n\n")
+
+    for idx in top_idx:
+        feature = feature_names[idx]
+        contribution = shap_vals[idx]
+        value = sample[feature]
+        direction = "增加" if contribution > 0 else "降低"
+        md.append(f"- **{feature}** = {value:.2f}: {direction}流失风险 {abs(contribution)*100:.1f}%\n")
+
+    md.append(f"\n![SHAP 瀑布图](output/shap_sample_{sample_idx}.png)\n\n")
+
+    return "".join(md)
+```
+
+### 第二步：公平性评估模块
+
+```python
+def compute_fairness_metrics(y_true, y_pred, y_prob, sensitive_attrs):
+    """
+    计算公平性指标
+
+    sensitive_attrs: dict, 如 {'gender': X_test['gender'], 'age_group': X_test['age_group']}
+    """
+    from sklearn.metrics import confusion_matrix, accuracy_score, recall_score
+
+    results = {}
+
+    for attr_name, attr_values in sensitive_attrs.items():
+        attr_results = {}
+        unique_groups = attr_values.unique()
+
+        # 整体指标
+        overall_acc = accuracy_score(y_true, y_pred)
+        overall_recall = recall_score(y_true, y_pred, zero_division=0)
+
+        for group in unique_groups:
+            mask = attr_values == group
+            group_size = mask.sum()
+
+            if group_size < 10:  # 样本太少，跳过
+                continue
+
+            group_y_true = y_true[mask]
+            group_y_pred = y_pred[mask]
+            group_y_prob = y_prob[mask]
+
+            cm = confusion_matrix(group_y_true, group_y_pred)
+            tn, fp, fn, tp = cm.ravel()
+
+            attr_results[group] = {
+                'count': group_size,
+                'positive_rate': group_y_pred.mean(),
+                'true_positive_rate': tp / (tp + fn) if (tp + fn) > 0 else 0,
+                'false_positive_rate': fp / (fp + tn) if (fp + tn) > 0 else 0,
+                'accuracy': accuracy_score(group_y_true, group_y_pred),
+                'avg_predicted_prob': group_y_prob.mean()
+            }
+
+        results[attr_name] = attr_results
+
+    return results
+
+def format_fairness_report(fairness_results):
+    """
+    格式化公平性评估报告
+    """
+    md = ["## 公平性评估\n\n"]
+
+    for attr_name, groups in fairness_results.items():
+        md.append(f"### 按 {attr_name} 分组\n\n")
+        md.append("| 分组 | 样本数 | 预测正率 | 真阳性率 | 假阳性率 | 准确率 |\n")
+        md.append("|------|--------|---------|---------|---------|--------|\n")
+
+        for group, metrics in groups.items():
+            md.append(f"| {group} | {metrics['count']} | {metrics['positive_rate']:.3f} | "
+                     f"{metrics['true_positive_rate']:.3f} | {metrics['false_positive_rate']:.3f} | "
+                     f"{metrics['accuracy']:.3f} |\n")
+
+        # 计算差异
+        if len(groups) > 1:
+            tpr_diff = max(g['true_positive_rate'] for g in groups.values()) - \
+                       min(g['true_positive_rate'] for g in groups.values())
+            fpr_diff = max(g['false_positive_rate'] for g in groups.values()) - \
+                       min(g['false_positive_rate'] for g in groups.values())
+
+            md.append(f"\n**指标差异**:\n")
+            md.append(f"- 真阳性率差异: {tpr_diff:.3f}\n")
+            md.append(f"- 假阳性率差异: {fpr_diff:.3f}\n\n")
+
+            if tpr_diff > 0.1 or fpr_diff > 0.1:
+                md.append("⚠️ **警告**: 检测到显著的分组差异，建议进一步调查数据来源或考虑后处理校准。\n\n")
+            else:
+                md.append("✅ 分组差异在可接受范围内。\n\n")
+
+    return "".join(md)
+```
+
+### 第三步：面向非技术读者的解释生成
+
+```python
+def generate_non_technical_summary(model_results, fairness_results, top_features=5):
+    """
+    生成面向非技术读者的模型总结
+    """
+    md = ["## 模型结论与行动建议（面向非技术读者）\n\n"]
+
+    # 1. 一句话总结
+    auc = model_results['metrics']['auc']
+    md.append(f"**模型性能**: 该模型能正确识别约 {auc*100:.0f}% 的客户流失状态。\n\n")
+
+    # 2. 关键风险信号
+    if 'feature_importance' in model_results:
+        top_feats = model_results['feature_importance'].head(top_features)
+        md.append("**主要风险信号**:\n\n")
+        for _, row in top_feats.iterrows():
+            md.append(f"- **{row['feature']}** 是影响流失预测的最重要因素\n")
+
+    # 3. 行动建议（根据特征重要性生成）
+    md.append("\n**行动建议**:\n\n")
+    md.append("- 优先联系：最近购买天数超过 30 天的客户\n")
+    md.append("- 考虑激励：购买次数较少（< 3 次）的客户\n")
+    if fairness_results:
+        md.append("- 谨慎对待：对少数群体的预测可能有更高的误判率，建议人工复核高风险案例\n")
+
+    # 4. 模型边界
+    md.append("\n**模型边界**:\n\n")
+    md.append("- 模型基于历史数据训练，可能无法预测新业务场景下的行为\n")
+    md.append("- 对于数据中样本量较少的客户群体，预测不确定性较高\n")
+    md.append("- 建议每季度重新训练模型，以确保有效性\n")
+
+    return "".join(md)
+```
+
+### 第四步：完整的可解释性报告
+
+```python
+def generate_interpretability_report(model, X_train, X_test, y_test,
+                                   y_pred, y_prob, sensitive_attrs,
+                                   output_dir='output'):
+    """
+    生成完整的可解释性与伦理报告
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    report_parts = []
+
+    # 1. SHAP 可解释性
+    explainer, shap_values = compute_shap_values(model, X_train, X_test)
+    shap_img = plot_shap_summary(explainer, shap_values, X_test, output_dir)
+
+    report_parts.append("## 模型可解释性\n\n")
+    report_parts.append(f"![]({shap_img})\n\n")
+    report_parts.append("**SHAP 汇总图解读**:\n")
+    report_parts.append("- 横轴: SHAP 值（正值表示增加流失风险，负值表示降低风险）\n")
+    report_parts.append("- 颜色: 特征值大小（红色=高值，蓝色=低值）\n")
+    report_parts.append("- 点的分布: 同一特征对不同样本的贡献可能不同\n\n")
+
+    # 2. 单样本解释示例
+    sample_idx = y_test[y_test == 1].index[0]  # 选择一个真实流失的样本
+    single_expl = explain_single_prediction(
+        explainer, shap_values, X_test, sample_idx,
+        X_test.columns.tolist(), output_dir
+    )
+    report_parts.append(single_expl)
+
+    # 3. 公平性评估
+    fairness_results = compute_fairness_metrics(y_test, y_pred, y_prob, sensitive_attrs)
+    fairness_report = format_fairness_report(fairness_results)
+    report_parts.append(fairness_report)
+
+    # 4. 非技术读者总结
+    model_results = {
+        'metrics': {'auc': roc_auc_score(y_test, y_prob)},
+        'feature_importance': pd.DataFrame({
+            'feature': X_test.columns,
+            'importance': model.feature_importances_ if hasattr(model, 'feature_importances_') else [0]*len(X_test.columns)
+        }).sort_values('importance', ascending=False)
+    }
+    non_tech_summary = generate_non_technical_summary(model_results, fairness_results)
+    report_parts.append(non_tech_summary)
+
+    # 5. 伦理风险清单
+    report_parts.append("## 伦理风险清单\n\n")
+    report_parts.append("| 风险类型 | 风险等级 | 缓解措施 |\n")
+    report_parts.append("|---------|---------|---------|\n")
+    report_parts.append("| 数据偏见 | 中 | 定期审计分组指标，增加少数群体样本 |\n")
+    report_parts.append("| 分配不公 | 低 | 分组真阳性率差异 < 10% |\n")
+    report_parts.append("| 隐私风险 | 中 | 数据匿名化，限制访问权限 |\n")
+    report_parts.append("| 模型边界 | 中 | 明确有效期，定期重新训练 |\n")
+
+    return "".join(report_parts)
+```
+
+### 使用示例
+
+```python
+# 加载上周训练的随机森林模型
+import pickle
+
+with open('models/random_forest_model.pkl', 'rb') as f:
+    rf_model = pickle.load(f)
+
+# 准备数据
+X_test, y_test = ...  # 从上周的代码加载
+y_pred = rf_model.predict(X_test)
+y_prob = rf_model.predict_proba(X_test)[:, 1]
+
+# 定义敏感属性（用于公平性评估）
+sensitive_attrs = {
+    'gender': X_test['gender'],
+    'age_group': pd.cut(X_test['age'], bins=[0, 25, 35, 50, 100],
+                       labels=['<25', '25-35', '35-50', '50+'])
+}
+
+# 生成可解释性报告
+report = generate_interpretability_report(
+    rf_model, X_train, X_test, y_test, y_pred, y_prob, sensitive_attrs
+)
+
+# 保存报告
+Path('output/interpretability_report.md').write_text(report)
+print("可解释性报告已保存到 output/interpretability_report.md")
+```
+
+### 与本周知识的连接
+
+**SHAP 值** → 你学会了从全局可解释性（特征重要性）到局部可解释性（SHAP 值）的升级。SHAP 告诉你每个特征对单个预测的贡献，让你能回答"为什么这个客户被预测为流失"。
+
+**偏见检测** → 你学会了按敏感属性分组评估模型，计算不同群体的真阳性率、假阳性率、准确率。这呼应了 Week 04 学的分组比较——只是这次不是为了发现差异，而是为了评估公平性。
+
+**公平性指标** → 你学会了三种公平性定义（统计均等、机会均等、校准），理解了它们之间的冲突和权衡。你知道"公平性不是一个'达到/未达到'的指标，而是一个'有多接近'的连续值"。
+
+**非技术沟通** → 你学会了把统计术语翻译成业务语言：p 值变成"把握程度"，AUC 变成"正确识别率"，SHAP 值变成"风险来源"。
+
+### 与上周的对比
+
+| 上周 | 本周 |
+|------|------|
+| 模型预测力（AUC） | 模型可解释性（SHAP） |
+| 整体指标 | 分组公平性指标 |
+| 技术导向报告 | 业务导向报告 |
+| 基线对比 | 伦理风险清单 |
+| "哪个模型最好" | "这个模型负责任吗" |
+
+老潘看到这段改动会说什么？"**这才是完整的模型报告**。你不仅告诉了读者'模型能预测'，还解释了'模型为什么这么预测'、'对不同群体是否公平'、'业务方应该做什么'。"
+
+小北问："真的要写这么多内容吗？"
+
+"看场景。"老潘说，"如果是内部实验，简单点。但如果模型要部署、要影响真人、要被监管——**可解释性和公平性不是'可选的附加功能'，而是'必须的风险管理'**。"
+
+---
+
+## Git 本周要点
+
+本周必会命令：
+- `git status`（查看新增的 SHAP 图表、公平性评估报告）
+- `git diff`（对比上周的模型报告和本周的可解释性报告）
+- `git add -A`（添加所有变更）
+- `git commit -m "feat: add interpretability and fairness assessment"`（提交可解释性与公平性模块）
+
+常见坑：
+- 只报告整体指标，忽略分组公平性；
+- 只看特征重要性，不看 SHAP 值的局部可解释性；
+- 向非技术读者使用 p 值、AUC 等术语，导致沟通失败；
+- 认为"公平性是一次性检查"，而忽略了持续监控的需求；
+- 混淆三种公平性定义，导致选择了不适合业务场景的指标。
+
+老潘的建议：**模型能预测只是第一步，模型能解释、能负责才是部署的前提**。
+
+---
+
+## Definition of Done（学生自测清单）
+
+本周结束后，你应该能够：
+
+- [ ] 理解全局可解释性（特征重要性）与局部可解释性（SHAP 值）的区别
+- [ ] 使用 SHAP 值解释单个预测的归因
+- [ ] 检测模型中的偏见（数据偏见 vs 算法偏见）
+- [ ] 理解三种公平性指标（统计均等、机会均等、校准）及其权衡
+- [ ] 按敏感属性分组评估模型性能
+- [ ] 向非技术读者撰写模型解释报告（避免技术黑话）
+- [ ] 在 StatLab 报告中加入伦理风险清单
+
+---
+
+## 本周小结（供下周参考）
+
+老潘最后给了一个总结："**建模的最后一步不是'把模型部署'，而是'确保模型负责任'**。"
+
+这周你学会了**解释与伦理**：从"特征重要性"到"SHAP 值"，从"整体指标"到"分组公平性"，从"技术报告"到"业务语言"。
+
+你理解了**全局 vs 局部可解释性**：特征重要性告诉你"模型整体上看什么"，SHAP 值告诉你"为什么这个样本被这样预测"。这呼应了 Week 09 学的回归系数——系数是最简单的"特征重要性"，但它是全局的、线性的；SHAP 是局部的、非线性的。
+
+你掌握了**偏见检测**：按敏感属性分组评估模型，计算不同群体的真阳性率、假阳性率。你理解了数据偏见（训练数据有偏见）和算法偏见（算法放大偏见）的区别，以及偏见检测为什么重要。
+
+更重要的是，你学会了**公平性指标**：统计均等、机会均等、校准。你知道公平性不是单一指标，而是多个相互冲突的目标之间的权衡。没有"完全公平且完全准确"的模型，只有"根据业务场景选择的权衡"。
+
+最后，你学会了**向非技术读者解释**：把 p 值翻译成"把握程度"，把 AUC 翻译成"模型区分能力"，把 SHAP 值翻译成"风险来源"。你知道**业务方不关心你用什么算法，关心的是'我该做什么'**。
+
+老潘的总结很简洁："**模型能预测只是第一步，模型能解释、能负责才是部署的前提**。"
+
+### 四周预测建模阶段总结
+
+| 周次 | 主题 | 核心能力 |
+|------|------|---------|
+| **Week 09** | 回归与模型诊断 | 理解变量关系，检查模型假设 |
+| **Week 10** | 分类与评估 | 避免准确率陷阱，防止数据泄漏 |
+| **Week 11** | 树模型与基线对比 | 权衡复杂度与提升量 |
+| **Week 12** | 解释与伦理 | 让模型负责，确保公平性 |
+
+从"能预测"到"能负责"——这是建模阶段的完整旅程。
+
+下周，我们将进入**高级专题阶段**：从"相关到因果"（Week 13），用因果图回答"如果做了/没做会怎样"的问题；从"频率学派"到"贝叶斯视角"（Week 14），用"更新信念"的方式做推断；从"小数据"到"大数据计算"（Week 15），了解降维、聚类、A/B 测试等计算专题。
+
+下周的核心问题是："模型告诉你相关，但你能确定因果吗？"

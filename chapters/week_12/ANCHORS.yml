@@ -1,0 +1,44 @@
+# Week 12 锚点定义
+#
+# 锚点是本章中可以被验证的关键声明。
+# 每个锚点包含 claim（声明）、evidence（证据）、verification（验证方法）。
+
+- id: week_12_feature_importance_limitations
+  claim: "特征重要性有两个陷阱：（1）只有强度，没有方向——它告诉你特征对预测的贡献大小，但没说是往哪个方向推；（2）相关特征会互相'分票'——如果两个特征高度相关，随机森林会随机选择其中一个做分裂，导致两个特征的重要性都被低估。"
+  evidence: "CHAPTER.md 第 1 节展示了特征重要性的两个陷阱：小北说'这个特征最重要，所以我们应该去掉其他特征'被老潘纠正；老潘演示复制特征 10 次后特征重要性被'稀释'的实验。"
+  verification: "运行 examples/12_feature_importance_traps.py 可以验证（1）逻辑回归系数有正负而随机森林特征重要性只有正值；（2）高度相关特征的特征重要性被低估的现象。"
+
+- id: week_12_global_vs_local_interpretability
+  claim: "全局可解释性（特征重要性）回答'模型整体上看什么特征'，局部可解释性（SHAP 值）回答'为什么这个样本被这样预测'。特征重要性是一个点估计（平均重要性），SHAP 值是一个分布（每个样本有不同的贡献）。"
+  evidence: "CHAPTER.md 第 2 节区分了全局和局部可解释性，展示了 SHAP 瀑布图和 SHAP 汇总图，说明'同一特征对不同样本的贡献方向可能不同'。"
+  verification: "运行 examples/12_shap_interpretability.py 可以对比特征重要性条形图（全局）和 SHAP 汇总图（全局+局部），验证 SHAP 值在不同样本上的差异。"
+
+- id: week_12_shap_additive_property
+  claim: "SHAP 值具有可加性：预测值 = 基线值 + 各特征的 SHAP 值之和。这允许我们将单个预测分解为每个特征的贡献，回答'每个特征对这个预测的贡献是多少'。"
+  evidence: "CHAPTER.md 第 2 节展示了 SHAP 瀑布图，老潘解释'SHAP 告诉你：这个样本的预测概率是 0.72（基线 0.15），其中 days_since_last_purchase=45 贡献了 +0.31，purchase_count=2 贡献了 +0.18，vip_status=True 贡献了 -0.12'。"
+  verification: "运行 examples/12_shap_interpretability.py 可以验证 SHAP 值的可加性：基线值 + SHAP 值之和 = 模型预测概率。"
+
+- id: week_12_data_vs_algorithmic_bias
+  claim: "偏见有两个来源：数据偏见（训练数据本身有偏见，如历史上女性获得贷款少导致模型学到'女性=高风险'）和算法偏见（算法放大了数据中的偏见，如对少数群体使用更保守的阈值）。模型忠实地学习数据中的模式，不管这些模式是'规律'还是'偏见'。"
+  evidence: "CHAPTER.md 第 3 节区分了数据偏见和算法偏见，老潘解释'模型忠实地学习数据中的模式'，并给出示例'如果历史数据中女性获得的贷款少，模型会学到女性=高风险'。"
+  verification: "运行 examples/12_bias_detection.py 可以按敏感属性分组评估模型，验证如果训练数据有偏见（如某群体的正样本更少），模型预测会反映这种偏见。"
+
+- id: week_12_fairness_accuracy_tradeoff
+  claim: "公平性-准确性权衡：没有'完全公平且完全准确'的模型。强制满足公平性约束（如统计均等）会导致整体准确率下降 2-3%。公平性工程不是'消除偏见'（不可能），而是'管理偏见'（权衡）。"
+  evidence: "CHAPTER.md 第 4 节展示了公平性-准确性的权衡，老潘演示'如果我们强制满足统计均等，模型整体准确率会下降 2-3%'，并总结'公平性不是一个达到/未达到的指标，而是一个有多接近的连续值'。"
+  verification: "运行 examples/12_fairness_tradeoff.py 可以对比原始模型和公平性优化后模型的准确率和分组指标差异，验证权衡关系。"
+
+- id: week_12_three_fairness_definitions
+  claim: "三种常见的公平性定义相互冲突：（1）统计均等——各群体的预测正率相同（忽略真实风险差异）；（2）机会均等——各群体的真阳性率、假阳性率相同（可能无法同时满足）；（3）校准——各群体的预测概率与真实概率匹配（可能掩盖分配不公）。选择哪个取决于业务场景。"
+  evidence: "CHAPTER.md 第 4 节详细介绍了三种公平性定义及其问题，并给出了场景驱动的选择建议表（信贷审批优先机会均等，医疗筛查优先机会均等，营销定向优先统计均等，风险评估优先校准）。"
+  verification: "运行 examples/12_fairness_metrics.py 可以计算三种公平性指标，验证它们在不同场景下的冲突关系。"
+
+- id: week_12_non_technical_communication
+  claim: "向非技术读者解释模型时，需要把统计术语翻译成业务语言：AUC = 0.89 翻译为'模型区分流失和非流失客户的能力很强（满分1.0）'，p < 0.05 翻译为'我们有 95% 的把握这个差异不是偶然的'，SHAP 值 = 0.31 翻译为'最近购买天数是流失风险的最大来源（贡献 31% 的预测信号）'。"
+  evidence: "CHAPTER.md 第 5 节提供了'翻译表'，展示了如何把统计术语翻译成业务语言，并给出了改写后的'客户流失预测模型——结论与建议'示例。"
+  verification: "运行 examples/12_non_technical_report.py 可以生成面向非技术读者的模型报告，验证业务语言翻译的效果。"
+
+- id: week_12_group_confusion_matrix_bias_detection
+  claim: "按敏感属性分组计算混淆矩阵可以检测偏见：如果女性群体的假阳性（FP）比男性高很多，意味着'女性更容易被错误地预测为流失'。这会导致分配不公——女性会收到更多不必要的营销影响。"
+  evidence: "CHAPTER.md 第 3 节展示了按群体分解的混淆矩阵，老潘解释'女性群体的假阳性（FP=45）比男性（FP=28）高很多。这意味着女性更容易被错误地预测为流失'。"
+  verification: "运行 examples/12_group_confusion_matrix.py 可以按敏感属性分组计算混淆矩阵，验证不同群体的假阳性率和假阴性率差异。"

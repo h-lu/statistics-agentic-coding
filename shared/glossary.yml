@@ -542,3 +542,30 @@
   term_en: Baseline Comparison
   definition_zh: 在评估模型时先训练简单基线（傻瓜基线、逻辑回归），再与复杂模型对比，评估提升量是否值得，没有基线对比的模型选择容易被误导
   first_seen: week_11
+
+# ─── Week 12 ───
+
+- term_zh: 特征重要性
+  term_en: Feature Importance
+  definition_zh: 全局可解释性指标，衡量每个特征对模型预测的贡献程度。随机森林的特征重要性基于每个特征在所有树的分裂中带来的不纯度减少量。但有两个陷阱：（1）只有强度没有方向；（2）相关特征会互相"分票"
+  first_seen: week_12
+
+- term_zh: SHAP 值
+  term_en: SHAP values
+  definition_zh: 基于 Shapley 值的局部可解释性方法，回答"每个特征对这个预测的贡献是多少"。具有可加性：预测值 = 基线值 + 各特征的 SHAP 值之和。同一特征对不同样本的贡献可能不同
+  first_seen: week_12
+
+- term_zh: 数据偏见与算法偏见
+  term_en: Data Bias vs Algorithmic Bias
+  definition_zh: 数据偏见来自训练数据本身（如历史上女性获得贷款少），算法偏见来自算法放大了数据中的偏见（如对少数群体使用更保守的阈值）。模型会忠实地学习数据中的模式，不管这些模式是"规律"还是"偏见"
+  first_seen: week_12
+
+- term_zh: 公平性指标
+  term_en: Fairness Metrics
+  definition_zh: 评估模型对不同群体是否公平的指标。常见定义包括：（1）统计均等——各群体预测正率相同；（2）机会均等——各群体真阳性率、假阳性率相同；（3）校准——各群体预测概率与真实概率匹配。三种定义相互冲突，需根据业务场景选择
+  first_seen: week_12
+
+- term_zh: 对非技术读者的解释
+  term_en: Non-technical Communication
+  definition_zh: 把统计术语翻译成业务语言的沟通能力。例如：AUC = 0.89 翻译为"模型区分能力很强（满分1.0）"，p < 0.05 翻译为"有 95% 的把握差异不是偶然的"，SHAP 值翻译为"风险来源"或"贡献程度"
+  first_seen: week_12
