@@ -675,7 +675,75 @@ print(f"单特征树基线 AUC: {auc_single:.4f}")
 | 决策树（max_depth=3） | 0.8500 | ~5ms | ~1ms | 高 |
 | 随机森林（100 棵树） | 0.8900 | ~500ms | ~10ms | 低 |
 
-小北看了一眼表："随机森林比逻辑森林好了 0.02 AUC，但训练时间慢了 50 倍。这值得吗？"
+### 可视化对比：ROC 曲线
+
+光看数字不够直观。让我们画出所有模型的 ROC 曲线，一眼看出谁更好：
+
+```python
+from sklearn.metrics import RocCurveDisplay
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# 画出每个模型的 ROC 曲线
+colors = ['gray', 'blue', 'green', 'darkgreen']
+models_list = [
+    ('Dummy', dummy, 'gray'),
+    ('Logistic Regression', log_reg_pipe, 'blue'),
+    ('Decision Tree', tree_pruned, 'green'),
+    ('Random Forest', rf, 'darkgreen')
+]
+
+for name, model, color in models_list:
+    RocCurveDisplay.from_estimator(
+        model, X_test, y_test, ax=ax, name=name, color=color
+    )
+
+ax.plot([0, 1], [0, 1], 'k--', label='Random Guess')
+ax.set_xlabel('False Positive Rate')
+ax.set_ylabel('True Positive Rate')
+ax.set_title('ROC Curve Comparison')
+ax.legend(loc='lower right')
+plt.show()
+```
+
+小北看完图说："随机森林的曲线确实在最上面，但逻辑回归也差不多啊。"
+
+"对。"老潘说，"**曲线挤在一起，说明差距不大**。如果随机森林的曲线明显压着其他曲线，那才是压倒性优势。"
+
+### 特征重要性：模型在"看"什么？
+
+随机森林虽然不如决策树直观，但可以告诉我们"哪些特征最重要"：
+
+```python
+import pandas as pd
+
+# 获取特征重要性（随机森林）
+importances = rf.feature_importances_
+feature_names = X_train.columns
+
+# 排序并可视化
+feat_imp = pd.DataFrame({
+    'feature': feature_names,
+    'importance': importances
+}).sort_values('importance', ascending=True)
+
+# 水平条形图
+feat_imp.tail(10).plot(
+    x='feature', y='importance', kind='barh',
+    title='Top 10 Feature Importance (Random Forest)',
+    legend=False, figsize=(8, 5)
+)
+plt.xlabel('Importance Score')
+plt.tight_layout()
+plt.show()
+```
+
+阿码看着图说："`days_since_last_purchase` 最重要？这和业务直觉一致——很久没买的客户更容易流失。"
+
+"对。"老潘说，"**特征重要性不只是'模型怎么看'，也是'验证业务直觉'**。如果最重要的特征和业务理解相反，你要停下来检查数据是否有问题。"
+
+小北看了一眼表："随机森林比逻辑回归好了 0.02 AUC，但训练时间慢了 50 倍。这值得吗？"
 
 "看你最关心什么。"老潘说。
 
@@ -695,73 +763,34 @@ print(f"单特征树基线 AUC: {auc_single:.4f}")
 
 "好问题。"老潘说，"你可以用统计检验判断两个模型的 AUC 是否有显著差异。这和 Week 08 学的置换检验思路一样——我们想知道'观察到的差异是否可能由随机性产生'。"
 
-**完整流程**：用 Bootstrap 估计每个模型的 AUC 分布，然后用 Mann-Whitney U 检验判断两个分布是否有显著差异。
+**快速判断法**：用交叉验证的标准差判断提升是否可靠。
 
 ```python
-from scipy.stats import mannwhitneyu
-import numpy as np
+from sklearn.model_selection import cross_val_score
 
-# Bootstrap 估计 AUC 的分布
-def bootstrap_auc(model, X, y, n_bootstrap=1000):
-    """
-    通过 Bootstrap 估计模型 AUC 的分布
+# 用 5 折交叉验证估计 AUC 及其不确定性
+lr_cv = cross_val_score(log_reg_pipe, X, y, cv=5, scoring='roc_auc')
+rf_cv = cross_val_score(rf, X, y, cv=5, scoring='roc_auc')
 
-    参数:
-        model: 训练好的模型（带 predict_proba 方法）
-        X: 特征数据
-        y: 真实标签
-        n_bootstrap: Bootstrap 重复次数
+print(f"逻辑回归: {lr_cv.mean():.4f} ± {lr_cv.std():.4f}")
+print(f"随机森林: {rf_cv.mean():.4f} ± {rf_cv.std():.4f}")
+print(f"提升量: {(rf_cv.mean() - lr_cv.mean()):.4f}")
 
-    返回:
-        auc_scores: AUC 分数的数组
-    """
-    np.random.seed(42)
-    auc_scores = []
-    n = len(X)
-
-    for _ in range(n_bootstrap):
-        # 有放回抽样
-        idx = np.random.choice(n, n, replace=True)
-        X_boot = X.iloc[idx] if hasattr(X, 'iloc') else X[idx]
-        y_boot = y.iloc[idx] if hasattr(y, 'iloc') else y[idx]
-
-        # 预测并计算 AUC
-        y_prob = model.predict_proba(X_boot)[:, 1]
-        auc_scores.append(roc_auc_score(y_boot, y_prob))
-
-    return np.array(auc_scores)
-
-# 假设我们已经训练好了 log_reg_pipe 和 rf
-# 获取两个模型的 AUC 分布
-auc_lr_dist = bootstrap_auc(log_reg_pipe, X_test, y_test, n_bootstrap=1000)
-auc_rf_dist = bootstrap_auc(rf, X_test, y_test, n_bootstrap=1000)
-
-# 打印分布摘要
-print(f"逻辑回归 AUC: {auc_lr_dist.mean():.4f} (+/- {auc_lr_dist.std():.4f})")
-print(f"随机森林 AUC: {auc_rf_dist.mean():.4f} (+/- {auc_rf_dist.std():.4f})")
-
-# Mann-Whitney U 检验（单侧检验：LR <= RF?）
-stat, p_value = mannwhitneyu(auc_lr_dist, auc_rf_dist, alternative='less')
-print(f"\nMann-Whitney U 检验: p 值 = {p_value:.4f}")
-
-if p_value < 0.05:
-    print("结论: 随机森林的 AUC 显著高于逻辑回归（p < 0.05）")
-else:
-    print("结论: 提升量不显著，可能是随机波动")
+# 简单判断：如果均值差 > 2×max(标准差)，提升较可靠
+se_diff = np.sqrt(lr_cv.std()**2 + rf_cv.std()**2)
+is_significant = (rf_cv.mean() - lr_cv.mean()) > 2 * se_diff
+print(f"提升显著: {'是' if is_significant else '否'}（均值差 > 2×SE）")
 ```
 
-**输出示例**：
-```
-逻辑回归 AUC: 0.8701 (+/- 0.0123)
-随机森林 AUC: 0.8903 (+/- 0.0108)
+小北问："这个方法够准确吗？"
 
-Mann-Whitney U 检验: p 值 = 0.0234
-结论: 随机森林的 AUC 显著高于逻辑回归（p < 0.05）
-```
+"对大多数场景够用。"老潘说，"交叉验证本身已经多次重采样，标准差能反映 AUC 的波动范围。如果两个模型的置信区间不重叠，提升大概率是真实的。"
 
-小北问："为什么要用 Bootstrap？为什么不直接比测试集上的 AUC？"
+**更严谨的方法**（可选）：如果你需要正式的统计检验，可以用 Bootstrap + Mann-Whitney U 检验，详见 `examples/11_bootstrap_test.py`。
 
-"因为**单个测试集分数有波动**。"老潘说，"Bootstrap 让你看到'如果我换个测试集，AUC 会怎么变'。如果两个模型的 AUC 分布完全重叠，那它们本质上差不多；如果分布明显分离，提升才是真实的。"
+小北追问："为什么不能直接比测试集上的 AUC？"
+
+"因为**单个测试集分数有波动**。"老潘说，"交叉验证让你看到'如果数据划分不同，AUC 会怎么变'。如果两个模型的 AUC 分布完全重叠，那它们本质上差不多；如果分布明显分离，提升才是真实的。"
 
 ### 模型选择理由
 
