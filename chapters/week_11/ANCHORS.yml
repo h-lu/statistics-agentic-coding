@@ -1,0 +1,39 @@
+# Week 11 锚点定义
+#
+# 锚点是本章中可以被验证的关键声明。
+# 每个锚点包含 claim（声明）、evidence（证据）、verification（验证方法）。
+
+- id: week_11_decision_tree_structure
+  claim: "决策树通过递归分裂将数据划分到叶节点，结构包括根节点（起点）、内部节点（分裂节点）和叶节点（终端节点，输出预测值）。"
+  evidence: "CHAPTER.md 第 2 节展示了树结构的可视化，包含根节点 purchase_count < 3.5?、内部节点 avg_spend < 87.3? 和叶节点 churn_prob: 0.72。"
+  verification: "运行 examples/11_decision_tree_basics.py 可以生成决策树可视化图，验证树结构的组成部分。"
+
+- id: week_11_gini_vs_entropy
+  claim: "基尼不纯度和信息增益（熵）是决策树选择分裂特征的两种常见标准。在实践中它们通常给出相似的结果，基尼计算更快（不需要 log），所以 scikit-learn 默认使用基尼不纯度。"
+  evidence: "CHAPTER.md 第 2 节介绍了基尼公式 Gini = 1 - Σpᵢ² 和熵公式 Entropy = -Σpᵢlog₂(pᵢ)，并说明 scikit-learn 默认使用 criterion='gini'。"
+  verification: "在 examples/11_decision_tree_basics.py 中可以对比 criterion='gini' 和 criterion='entropy' 的结果，验证它们给出相似的分裂结果。"
+
+- id: week_11_overfitting_control
+  claim: "决策树容易过拟合，可以通过预剪枝（限制 max_depth、min_samples_split、min_samples_leaf）或后剪枝（CCP）来控制。"
+  evidence: "CHAPTER.md 第 3 节展示了过拟合的表现（训练集 100% 准确率，测试集远低于训练集）和控制过拟合的两种方法。"
+  verification: "运行 examples/11_decision_tree_basics.py 中的过拟合演示，对比不限制深度和限制深度的树在训练集和测试集上的表现差距。"
+
+- id: week_11_random_forest_bagging
+  claim: "随机森林使用两个随机性来源降低方差：(1) Bootstrap 采样——每棵树看到不同的样本；(2) 特征随机性——每个节点只考虑部分特征。"
+  evidence: "CHAPTER.md 第 4 节解释了 Bagging（Bootstrap + Aggregating）和随机森林的特征随机性（max_features='sqrt'）。"
+  verification: "在 examples/11_random_forest.py 中可以对比单棵决策树、Bagging 和随机森林的表现，验证随机森林的方差降低效果。"
+
+- id: week_11_baseline_importance
+  claim: "没有基线对比的模型选择不是分析，是炫技。常见基线包括：傻瓜基线（总是预测多数类）、逻辑回归基线、单特征树基线。"
+  evidence: "CHAPTER.md 第 5 节强调基线对比的重要性，老潘说'没有基线对比的模型选择不是分析，是炫技'。"
+  verification: "运行 examples/11_baseline_comparison.py 可以看到不同基线模型的 AUC 对比，验证模型比傻瓜基线好多少。"
+
+- id: week_11_feature_importance
+  claim: "随机森林可以输出特征重要性，衡量每个特征对预测的贡献程度。特征重要性基于每个特征在所有树的分裂中带来的不纯度减少量。"
+  evidence: "CHAPTER.md 第 4 节提到随机森林的优势包括'自动特征选择——可以输出特征重要性'。"
+  verification: "运行 examples/11_random_forest.py 中的特征重要性可视化，验证特征重要性的计算和排序。"
+
+- id: week_11_model_selection_tradeoff
+  claim: "模型选择需要权衡预测力、可解释性、训练时间、预测时间、模型大小。如果复杂模型比简单模型提升小于 2% AUC，通常不值得增加复杂度。"
+  evidence: "CHAPTER.md 第 5 节的模型对比表和决策框架展示了如何权衡不同因素。"
+  verification: "运行 examples/11_baseline_comparison.py 中的模型对比报告，验证不同模型的权衡分析。"

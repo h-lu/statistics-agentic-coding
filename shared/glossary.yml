@@ -515,3 +515,30 @@
   term_en: ColumnTransformer
   definition_zh: scikit-learn 工具，用于对不同列应用不同的预处理。比如数值型特征做标准化，分类型特征做 One-hot 编码。通常与 Pipeline 结合使用。
   first_seen: week_10
+
+# ─── Week 11 ───
+
+- term_zh: 决策树
+  term_en: Decision Tree
+  definition_zh: 一种基于树状结构的分类/回归模型，通过递归地对特征进行二分分裂，将数据划分到不同的叶节点，决策规则可以用 if-else 直观展示
+  first_seen: week_11
+
+- term_zh: 基尼不纯度
+  term_en: Gini Impurity
+  definition_zh: 决策树选择分裂特征的衡量标准，衡量数据的不纯程度（值越小越纯净），scikit-learn 默认使用基尼不纯度（比信息增益计算更快）
+  first_seen: week_11
+
+- term_zh: 过拟合与剪枝
+  term_en: Overfitting and Pruning
+  definition_zh: 决策树如果不加限制会一直分裂直到记住训练数据，剪枝是控制过拟合的方法，包括预剪枝（限制深度）和后剪枝（CCP）
+  first_seen: week_11
+
+- term_zh: 随机森林
+  term_en: Random Forest
+  definition_zh: 一种集成学习方法，通过训练多棵决策树并结合预测结果（投票或平均）来提升预测力，使用 Bagging 和特征随机性降低方差
+  first_seen: week_11
+
+- term_zh: 基线对比
+  term_en: Baseline Comparison
+  definition_zh: 在评估模型时先训练简单基线（傻瓜基线、逻辑回归），再与复杂模型对比，评估提升量是否值得，没有基线对比的模型选择容易被误导
+  first_seen: week_11
