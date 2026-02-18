@@ -1,0 +1,24 @@
+# Week 14 术语表
+#
+# 本周新引入的概念（4 个，符合高级专题阶段预算）
+# 回顾桥概念（p 值、置信区间、Bootstrap、假设检验框架）已在 shared/glossary.yml 中定义
+
+- term_zh: 贝叶斯定理
+  term_en: Bayes' Theorem
+  definition_zh: 描述如何根据新数据更新先验概率的公式：P(θ|data) ∝ P(data|θ) × P(θ)，其中 P(θ) 是先验、P(data|θ) 是似然、P(θ|data) 是后验。
+  first_seen: week_14
+
+- term_zh: 先验分布
+  term_en: Prior Distribution
+  definition_zh: 在看到数据之前，对参数的主观概率分布。分为无信息先验（如均匀分布）、弱信息先验（有倾向但方差大）、信息性先验（基于历史数据或领域知识）。
+  first_seen: week_14
+
+- term_zh: 后验分布
+  term_en: Posterior Distribution
+  definition_zh: 给定数据后，参数的条件概率分布。后验分布整合了先验知识和数据信息，是贝叶斯推断的核心输出。
+  first_seen: week_14
+
+- term_zh: MCMC 采样
+  term_en: Markov Chain Monte Carlo (MCMC)
+  definition_zh: 一种通过构造马尔可夫链来近似后验分布的计算方法。当后验分布没有解析解时，MCMC 通过采样来近似计算。常用收敛诊断包括 R-hat 和 ESS。
+  first_seen: week_14

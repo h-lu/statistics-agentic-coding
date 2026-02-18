@@ -621,3 +621,40 @@
   term_en: Instrumental Variable (IV)
   definition_zh: 用于处理内生性（混杂）问题的因果推断方法。工具变量 Z 必须满足两个条件：（1）相关性——Z 影响处理变量 X；（2）外生性——Z 不直接影响结果变量 Y，只通过 X 起作用。在经济学和医学研究中常用，但找到满足条件的工具变量往往很困难。
   first_seen: week_13
+
+# ─── Week 14 ───
+
+- term_zh: 贝叶斯定理
+  term_en: Bayes' Theorem
+  definition_zh: 描述如何根据新数据更新先验概率的公式：P(θ|data) ∝ P(data|θ) × P(θ)，其中 P(θ) 是先验、P(data|θ) 是似然、P(θ|data) 是后验。核心思想是"后验 = 先验 × 似然"，数据更新先验形成后验。
+  first_seen: week_14
+
+- term_zh: 先验分布
+  term_en: Prior Distribution
+  definition_zh: 在看到数据之前，对参数的主观概率分布。分为三类：无信息先验（如均匀分布 Beta(1,1)，表示"对参数一无所知"）、弱信息先验（有倾向但方差大，如 Beta(5,20)）、信息性先验（基于历史数据或领域知识，如 Beta(150,850)）。
+  first_seen: week_14
+
+- term_zh: 后验分布
+  term_en: Posterior Distribution
+  definition_zh: 给定数据后，参数的条件概率分布 P(θ|data)。后验分布整合了先验知识和数据信息，是贝叶斯推断的核心输出。可以用后验分布计算点估计（后验均值/中位数）、区间估计（可信区间）和概率陈述（如 P(θ > 15% | data)）。
+  first_seen: week_14
+
+- term_zh: MCMC 采样
+  term_en: Markov Chain Monte Carlo (MCMC)
+  definition_zh: 一种通过构造马尔可夫链来近似后验分布的计算方法。当后验分布没有解析解时（非共轭先验），MCMC 通过采样来近似计算。常用收敛诊断指标：R-hat < 1.05（链混合良好）、ESS > 400（有效样本量足够）。与 Bootstrap 类似，都是"用模拟近似难以计算的分布"。
+  first_seen: week_14
+
+- term_zh: 可信区间
+  term_en: Credible Interval
+  definition_zh: 贝叶斯学派对参数的区间估计。95% 可信区间可以说"参数有 95% 的概率在此区间"，与频率学派的置信区间不同——置信区间不能这样说。当先验是无信息先验时，可信区间通常与置信区间数值接近，但解释完全不同。
+  first_seen: week_14
+
+- term_zh: 共轭先验
+  term_en: Conjugate Prior
+  definition_zh: 使后验分布与先验分布属于同一分布族的先验。例如 Beta 分布是二项分布似然的共轭先验：Beta 先验 + Binomial 似然 → Beta 后验。共轭先验的优点是后验有解析解，计算简便。
+  first_seen: week_14
+
+- term_zh: 先验敏感性分析
+  term_en: Prior Sensitivity Analysis
+  definition_zh: 测试结论对先验选择依赖程度的分析过程。方法：尝试多个合理的先验（无信息、弱信息、信息性），计算每个先验的后验分布，比较后验的差异。如果差异小，说明结论稳健；如果差异大，说明需要更多数据或更强的先验依据。数据量大时不同先验的后验会收敛（"数据最终战胜先验"）。
+  first_seen: week_14

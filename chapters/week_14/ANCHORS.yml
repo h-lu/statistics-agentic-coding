@@ -1,0 +1,47 @@
+# Week 14 锚点
+#
+# 记录本章的核心可验证结论。每个锚点包含：
+#   id: 唯一标识符
+#   claim: 核心主张
+#   evidence: 支持证据（代码/图表/数据）
+#   verification: 验证方法（如何检查）
+
+- id: week_14_bayes_theorem
+  claim: 贝叶斯定理描述了从先验到后验的信念更新过程：P(θ|data) ∝ P(data|θ) × P(θ)
+  evidence: CHAPTER.md 第 2 节，贝叶斯定理公式和 Beta-Binomial 示例
+  verification: 运行 examples/01_bayes_theorem_demo.py，确认后验参数计算正确
+
+- id: week_14_frequentist_vs_bayesian
+  claim: 频率学派将参数视为固定但未知的值，贝叶斯学派将参数视为随机变量；p 值是 P(data|H0)，后验概率是 P(H0|data)
+  evidence: CHAPTER.md 第 1 节，两派核心差异对比表
+  verification: 读取 CHAPTER.md，确认 p 值和后验概率的定义区别已明确说明
+
+- id: week_14_prior_types
+  claim: 先验分布分为三类：无信息先验（均匀分布）、弱信息先验（有倾向但方差大）、信息性先验（基于历史数据）
+  evidence: CHAPTER.md 第 3 节，先验选择原则和表格
+  verification: 运行 examples/04_prior_sensitivity.py，确认三类先验的后验差异
+
+- id: week_14_beta_binomial_conjugate
+  claim: Beta 分布是二项分布似然的共轭先验，后验也是 Beta 分布，计算简便
+  evidence: CHAPTER.md 第 2 节，Beta-Binomial 共轭先验的数学推导
+  verification: 运行 examples/02_beta_binomial_model.py，确认后验参数 Beta(α+n, β+N-n) 计算正确
+
+- id: week_14_mcmc_sampling
+  claim: 当后验没有解析解时，MCMC 通过采样近似后验分布；需检查 R-hat < 1.05 和 ESS > 400 确认收敛
+  evidence: CHAPTER.md 第 4 节，PyMC 采样代码和收敛诊断
+  verification: 运行 examples/03_pymc_sampling.py，确认 R-hat 和 ESS 在可接受范围内
+
+- id: week_14_prior_sensitivity
+  claim: 先验敏感性分析测试结论对先验的依赖程度；数据量大时不同先验的后验会收敛，数据量小时结论对先验敏感
+  evidence: CHAPTER.md 第 5 节，n=1000 和 n=50 的对比实验
+  verification: 运行 examples/04_prior_sensitivity.py，确认大样本时后验差异小、小样本时后验差异大
+
+- id: week_14_credible_vs_confidence
+  claim: 95% 可信区间可以说"参数有 95% 的概率在此区间"，95% 置信区间不能这样解释
+  evidence: CHAPTER.md 第 1 节，可信区间和置信区间的定义对比
+  verification: 读取 CHAPTER.md，确认两类区间的解释区别已明确说明
+
+- id: week_14_bayesian_report
+  claim: 贝叶斯报告应包含先验假设、后验分布、先验敏感性分析、与频率学派的对比
+  evidence: CHAPTER.md StatLab 进度小节，贝叶斯报告生成函数
+  verification: 运行 examples/05_credible_interval.py，确认报告包含所有必要部分
