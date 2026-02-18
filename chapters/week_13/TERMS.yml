@@ -1,0 +1,24 @@
+# Week 13 术语表
+#
+# 本周新引入的概念（4 个，符合高级专题阶段预算）
+# 回顾桥概念（p 值、多重比较问题、回归系数、置信区间）已在 shared/glossary.yml 中定义
+
+- term_zh: 因果推断三层级
+  term_en: Ladder of Causation / Three Levels of Causal Inference
+  definition_zh: Judea Pearl 提出的因果推断框架，包括关联（Association, P(Y|X)）、干预（Intervention, P(Y|do(X))）、反事实（Counterfactual, P(Y_x|X',Y')）三个层次。
+  first_seen: week_13
+
+- term_zh: 因果图
+  term_en: Causal Diagram / Directed Acyclic Graph (DAG)
+  definition_zh: 用有向无环图表示变量间因果关系的工具。节点表示变量，有向边表示因果关系（从原因指向结果）。
+  first_seen: week_13
+
+- term_zh: d-分离与后门准则
+  term_en: d-separation and Backdoor Criterion
+  definition_zh: d-分离是判断两个变量在给定条件下是否条件独立的图论方法。后门准则是找到一组变量，控制它们后可以消除处理和结果之间的混杂偏倚。
+  first_seen: week_13
+
+- term_zh: 观察研究中的因果推断
+  term_en: Causal Inference in Observational Studies
+  definition_zh: 在无法进行随机对照试验时，使用统计方法从观察数据中推断因果关系，包括倾向得分匹配（PSM）、双重差分（DID）、工具变量（IV）等方法。
+  first_seen: week_13

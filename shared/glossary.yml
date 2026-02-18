@@ -569,3 +569,55 @@
   term_en: Non-technical Communication
   definition_zh: 把统计术语翻译成业务语言的沟通能力。例如：AUC = 0.89 翻译为"模型区分能力很强（满分1.0）"，p < 0.05 翻译为"有 95% 的把握差异不是偶然的"，SHAP 值翻译为"风险来源"或"贡献程度"
   first_seen: week_12
+
+# ─── Week 13 ───
+
+- term_zh: 因果推断三层级
+  term_en: Ladder of Causation / Three Levels of Causal Inference
+  definition_zh: Judea Pearl 提出的因果推断框架，包括三个层次：（1）关联层 P(Y|X)——观察到 X 时 Y 的概率；（2）干预层 P(Y|do(X))——如果设定 X，Y 会怎样；（3）反事实层 P(Y_x|X',Y')——如果 X 不同，Y 会怎样。传统机器学习只能处理第一层。
+  first_seen: week_13
+
+- term_zh: 因果图
+  term_en: Causal Diagram / Directed Acyclic Graph (DAG)
+  definition_zh: 用有向无环图表示变量间因果关系的工具。节点表示变量，有向边（箭头）表示因果关系（从原因指向结果）。因果图必须由人类根据领域知识绘制，不能从数据中自动"发现"。
+  first_seen: week_13
+
+- term_zh: d-分离与后门准则
+  term_en: d-separation and Backdoor Criterion
+  definition_zh: d-分离是判断两个变量在给定条件下是否条件独立的图论方法。后门准则是找到一组变量，控制它们后可以消除处理和结果之间的混杂偏倚。核心规则：链式和混杂结构控制中间变量可阻断路径，碰撞结构控制碰撞变量反而会"打开"虚假路径。
+  first_seen: week_13
+
+- term_zh: 观察研究中的因果推断
+  term_en: Causal Inference in Observational Studies
+  definition_zh: 在无法进行随机对照试验时，使用统计方法从观察数据中推断因果关系。常用方法包括：（1）倾向得分匹配（PSM）——匹配相似特征的样本；（2）双重差分（DID）——比较处理前后变化；（3）工具变量（IV）——利用外生变异识别因果效应。所有方法都依赖"无隐藏混杂"假设。
+  first_seen: week_13
+
+- term_zh: 随机对照试验
+  term_en: Randomized Controlled Trial (RCT)
+  definition_zh: 因果推断的"金标准"。通过随机分配处理，切断所有混杂路径，使处理组和对照组在"期望上"完全可比。在 RCT 中，关联 = 因果（E[Y|X=1] - E[Y|X=0] = E[Y|do(X=1)] - E[Y|do(X=0)]）。互联网公司的 A/B 测试是 RCT 在业界的应用。
+  first_seen: week_13
+
+- term_zh: 混杂变量
+  term_en: Confounder
+  definition_zh: 同时影响处理变量和结果变量的变量，导致处理和结果之间产生虚假相关。例如"高价值客户"同时影响"是否收到优惠券"和"流失率"，如果不控制混杂，会高估或低估优惠券的因果效应。混杂变量的箭头指向处理和结果两个节点（A ← C → B）。
+  first_seen: week_13
+
+- term_zh: 碰撞变量
+  term_en: Collider
+  definition_zh: 同时被处理变量和结果变量影响的变量（A → C ← B）。控制碰撞变量会"打开"一条原本不存在的关联路径，导致虚假因果结论。例如"客户满意度"同时被"是否收到优惠券"和"是否流失"影响，控制满意度后会发现优惠券和流失率产生虚假关联。
+  first_seen: week_13
+
+- term_zh: 倾向得分匹配
+  term_en: Propensity Score Matching (PSM)
+  definition_zh: 观察研究中用于减少选择偏差的方法。首先估计每个样本的倾向得分（给定协变量下接受处理的概率），然后匹配倾向得分相似的处理组和对照组样本，最后比较匹配后两组的结果差异。假设"无隐藏混杂"——所有影响处理选择和结果的变量都已观测并纳入模型。
+  first_seen: week_13
+
+- term_zh: 双重差分
+  term_en: Difference-in-Differences (DID)
+  definition_zh: 用于政策评估的因果推断方法。比较处理组和对照组在处理前后的"变化差异"：(处理组后 - 处理组前) - (对照组后 - 对照组前)。核心假设是"平行趋势"——如果没有处理，两组的变化趋势应该相同。
+  first_seen: week_13
+
+- term_zh: 工具变量
+  term_en: Instrumental Variable (IV)
+  definition_zh: 用于处理内生性（混杂）问题的因果推断方法。工具变量 Z 必须满足两个条件：（1）相关性——Z 影响处理变量 X；（2）外生性——Z 不直接影响结果变量 Y，只通过 X 起作用。在经济学和医学研究中常用，但找到满足条件的工具变量往往很困难。
+  first_seen: week_13

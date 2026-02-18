@@ -1,0 +1,42 @@
+# Week 13 锚点
+#
+# 记录本章的核心可验证结论。每个锚点包含：
+#   id: 唯一标识符
+#   claim: 核心主张
+#   evidence: 支持证据（代码/图表/数据）
+#   verification: 验证方法（如何检查）
+
+- id: week_13_causal_ladder
+  claim: 因果推断有三层级：关联（P(Y|X)）到干预（P(Y|do(X))）再到反事实（P(Y_x|X',Y')）
+  evidence: CHAPTER.md 第 1 节，因果三层级的定义和电商流失案例
+  verification: 读取 CHAPTER.md 第 1 节，确认三层级定义存在且正确
+
+- id: week_13_dag_structures
+  claim: 因果图（DAG）有三种基本结构，链式、混杂、碰撞，其中碰撞变量不能控制
+  evidence: CHAPTER.md 第 2 节，三种结构的定义和代码示例
+  verification: 运行 examples/02_dag_basics.py，确认三种结构都能正确识别
+
+- id: week_13_backdoor_criterion
+  claim: 后门准则用于识别需要控制的混杂变量，d-分离用于判断条件独立性
+  evidence: CHAPTER.md 第 3 节，后门准则的定义和应用
+  verification: 运行 examples/03_backdoor_criterion.py，确认能正确识别调整集
+
+- id: week_13_rct_gold_standard
+  claim: RCT 是因果推断的金标准，因为随机化切断了所有混杂路径
+  evidence: CHAPTER.md 第 4 节，RCT 的数学证明和 A/B 测试案例
+  verification: 运行 examples/04_rct_simulation.py，确认随机化后处理组和对照组基线平衡
+
+- id: week_13_observational_methods
+  claim: 当 RCT 不可行时，可用倾向得分匹配、双重差分、工具变量等方法从观察数据推断因果
+  evidence: CHAPTER.md 第 5 节，三种方法的定义和应用条件
+  verification: 运行 examples/05_observational_study.py，确认 PSM 能减少选择偏差
+
+- id: week_13_collider_bias
+  claim: 控制碰撞变量会引入偏差，导致原本独立的变量产生虚假关联
+  evidence: CHAPTER.md 第 3 节，碰撞变量陷阱的 Python 实验
+  verification: 运行代码示例，确认控制碰撞变量后系数符号反转
+
+- id: week_13_correlation_not_causation
+  claim: 相关不等于因果，回归系数不等于因果效应，除非满足因果识别条件
+  evidence: CHAPTER.md 第 1-2 节，优惠券案例的回归系数与因果效应对比
+  verification: 读取 CHAPTER.md，确认有明确区分相关性和因果性的段落
