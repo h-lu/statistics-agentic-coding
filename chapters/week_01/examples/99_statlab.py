@@ -92,7 +92,7 @@ def generate_report(data_df: pd.DataFrame, output_path: str = "output/report.md"
 
 ## 下一步
 
-- [ ] 补充字典字典的业务含义
+- [ ] 补充字段字典的业务含义
 - [ ] 补充描述统计（Week 02）
 - [ ] 生成可视化图表（Week 02）
 

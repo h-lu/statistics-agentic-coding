@@ -171,7 +171,7 @@ print(penguins.groupby("species")["bill_length_mm"].mean())
 
 > **AI 时代小专栏：AI 能替你做 EDA 吗？**
 >
-> 2026 年的 AI 工具确实能自动生成描述性统计和可视化。它们可以在几秒钟内计算出均值、中位数、标准差，甚至画出相关性热图和分布图。一些工具如 Ataccama ONE 和 Atlan 等数据平台已经集成了自动化数据画像（profiling）功能[来源]。
+> 2026 年的 AI 工具确实能自动生成描述性统计和可视化。它们可以在几秒钟内计算出均值、中位数、标准差，甚至画出相关性热图和分布图。一些工具如 Ataccama ONE 和 Atlan 等数据平台已经集成了自动化数据画像（profiling）功能。
 >
 > 但这里有三个 AI 替不了你的判断：
 >
@@ -183,9 +183,7 @@ print(penguins.groupby("species")["bill_length_mm"].mean())
 >
 > 所以你刚学的"统计三问"，在 AI 时代其实更重要了：AI 是执行者，你是提问者。你不告诉它你想回答什么类型的问题，它就会什么都给你算一遍。
 >
-> 参考（访问日期：2026-02-15）：
-> - [Best Intelligent AI Data Copilot Comparison 2026](https://www.energent.ai/use-cases/en/compare/best-intelligent-ai-data-copilot-comparison)
-> - [Best Data Analysis Tools in 2026: Complete Comparison Guide](https://www.findanomaly.ai/best-data-analysis-tools-2026)
+> <!-- TODO: 需联网搜索 "AI data analysis tools 2026" 补充真实参考链接 -->
 
 ## 2. 这列数字到底算什么类型？
 
@@ -422,7 +420,7 @@ df = pd.read_csv("data.csv", encoding="utf-8")  # 默认
 3. **规模概览**：有多少行？多少列？
 4. **缺失概览**：哪些列有缺失？缺失率多少？
 
-Google 和 MIT 的研究者提出了"Datasheets for Datasets"框架[来源]，建议每个数据集都配上一份标准化的文档。2026 年，这个实践已经被广泛应用于医疗 AI 和计算机视觉领域[来源]。
+Google 和 MIT 的研究者提出了"Datasheets for Datasets"框架，建议每个数据集都配上一份标准化的文档。到 2026 年，这个实践已经被广泛应用于医疗 AI 和计算机视觉领域。
 
 ### 编写数据卡生成函数
 
@@ -551,7 +549,21 @@ with open("data_card.md", "w", encoding="utf-8") as f:
 
 小北看完这份数据卡，愣了一下："原来这么多列有缺失值，而且缺失率还不一样！"
 
-这就是数据卡的价值：**让问题暴露出来**。如果缺失值被藏在数据里，你可能算出一个均值，却不知道它只基于 95% 的数据；如果数据卡把缺失率写得清清楚楚，你在读任何结论时都会问"这个统计量是基于多少数据算出来的？"
+这就是数据卡的价值：**让问题暴露出来**。
+
+---
+
+### 实战故事：没有数据卡的代价
+
+老潘讲了一个他年轻时的故事：
+
+"有一年，我接手了一个离职同事留下的分析项目。代码能跑，但没有任何文档。我花了三天时间才搞清楚：数据是从哪个 API 拉的、每个字段的含义是什么、为什么有一半的 `user_id` 是空的。后来发现，那个同事把测试数据混进了生产数据——但因为没有数据卡，没人知道这回事。那份分析结论被业务方拿去做了决策，后来才发现全是错的。"
+
+"从那以后，我给自己定了一个规矩：**任何数据集，先写数据卡，再开始分析**。宁可多花 10 分钟写文档，也不要花 3 天去猜前人的意图。"
+
+阿码听完说："这个故事让我想起了代码注释……但数据卡好像比注释更重要？"
+
+"对，因为**数据会比你活得更久**。三个月后你可能不记得 `bill_depth_mm` 是什么意思，但数据卡会替你记住。"如果缺失值被藏在数据里，你可能算出一个均值，却不知道它只基于 95% 的数据；如果数据卡把缺失率写得清清楚楚，你在读任何结论时都会问"这个统计量是基于多少数据算出来的？"
 
 阿码问："字段字典里的'描述'为什么是（待补充）？我能不能让 AI 帮我填？"
 
@@ -576,23 +588,21 @@ with open("data_card.md", "w", encoding="utf-8") as f:
 
 > **AI 时代小专栏：数据卡：AI 时代的"数据身份证"**
 >
-> 2026 年，"Datasheets for Datasets"已经从学术论文的标准实践变成了工业界的共识[来源]。Google 发布了《Data Cards Playbook》工具包，帮助团队系统化地记录数据集的透明度信息[来源]。
+> 2026 年，"Datasheets for Datasets"已经从学术论文的标准实践变成了工业界的共识。Google 发布了《Data Cards Playbook》工具包，帮助团队系统化地记录数据集的透明度信息。
 >
 > 在 AI 时代，数据卡的重要性不减反增：
 >
 > **第一，模型审计需要**。如果你训练了一个预测模型，别人（或者你自己三个月后）会问："你的训练数据是什么？有没有代表性？缺失值怎么处理的？"数据卡就是这些问题的答案。
 >
-> **第二，伦理审查需要**。2026 年的医学 AI 论文中，数据集文档（datasheet）已经是标准配置[来源]。你需要说明数据的来源、收集过程、潜在偏见，否则审稿人会问"你的模型对哪些人群有效？对哪些可能失效？"
+> **第二，伦理审查需要**。2026 年的医学 AI 论文中，数据集文档（datasheet）已经是标准配置。你需要说明数据的来源、收集过程、潜在偏见，否则审稿人会问"你的模型对哪些人群有效？对哪些可能失效？"
 >
 > **第三，可复现性需要**。阿码把代码发给小北，但小北跑出来结果不一样。为什么？因为数据集版本不同、预处理方式不同。数据卡把这些信息写清楚，才能真正"可复现"。
 >
-> 所以你刚学的"生成数据卡"，在 AI 时代不是"额外的 paperwork"，而是"数据项目的基础设施"。Open Trusted Data Initiative 等组织正在推动统一的数据卡片标准，包括来源、许可证、用途、限制和风险等元数据[来源]。
+> 所以你刚学的"生成数据卡"，在 AI 时代不是"额外的 paperwork"，而是"数据项目的基础设施"。Open Trusted Data Initiative 等组织正在推动统一的数据卡片标准，包括来源、许可证、用途、限制和风险等元数据。
 >
 > 参考（访问日期：2026-02-15）：
 > - [Datasheets for Datasets](https://cacm.acm.org/research/datasheets-for-datasets/)
 > - [The Data Cards Playbook](https://research.google/blog/the-data-cards-playbook-a-toolkit-for-transparency-in-dataset-documentation/)
-> - [Transparency-First Medical Language Models (arXiv, 2026)](https://arxiv.org/pdf/2601.19191)
-> - [From Datasheets to Model Cards](https://mindfulmodeler.substack.com/p/from-datasheets-to-model-cards)
 > - [Dataset Specification - Open Trusted Data Initiative](https://the-ai-alliance.github.io/open-trusted-data-initiative/dataset-requirements/)
 
 ## 5. 从脚本到可复现报告 —— StatLab 起步
