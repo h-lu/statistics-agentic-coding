@@ -85,7 +85,13 @@ python3 scripts/validate_week.py --week week_XX --mode release
 ### S1 致命（必须修复）
 - [ ] {问题描述} — `CHAPTER.md#xxx`
 
-### S2 重要（强烈建议修复）
+### S2 重要（必须修复）
+- [ ] {问题描述} — `CHAPTER.md#xxx`
+
+### S3 一般（必须修复）
+- [ ] {问题描述} — `CHAPTER.md#xxx`
+
+### S4 润色（必须修复）
 - [ ] {问题描述} — `CHAPTER.md#xxx`
 
 ## 阻塞项
@@ -96,17 +102,29 @@ python3 scripts/validate_week.py --week week_XX --mode release
 
 - [ ] {问题描述} — {位置}
 
+## 代码与图片审核
+
+### 代码数量
+- 全章代码块：X/10
+- 超标位置：[如有]
+
+### 图片审核
+- 图片数量：X 张
+- 缺失/问题：[如有]
+
 ## 教学法建议
 {technical-reviewer 的教学法建议}
 
 ## 审读记录
 - consistency-editor: 已修复 X 处一致性问题
 - technical-reviewer: 发现 X 个问题（S1: X, S2: X, S3: X, S4: X）
-- student-qa: 四维评分 XX/20
+- student-qa: 四维评分 XX/20，代码块 X 个，图片 X 张
 ```
 
-3. **如有 S1/S2 问题**：
-   - 标注需回传 `chapter-writer` 或 `prose-polisher` 修复
+3. **如有 S1/S2/S3/S4 问题**：
+   - 所有 S1-S4 问题都必须修复
+   - S1/S2：回传 `chapter-writer` 或 `prose-polisher` 修复
+   - S3/S4：调用 `error-fixer` 直接修复
    - 等待修复后重新运行 `/qa-week`
 
 4. **最终 release 校验**：
@@ -118,8 +136,9 @@ python3 scripts/validate_week.py --week week_XX --mode release
 ## 通过标准
 
 - QA_REPORT 的"阻塞项"必须清零（不允许 `- [ ]`）
-- S1 问题必须清零
+- **S1-S4 所有问题必须清零**（S1/S2 阻塞，S3/S4 也必须修复）
 - 四维评分总分 >= 18/20
+- 代码数量不超标（每节不超过 2 个代码块，全章不超过 10 个）
 
 ## 错误处理
 
