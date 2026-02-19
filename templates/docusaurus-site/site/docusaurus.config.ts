@@ -182,6 +182,17 @@ const config: Config = {
   // 主题配置
   themes: [],
 
+  // KaTeX 样式表（数学公式渲染必需）
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+      type: 'text/css',
+      integrity:
+        'sha384-n8MVd4RsNIU0KOVEMeaPoAbtnPgS4evuCX/hMUXkrpvrVRodckMBkRVCTRBeL1fs',
+      crossorigin: 'anonymous',
+    },
+  ],
+
   customFields: {
     courseName: '统计学与 Agentic 数据分析',
     courseVersion: '2026.1',
