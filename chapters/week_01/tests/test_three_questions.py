@@ -1,4 +1,9 @@
-"""Tests for identifying the three statistical questions (description/inference/prediction)."""
+"""Tests for identifying the three statistical questions (description/inference/prediction).
+
+Note: These tests are concept validation tests designed as TODO templates.
+They outline the expected behavior for question classification functions
+that will be implemented in starter_code/solution.py.
+"""
 
 from __future__ import annotations
 

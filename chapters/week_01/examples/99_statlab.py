@@ -86,6 +86,8 @@ def generate_report(data_df: pd.DataFrame, output_path: str = "output/report.md"
 > 本报告由 StatLab 流水线自动生成
 > 生成时间：{pd.Timestamp.now().strftime('%Y-%m-%d')}
 
+## 数据卡
+
 {data_card}
 
 ---

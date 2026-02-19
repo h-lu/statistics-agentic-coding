@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import pandas as pd
 import seaborn as sns
+from pathlib import Path
 from typing import Dict, Any
 
 
@@ -96,7 +97,7 @@ def main() -> None:
     print(data_card)
 
     # 写入文件
-    output_path = "data_card.md"
+    output_path = Path(__file__).parent / "data_card.md"
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(data_card)
 

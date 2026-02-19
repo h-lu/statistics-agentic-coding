@@ -233,7 +233,7 @@ metadata = {
 - [ ] 代码能从头到尾运行，不报错
 - [ ] 有适当的注释，关键步骤有说明
 - [ ] 变量命名清晰，不使用 `a`、`b`、`tmp` 这类无意义名称
-- [ ] 没有硬编码的绝对路径（如 `/Users/xxx/Desktop/data.csv`）
+- [ ] 没有硬编码的绝对路径（如 `/Users/xxx/Desktop/data.csv` 或 `C:\Users\xxx\Desktop\data.csv`）
 
 ### 可复现性要求
 
