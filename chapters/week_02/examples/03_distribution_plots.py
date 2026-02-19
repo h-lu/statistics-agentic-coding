@@ -108,9 +108,9 @@ def print_skewness_kurtosis(penguins: pd.DataFrame) -> None:
     print(f"  - 正值表示右偏（右尾较长）")
     print(f"  - 负值表示左偏（左尾较长）")
     print(f"峰度（Kurtosis）：{kurtosis:.2f}")
-    print(f"  - 正态分布的峰度约为 0（或 3，取决于定义）")
-    print(f"  - 正值表示分布更尖峭")
-    print(f"  - 负值表示分布更平坦")
+    print(f"  - pandas 的 kurtosis() 返回 excess kurtosis，正态分布为 0")
+    print(f"  - 正值表示分布更尖峭（比正态分布尾部更厚）")
+    print(f"  - 负值表示分布更平坦（比正态分布尾部更薄）")
 
 
 def main() -> None:

@@ -23,6 +23,7 @@ from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy import stats
 
 
 # =============================================================================
@@ -211,7 +212,6 @@ def generate_plots(df: pd.DataFrame, output_dir: Path) -> list[str]:
         data = df[df["species"] == species]["body_mass_g"].dropna()
         plt.hist(data, bins=15, alpha=0.3, density=True, edgecolor="black",
                 color=species_colors.get(species))
-        from scipy import stats
         kde = stats.gaussian_kde(data)
         x_min, x_max = data.min() - 500, data.max() + 500
         x = [x_min + i * (x_max - x_min) / 200 for i in range(200)]

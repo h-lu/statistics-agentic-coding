@@ -148,7 +148,7 @@ penguins = sns.load_dataset("penguins")
 **常见错误**：
 - ❌ 直方图的 bins 数量不合适（太少或太多）
 - ❌ 没有使用半透明颜色，导致分组重叠看不清
-- [ ] 图表缺少标题或标签
+- ❌ 图表缺少标题或标签
 
 **提示**：
 - 可以用 `for species in penguins["species"].unique():` 循环绘制分组直方图

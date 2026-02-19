@@ -160,8 +160,8 @@ def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
         # 叠加密度曲线
         from scipy import stats
         kde = stats.gaussian_kde(data)
-        x_range = linspace = data.min() - 500, data.max() + 500
-        x = [data.min() - 500 + i * (data.max() - data.min() + 1000) / 200 for i in range(200)]
+        x_min, x_max = data.min() - 500, data.max() + 500
+        x = [x_min + i * (x_max - x_min) / 200 for i in range(200)]
         ax4.plot(x, kde(x), linewidth=2, label=species, color=species_colors.get(species))
     ax4.set_xlabel("Body Mass (g)")
     ax4.set_ylabel("Density")
