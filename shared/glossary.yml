@@ -310,16 +310,6 @@
   definition_zh: 用于控制多次检验中假阳性率的方法。常用方法包括 Bonferroni 校正（控制 FWER）和 FDR 校正（控制假发现率）。
   first_seen: week_07
 
-- term_zh: FWER
-  term_en: Family-wise Error Rate
-  definition_zh: 整个假设家庭中"至少有一个假阳性"的概率。FWER = 1 - (1 - α)^m。
-  first_seen: week_07
-
-- term_zh: FDR
-  term_en: False Discovery Rate
-  definition_zh: 假阳性占所有阳性结果的比例。FDR 校正比 Bonferroni 更"宽容"，适合探索性研究。
-  first_seen: week_07
-
 - term_zh: Bonferroni 校正
   term_en: Bonferroni correction
   definition_zh: 最简单的多重比较校正方法：将显著性阈值除以检验次数（α/m），或将 p 值乘以检验次数。最保守的方法之一。

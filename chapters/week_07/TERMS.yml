@@ -27,26 +27,6 @@
   first_seen: week_07
 
 - term_zh: 多重比较校正
-  term_en: multiple comparisons correction
+  term_en: multiple comparison correction
   definition_zh: 控制多重比较假阳性率的方法，包括 Bonferroni（保守）和 FDR（平衡）等。
-  first_seen: week_07
-
-- term_zh: FWER
-  term_en: Family-wise Error Rate
-  definition_zh: 整个假设家庭中"至少有一个假阳性"的概率。FWER = 1 - (1 - α)^m。
-  first_seen: week_07
-
-- term_zh: FDR
-  term_en: False Discovery Rate
-  definition_zh: 假阳性占所有阳性结果的比例。FDR 校正比 Bonferroni 更"宽容"，适合探索性研究。
-  first_seen: week_07
-
-- term_zh: Tukey HSD
-  term_en: Tukey's Honestly Significant Difference
-  definition_zh: 一种事后比较方法，自动控制多重比较的假阳性率（FWER ≤ α）。
-  first_seen: week_07
-
-- term_zh: η²
-  term_en: eta squared
-  definition_zh: ANOVA 的效应量指标，表示组间变异占总变异的比例。η² < 0.01 小效应，0.01-0.14 中等效应，> 0.14 大效应。
   first_seen: week_07
