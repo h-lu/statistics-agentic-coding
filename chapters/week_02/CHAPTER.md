@@ -151,7 +151,9 @@ print(f"众数：{penguins['species'].mode().tolist()}")
 
 ### 标准差：给波动一个数字
 
-离散程度（dispersion）衡量数据有多"散"。最常用的指标是**标准差**（standard deviation）和**四分位距**（IQR）。
+离散程度（dispersion）衡量数据有多"散"。最常用的指标是**标准差**（standard deviation）和**四分位距**（Interquartile Range, IQR）。
+
+想象你在管理一个外卖平台，两个配送站的平均送达时间都是 30 分钟。A 站的标准差是 5 分钟，B 站是 15 分钟——这意味着什么？A 站的顾客大多数在 25-35 分钟收到餐，体验稳定；B 站的顾客有的 15 分钟就到了，有的要等 45 分钟，投诉量肯定更高。**均值相同，但"可预测性"完全不同**——这就是波动的重要性。
 
 ```python
 # examples/02_dispersion_demo.py
@@ -165,11 +167,11 @@ penguins = sns.load_dataset("penguins")
 print("按物种分组的离散程度：")
 dispersion_by_species = penguins.groupby("species")["body_mass_g"].agg(
     std="std",
-    min=("min", lambda x: x.min()),
-    q25=("quantile", lambda x: x.quantile(0.25)),
-    median=("median", lambda x: x.median()),
-    q75=("quantile", lambda x: x.quantile(0.75)),
-    max=("max", lambda x: x.max())
+    min="min",
+    q25=lambda x: x.quantile(0.25),
+    median="median",
+    q75=lambda x: x.quantile(0.75),
+    max="max"
 ).round(1)
 print(dispersion_by_species)
 print()
@@ -198,10 +200,10 @@ $$
 用数学语言表达，标准差的公式是：
 
 $$
-\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}
+s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}
 $$
 
-其中 $\bar{x}$ 是样本均值，$n$ 是样本量。分母用 $n-1$ 而不是 $n$，是为了得到对总体方差的无偏估计（这就是 pandas 的默认行为）。
+其中 $\bar{x}$ 是样本均值，$n$ 是样本量，$s$ 是样本标准差。分母用 $n-1$ 而不是 $n$，是为了得到对总体方差的无偏估计（这就是 pandas 的默认行为）。
 
 > **注意：pandas vs numpy 的方差计算**
 >
@@ -316,6 +318,8 @@ plt.savefig("output/density_plots.png", dpi=100)
 ```
 
 密度图的优势是平滑，适合观察整体形状；缺点是可能会掩盖细节（比如小样本的离散度）。实践中，两种图都可以试试。
+
+> **新手建议**：先用直方图看原始数据的分布情况，确认没有奇怪的模式后，再用密度图展示给别人看（更平滑美观）。
 
 ![](images/density_plots.png)
 *图：按物种分组的密度图。平滑曲线显示三种企鹅的分布差异，Gentoo 明显更重且分布更集中*
