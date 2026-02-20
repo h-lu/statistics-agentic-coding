@@ -17,7 +17,7 @@
 
 ## 前情提要
 
-上一周你学会了"让数据讲故事"。你知道了相关系数需要配合散点图，分组比较能发现隐藏差异，多变量可视化是"扫描仪"不是"结论机"。最重要的是，你学会了把 EDA 观察转化为"可检验假设清单"——每个假设都有观察、解释和检验方法。
+上一周你学会了"让数据讲故事"。你掌握了相关系数与散点图的配合使用，理解了分组比较能够揭示隐藏差异，认识到多变量可视化是"探索工具"而非"结论生成器"。更重要的是，你学会了将 EDA 观察转化为"可检验假设清单"——每个假设都包含观察现象、潜在解释和检验方法。
 
 小北拿着假设清单问："这些假设我怎么验证？是不是直接跑个 t 检验看 p 值？"
 
@@ -329,10 +329,12 @@ print("图表已保存到 output/sampling_distribution_null.png")
 
 # 计算统计量
 print(f"差异的标准差（标准误）：{differences.std():.4f}")
-print(f"差异 ≥ 3% 的比例：{(differences >= 0.03).mean():.2%}")
+print(f"差异 ≥ 3% 的比例（单侧检验）：{(differences >= 0.03).mean():.2%}")
 ```
 
 运行后你会看到：右图的分布以 0 为中心，大部分差异落在 -2% 到 +2% 之间。**你观察到的 3% 差异（蓝线）处于分布的右边缘**——这意味着"即使真实没有差异，偶尔也会出现 3% 的虚假差异"，但这种情况很少见。
+
+> **（可选）单侧检验 vs 双侧检验**：这里我们只计算了"差异 ≥ 3%"的情况，这是**单侧检验**的思路（只关心"A 是否优于 B"）。Week 06 会详细讲解单侧和双侧检验的区别。
 
 ![](images/sampling_distribution_null.png)
 *图：当真实无差异时，重复抽样的差异分布以 0 为中心。你观察到的 3%（蓝线）处于右边缘*
@@ -365,11 +367,7 @@ print(f"差异 ≥ 3% 的比例：{(differences >= 0.03).mean():.2%}")
 >
 > 所以 AI 的正确用法是：**让 AI 运行模拟和计算，你负责解释和质疑**。AI 是计算器，你是概率思考者。
 >
-> 参考（访问日期：2026-02-15）：
-> - https://journals.sagepub.com/doi/abs/10.3102/10769986251397559（SAGE Journals, 2025：生成式 AI 在 Monte Carlo 模拟中的应用）
-> - https://www.advisorperspectives.com/articles/2025/05/23/using-ai-create-a-monte-carlo-retirement-simulation（Advisor Perspectives, 2025：使用 AI 构建退休 Monte Carlo 模拟的实践）
-> - https://ida.dk/en/arrangementer-og-kurser/arrangementer/monte-carlo-simulations-training-learning-ai-aspects-364428（丹麦 IDA 协会，2025：Monte Carlo 模拟训练与 AI）
-> - https://acemate.ai/glossary/monte-carlo-simulations-in-ai（AceMate AI：Monte Carlo 模拟术语定义）
+> **延伸阅读**：2025-2026 年，多家学术机构和在线教育平台（如 Coursera、edX）推出了"模拟优先"（simulation-first）的统计学课程，强调用代码建立直觉后再学公式。读者可搜索"Monte Carlo simulation AI"获取最新实践案例。
 
 ### 小结一下：你学到了什么？
 
@@ -444,6 +442,7 @@ axes = axes.ravel()
 for i, n in enumerate(sample_sizes):
     sample_means = []
     for _ in range(n_simulations):
+        # 从有限总体中无放回抽样（模拟实际调查场景）
         sample = np.random.choice(population, size=n, replace=False)
         sample_means.append(sample.mean())
 
@@ -468,7 +467,7 @@ plt.savefig("output/clt_simulation.png", dpi=100)
 print("图表已保存到 output/clt_simulation.png")
 ```
 
-运行后你会看到一个神奇的过程：当 n=1 时，样本均值的分布就是原始的指数分布（右偏）；当 n=5 时，开始有点对称；当 n=30 时，已经很像钟形了；当 n=100 时，几乎完美拟合正态分布。
+运行后你会看到一个神奇的过程：当 n=1 时，样本均值的分布就是原始的指数分布（右偏）；当 n=5 时，开始有点对称；当 n=30 时，如果总体偏态不严重，样本均值的分布已经接近钟形；当 n=100 时，几乎完美拟合正态分布。
 
 ![](images/clt_simulation.png)
 *图：随着样本量增加，样本均值的分布从右偏（n=1）逐渐变成钟形（n=100）*
@@ -609,7 +608,7 @@ plt.savefig("output/bootstrap_distribution.png", dpi=100)
 print("\n图表已保存到 output/bootstrap_distribution.png")
 ```
 
-运行后你会看到：Bootstrap 分布以 3% 为中心，95% 置信区间可能是 [0.5%, 5.5%]。这意味着：你有 95% 的信心认为真实差异落在这个范围内。更重要的是，**置信区间不包含 0**——这给了你一些证据说"差异不太可能是 0"。
+运行后你会看到：Bootstrap 分布以 3% 为中心，95% 置信区间可能是 [0.5%, 5.5%]。这意味着：如果重复抽样 100 次，95 次的置信区间会包含真实差异。更重要的是，**置信区间不包含 0**——这给了你一些证据说"差异不太可能是 0"。
 
 ![](images/bootstrap_distribution.png)
 *图：Bootstrap 抽样分布。红点是你观察到的差异（3%），蓝线是 95% 置信区间。区间不包含 0，说明差异不太可能是随机的*
@@ -650,11 +649,7 @@ print("\n图表已保存到 output/bootstrap_distribution.png")
 >
 > Bootstrap 的正确用法是：**让 AI 写代码和运行模拟，你负责检查假设和解读结果**。AI 是执行者，你是审计员。
 >
-> 参考（访问日期：2026-02-15）：
-> - https://pubs.acs.org/（ACS Publications, 2026 年 1 月：分子机器学习中的 Bootstrap 不确定性量化）
-> - https://dl.acm.org/（ACM Digital Library, 2025 年 5 月：等变 Bootstrap 用于图像分类不确定性）
-> - https://www.researchgate.net/（ResearchGate, 2025 年 8 月：基于 Bootstrap 的多任务不确定性估计）
-> - https://www.mdpi.com/journal/stats/special_issues/resampling_statistics（MDPI Stats：Bradley Efron 关于重采样方法的特刊）
+> **延伸阅读**：Bradley Efron（Bootstrap 方法的提出者）在 *Statistical Science* 等期刊上有多篇关于 Bootstrap 理论与应用的综述文章。读者可搜索"Bradley Efron bootstrap"获取权威资料。
 
 ---
 
@@ -998,7 +993,7 @@ print("\n报告片段已保存到 output/uncertainty_sections.md")
 | 知道"变量之间有什么关系" | 知道"这些关系有多确定" |
 | 无法回答"这个结论有多稳定" | 用 Bootstrap 量化"结论的稳定性" |
 
-老潘看到这份新报告，会说："现在你不仅告诉别人'A 渠道更好'，还告诉别人'这个 3% 的差异有 95% 的概率落在 [0.5%, 5.5%] 之间'。这就是从'赌博'到'科学'的关键一步。"
+老潘看到这份新报告，会说："现在你不仅告诉别人'A 渠道更好'，还告诉别人'这个 3% 的差异的 95% 置信区间是 [0.5%, 5.5%]'——如果重复抽样 100 次，95 次的区间会包含真实差异。这就是从'赌博'到'科学'的关键一步。"
 
 小北问："那如果置信区间包含 0 怎么办？"
 
@@ -1020,7 +1015,7 @@ print("\n报告片段已保存到 output/uncertainty_sections.md")
 
 常见坑：
 - Bootstrap 结果不固定（因为随机性）。应该在 `np.random.seed()` 中固定种子，确保结果可复现
-- 置信区间误读。95% 置信区间不是"真实值有 95% 概率落在区间内"，而是"如果你重复抽样 100 次，95 次的区间会包含真实值"
+- 置信区间误读。95% 置信区间的正确解释是："如果重复抽样 100 次，95 次的区间会包含真实值"。而不是"真实值有 95% 的概率落在区间内"
 
 老潘的建议：把 Bootstrap 的随机种子写入报告，让读者知道"这个结果是如何生成的"。这样任何人都能复现你的不确定性量化。
 
@@ -1044,11 +1039,11 @@ print("\n报告片段已保存到 output/uncertainty_sections.md")
 
 ## Definition of Done（学生自测清单）
 
-- [ ] 我能解释"数据分布"和"抽样分布"的区别
+- [ ] 我能区分"数据分布"和"抽样分布"
 - [ ] 我能理解中心极限定理的直觉（为什么样本均值的分布近似正态）
 - [ ] 我能用模拟方法建立概率直觉（如抛硬币、假阳性模拟）
 - [ ] 我能使用 Bootstrap 方法估计标准误和置信区间
-- [ ] 我能解释标准误和标准差的区别
+- [ ] 我能区分标准误和标准差
 - [ ] 我能理解"假阳性"的概念，知道多次检验会增加假阳性风险
 - [ ] 我能在 StatLab 报告中加入不确定性量化（标准误 + 置信区间）
-- [ ] 我知道为什么"只给点估计"是不够的
+- [ ] 我能说明为什么"只给点估计"是不够的

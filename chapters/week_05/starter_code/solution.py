@@ -118,7 +118,7 @@ def calculate_standard_error(data: np.ndarray) -> float:
         Standard error of the mean (std / sqrt(n))
 
     Notes:
-        - SE = sigma / sqrt(n)
+        - SE = s / sqrt(n) (s is sample standard deviation)
         - Returns NaN for empty array or single element
     """
     # TODO: Student implementation
@@ -148,6 +148,7 @@ def generate_sampling_distribution(
     Notes:
         - Samples without replacement from population
         - Assumes sample_size <= len(population)
+        - 注意：此函数使用无放回抽样（replace=False），适用于从有限总体抽样的场景。如果模拟从理论分布抽样，应使用 replace=True。
     """
     # TODO: Student implementation
     if random_state is not None:
