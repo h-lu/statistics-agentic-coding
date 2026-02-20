@@ -226,6 +226,8 @@ def calculate_cooks_distance(reg_result: dict) -> dict:
     cooks_d = influence.cooks_distance[0]
 
     # 计算阈值
+    # 经验法则：Cook's 距离 > 4/n 的点被认为是高影响点
+    # 这是一个经验阈值，实践中应结合业务背景判断
     n = len(cooks_d)
     threshold = 4 / n
 
