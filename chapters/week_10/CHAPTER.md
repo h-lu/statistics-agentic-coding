@@ -3,7 +3,7 @@
 > "不是所有能算出来的都有意义，不是所有看起来准确的都是准确的。"
 > — 统计学格言
 
-2026 年，你可以在几秒钟内把数据丢给 AI，得到一份"看起来很专业"的分类报告：准确率 95%、混淆矩阵、甚至"结论"一应俱全。但这里有一个被很多人忽略的问题：**准确率高不等于模型好，类别不平衡时准确率会骗人**。
+2026 年，你可以在几秒钟内把数据丢给 AI 工具（如 ChatGPT、GitHub Copilot），得到一份"看起来很专业"的分类报告：准确率 95%、混淆矩阵、甚至"结论"一应俱全。但这里有一个被很多人忽略的问题：**准确率高不等于模型好，类别不平衡时准确率会骗人**。
 
 小北上周学会了回归分析与模型诊断，兴冲冲地拿着一份分类结果去找老潘："准确率 85%，模型很棒！"
 
@@ -141,7 +141,7 @@ y = customer_data['is_churned']  # 0 或 1
 
 model = LinearRegression()
 model.fit(X, y)
-prediction = model.predict([[10, 500]])  # 可能得到 0.7, 1.2, -0.3...
+prediction = model.predict([[10, 500]])  # 可能得到 0.7, 1.2, -0.3...（超出 [0,1] 范围）
 ```
 
 **问题**：
@@ -269,7 +269,10 @@ $$
 |--------|------|
 | 0.1 | 0.1/0.9 = 0.111 |
 | 0.5 | 0.5/0.5 = 1 |
+| 0.8 | 0.8/0.2 = 4 |
 | 0.9 | 0.9/0.1 = 9 |
+
+**数值例子**：概率 0.8 → 几率 0.8/0.2 = 4 → 对数几率 log(4) ≈ 1.39
 
 **对数几率（Log-odds, Logit）**：
 
@@ -358,13 +361,14 @@ P值: 0.002（显著）
 1. **方向**：系数为负（-0.35），说明购买次数越多，流失概率越低（符合直觉）
 2. **强度**：|b| = 0.35，属于中等偏弱的影响
 3. **几率比（Odds Ratio）**：e^(-0.35) ≈ 0.70
-   - 意思是：购买次数每增加 1 次，流失的几率变为原来的 70%（即降低 30%）
+   - 意思是：购买次数每增加 1 次，流失的几率变为原来的 70%（即几率乘以 0.70）
+   - 注意：这是"几率"的变化，不是"概率"的变化。如果原流失概率是 20%（几率 0.25），新几率变为 0.25 × 0.70 = 0.175，对应概率约为 15%（0.175/(1+0.175)）
 4. **显著性**：P值 0.002 < 0.05，系数显著不为 0
 
 如果另一个特征 `days_since_last_purchase`（距上次购买天数）的系数是 0.52：
 - 系数为正，距上次购买越久，流失概率越高
 - 几率比：e^0.52 ≈ 1.68
-- 意思是：距上次购买每增加 1 天，流失的几率增加 68%
+- 意思是：距上次购买每增加 1 天，流失的几率变为原来的 1.68 倍（注意：这是几率的相对变化，不是概率的绝对变化）
 
 小北问："那怎么知道系数是否显著？"
 
@@ -372,20 +376,16 @@ P值: 0.002（显著）
 
 实际上，逻辑回归也有自己的"前提假设检查"——这呼应了 Week 06 学的**检验前提假设**。逻辑回归假设：特征与对数几率之间是线性关系（可以用 Box-Tidwell 检验）、观测之间相互独立、没有严重的多重共线性。这些检查和你在 Week 09 学的回归诊断一脉相承。
 
-```python
-import statsmodels.api as sm
+**查看系数显著性**（完整代码见 `examples/02_logistic_regression.py`）：
 
-X_with_const = sm.add_constant(X_train)
-logit_model = sm.Logit(y_train, X_with_const).fit()
-print(logit_model.summary())
-```
-
-输出包含：
+statsmodels 的输出包含：
 - **coef**：系数估计值
 - **std err**：标准误
 - **z**：z 统计量
 - **P>|z|**：p 值（< 0.05 表示显著）
 - **[0.025 0.975]**：95% 置信区间
+
+注意：statsmodels 的 API 和 scikit-learn 不同。statsmodels 需要手动添加常数项（截距），而 scikit-learn 会自动处理。statsmodels 更适合统计推断（p 值、置信区间），scikit-learn 更适合预测。
 
 这里你看到了 Week 06 学的假设检验和 Week 08 学的置信区间在逻辑回归中的再次应用：p 值告诉你系数是否显著不为 0，置信区间告诉你系数的不确定性范围。
 
@@ -426,7 +426,7 @@ print(logit_model.summary())
 
 "因为它告诉你模型'混淆'了哪些样本。"老潘说，"比如模型把 5 个实际流失的客户误判为不流失——这些就是'被混淆'的样本。"
 
-混淆矩阵的每个格子里都是一个数字，但如果你想让它更直观，可以用热力图可视化——这正是 Week 02 学的**诚实可视化**的延伸。热力图用颜色深浅表示数值大小，但要注意：不要用过于鲜艳的配色误导读者，也不要截断颜色范围。和当时学的"截断 Y 轴会误导"一样，可视化混淆矩阵也要诚实地展示完整信息。
+混淆矩阵的每个格子里都是一个数字，但如果你想让它更直观，可以用热力图可视化。混淆矩阵热力图中，颜色深浅表示数值大小——类似于 Week 02 的直方图用高度表示频率。但要注意：不要用过于鲜艳的配色误导读者，也不要截断颜色范围。就像当时学的"截断 Y 轴会误导"一样，可视化混淆矩阵也要诚实地展示完整信息。
 
 ### 从混淆矩阵到评估指标
 
@@ -486,11 +486,15 @@ $$
 | **医疗诊断** | 不要漏诊 | 召回率 |
 | **推荐系统** | 点击排序能力 | AUC |
 
+**注**：推荐系统的优先指标是 AUC（排序能力），因为推荐系统不需要单一阈值决策（如"推荐/不推荐"），而是需要把用户最可能点击的内容排在前面。AUC 衡量的是"排序能力"——正类样本是否比负类样本有更高的预测概率。
+
 小北问："那我该用哪个？"
 
 "看业务。"老潘说，"如果你的老板说'流失一个客户损失很大'，你就优先召回率。如果他说'误判流失会导致客户不满'，你就优先精确率。如果他说'都要'，你就看 F1。"
 
 ### 评估指标实战
+
+**计算评估指标**（完整示例见 `examples/03_confusion_matrix_metrics.py`）：
 
 ```python
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
@@ -574,29 +578,14 @@ print(cm)
 **理想分类器**：ROC 曲线靠近左上角（高 TPR，低 FPR）
 **随机猜测**：ROC 曲线是对角线（TPR = FPR）
 
-**ROC 曲线的"行走轨迹"——从右到左的故事**
+下面这张图展示了 ROC 曲线的形状（见 `images/roc_curve_explanation.png`）：
 
-想象 ROC 曲线是一个"行走轨迹"：
-
-```
-TPR (Y轴)
-1.0 |    ●━━━━●━━━━●
-    |   /      |
-    |  /       |
-0.5 | ●        |  ← 好的模型会往这个方向"弯"
-    |/         |
-0.0 |__________|____●____
-    0.0       0.5      1.0  FPR (X轴)
-
-    ← 好模型向左上角弯曲（高 TPR，低 FPR）
-```
-
-- **起点（右下角）**：阈值 = 1.0，所有样本预测为负类（TPR=0, FPR=0）
-- **终点（右上角）**：阈值 = 0.0，所有样本预测为正类（TPR=1, FPR=1）
+- **左下角**：阈值 → 1.0，所有样本预测为负类（TPR=0, FPR=0）
+- **右上角**：阈值 → 0.0，所有样本预测为正类（TPR=1, FPR=1）
 - **对角线**：随机猜测（TPR = FPR，模型没有区分能力）
 - **左上角**：理想状态（TPR=1, FPR=0，完美分类）
 
-曲线越"弯曲"（越靠近左上角），模型越好。AUC 就是曲线下方的面积——面积越大，曲线越弯曲。
+好的模型会向左上角弯曲（高 TPR，低 FPR）。AUC 就是曲线下方的面积——面积越大，曲线越弯曲，模型越好。
 
 ### AUC：ROC 曲线下的面积
 
@@ -613,7 +602,7 @@ TPR (Y轴)
 
 **什么是"排序能力"？——一个直观的例子**
 
-假设你有 5 个客户，其中 2 个流失（正类）、3 个不流失（负类）。你的模型给他们分别预测了流失概率：
+假设你有 5 个客户，其中 2 个流失（正类）、3 个不流失（负类）。假设模型给这 5 个客户预测的流失概率如下：
 
 | 客户 | 实际 | 预测概率 |
 |------|------|---------|
@@ -637,10 +626,10 @@ TPR (Y轴)
 
 这时正类和负类"混在一起"了——AUC 会下降（可能 0.67 左右）。
 
-**AUC 的直观理解**：随机选一个正类样本和一个负类样本，AUC 告诉你"正类预测概率高于负类"的概率。
-- AUC = 0.9：90% 的情况下，模型给正类的打分比负类高
-- AUC = 0.5：50% 的情况下，模型给正类的打分比负类高（和抛硬币一样）
-- AUC = 1.0：100% 的情况下，模型给正类的打分都比负类高（完美排序）
+**AUC 的直观理解**：如果你随机选一个正类样本和一个负类样本，AUC 告诉你"模型会给正类样本更高预测概率"的可能性。
+- AUC = 0.9：随机选一个正类样本和一个负类样本，90% 的可能，模型会给正类样本更高的预测概率
+- AUC = 0.5：和随机猜测一样（抛硬币）
+- AUC = 1.0：100% 的情况下，正类样本的预测概率都高于负类样本（完美排序）
 
 **AUC 的优点**：
 - 不依赖阈值选择
@@ -659,66 +648,23 @@ ROC 曲线是分类评估的核心可视化工具。你可能会想起 Week 04 �
 
 图中蓝色曲线是模型的 ROC 曲线，灰色虚线是随机猜测的基线（AUC = 0.5）。曲线越靠近左上角，模型越好。
 
-让我们分步骤绘制 ROC 曲线：
-
-**步骤 1：获取预测概率**
-
-ROC 曲线需要概率输出，不是类别标签。
-
-```python
-# 步骤 1：获取预测概率（P(y=1|x)）
-y_prob = model.predict_proba(X_test)[:, 1]  # 取正类的概率
-```
-
-**步骤 2：计算 FPR、TPR 和阈值**
-
-```python
-# 步骤 2：计算 ROC 曲线的三个关键数组
-from sklearn.metrics import roc_curve
-
-fpr, tpr, thresholds = roc_curve(y_test, y_prob)
-# fpr: 假正率（X 轴）
-# tpr: 真正率/召回率（Y 轴）
-# thresholds: 对应的阈值（从高到低）
-```
-
-**步骤 3：计算 AUC 并画图**
-
-```python
-# 步骤 3：计算 AUC 并绘制曲线
-from sklearn.metrics import roc_auc_score
-import matplotlib.pyplot as plt
-
-auc = roc_auc_score(y_test, y_prob)
-print(f"AUC: {auc:.4f}")
-
-plt.figure(figsize=(8, 6))
-plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc:.4f})')
-plt.plot([0, 1], [0, 1], 'k--', label='Random Guess')
-plt.xlabel('False Positive Rate (1 - Specificity)')
-plt.ylabel('True Positive Rate (Recall)')
-plt.title('ROC Curve')
-plt.legend()
-plt.show()
-```
-
-**完整代码（可直接运行）**：
+**ROC 曲线绘制代码**（完整示例见 `examples/04_roc_auc.py`）：
 
 ```python
 from sklearn.metrics import roc_curve, roc_auc_score
 import matplotlib.pyplot as plt
 
-# 预测概率
-y_prob = model.predict_proba(X_test)[:, 1]
+# 获取预测概率（ROC 曲线需要概率，不是类别标签）
+y_prob = model.predict_proba(X_test)[:, 1]  # P(y=1|x)
 
-# 计算 ROC 曲线
+# 计算 ROC 曲线：FPR（X 轴）、TPR（Y 轴）、阈值
 fpr, tpr, thresholds = roc_curve(y_test, y_prob)
 
 # 计算 AUC
 auc = roc_auc_score(y_test, y_prob)
 print(f"AUC: {auc:.4f}")
 
-# 画 ROC 曲线
+# 绘制 ROC 曲线
 plt.figure(figsize=(8, 6))
 plt.plot(fpr, tpr, label=f'ROC Curve (AUC = {auc:.4f})')
 plt.plot([0, 1], [0, 1], 'k--', label='Random Guess')
@@ -813,48 +759,34 @@ plt.show()
 - 模型在测试集上表现虚高（AUC 0.92，上线后 0.65）
 - 模型无法泛化到新数据
 - 基于"虚假高指标"做业务决策，导致损失
+- 导致模型选择错误的特征或超参数（因为模型"作弊"了）
 
 ### 常见泄漏场景
 
 **场景 1：预处理在划分之前**
 
-❌ 错误：
+❌ **错误示范**（在划分之前填充缺失值）：
 ```python
-# 在划分之前填充缺失值
 X_filled = X.fillna(X.mean())  # 测试集的信息泄漏到训练集！
-
 X_train, X_test, y_train, y_test = train_test_split(X_filled, y, test_size=0.3)
-model.fit(X_train, y_train)
 ```
 
-✅ 正确：
+✅ **正确做法**（先划分，再分别填充）：
 ```python
 # 先划分
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-# 分别填充（用训练集的统计量）
+# 用训练集的统计量填充
 train_mean = X_train.mean()
 X_train_filled = X_train.fillna(train_mean)
 X_test_filled = X_test.fillna(train_mean)  # 用训练集的均值填充测试集
-
-model.fit(X_train_filled, y_train)
 ```
 
 老潘说："这就像考试前偷看了答案——你在训练时用了测试集的信息，所以测试成绩虚高。"
 
 **场景 2：交叉验证中的泄漏**
 
-❌ 错误：
-```python
-from sklearn.model_selection import cross_val_score
-
-# 在交叉验证之前填充缺失值
-X_filled = X.fillna(X.mean())  # 泄漏！
-
-scores = cross_val_score(model, X_filled, y, cv=5)
-```
-
-**问题**：在交叉验证的每一折中，验证集的信息参与了均值计算。
+同样的问题也会出现在交叉验证中。如果你在交叉验证之前填充缺失值（`X.fillna(X.mean())`），在每一折中，验证集的信息会参与均值计算——这也是数据泄漏。
 
 ### Pipeline：把预处理和模型绑在一起
 
@@ -863,24 +795,25 @@ scores = cross_val_score(model, X_filled, y, cv=5)
 2. 预处理应用到测试集时，只用训练集的统计量（transform）
 3. 交叉验证时，每一折的预处理都是独立的
 
-✅ 使用 Pipeline：
+**Pipeline 示例代码**（完整代码见 `examples/05_pipeline_data_leakage.py`）：
+
 ```python
 from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectKBest
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
 
-# 创建 Pipeline
+# 基础 Pipeline：预处理 + 模型
 pipeline = Pipeline([
-    ('imputer', SimpleImputer(strategy='mean')),  # 填充缺失值
-    ('scaler', StandardScaler()),  # 标准化
-    ('selector', SelectKBest(k=5)),  # 特征选择
-    ('model', LogisticRegression())  # 模型
+    ('imputer', SimpleImputer(strategy='mean')),
+    ('scaler', StandardScaler()),
+    ('model', LogisticRegression())
 ])
 
 # 划分数据
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
 # 训练（所有步骤只在训练集上 fit）
 pipeline.fit(X_train, y_train)
@@ -888,7 +821,6 @@ pipeline.fit(X_train, y_train)
 # 预测（测试集只用训练集的统计量 transform）
 y_pred = pipeline.predict(X_test)
 auc = roc_auc_score(y_test, pipeline.predict_proba(X_test)[:, 1])
-print(f"AUC: {auc:.4f}")
 ```
 
 **Pipeline 的工作原理**：
@@ -908,34 +840,30 @@ print(f"AUC: {auc:.4f}")
 
 这里用到了 Week 03 学的两个概念：**数据转换**（标准化是将数据转换为均值为 0、标准差为 1 的分布）和**特征编码**（One-hot 编码将分类变量转换为 0/1 数值）。当时你学习这些是为了让数据"准备好"用于分析，现在你看到它们在 Pipeline 中的正确用法——必须在训练集上学习参数，然后应用到测试集，否则就是数据泄漏。
 
-用 **ColumnTransformer** 实现：
+**ColumnTransformer + Pipeline 示例**（完整代码见 `examples/05_pipeline_data_leakage.py`）：
 
 ```python
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
-
 # 定义特征
 numeric_features = ['purchase_count', 'avg_spend', 'days_since_last_purchase']
 categorical_features = ['city', 'membership_level']
 
-# 定义预处理
+# 数值型预处理
 numeric_transformer = Pipeline([
     ('imputer', SimpleImputer(strategy='mean')),
     ('scaler', StandardScaler())
 ])
 
+# 分类型预处理
 categorical_transformer = Pipeline([
     ('imputer', SimpleImputer(strategy='most_frequent')),
     ('onehot', OneHotEncoder(handle_unknown='ignore'))
 ])
 
 # 组合
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('num', numeric_transformer, numeric_features),
-        ('cat', categorical_transformer, categorical_features)
-    ]
-)
+preprocessor = ColumnTransformer([
+    ('num', numeric_transformer, numeric_features),
+    ('cat', categorical_transformer, categorical_features)
+])
 
 # 完整 Pipeline
 pipeline = Pipeline([
@@ -943,26 +871,15 @@ pipeline = Pipeline([
     ('model', LogisticRegression())
 ])
 
-# 训练
-pipeline.fit(X_train, y_train)
-
-# 预测
-y_pred = pipeline.predict(X_test)
-auc = roc_auc_score(y_test, pipeline.predict_proba(X_test)[:, 1])
-print(f"AUC: {auc:.4f}")
+# 交叉验证（无泄漏）
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(pipeline, X, y, cv=5, scoring='roc_auc')
+print(f"交叉验证 AUC: {scores.mean():.4f} (+/- {scores.std():.4f})")
 ```
 
 ### 交叉验证 + Pipeline：防止泄漏的双重保险
 
 老潘说："Pipeline 是第一道防线，交叉验证是第二道防线。两者结合，才能确保你的评估是诚实的。"
-
-```python
-from sklearn.model_selection import cross_val_score
-
-# Pipeline + 交叉验证
-scores = cross_val_score(pipeline, X, y, cv=5, scoring='roc_auc')
-print(f"交叉验证 AUC: {scores.mean():.4f} (+/- {scores.std():.4f})")
-```
 
 **工作原理**：
 1. 交叉验证把数据分成 k 份
@@ -975,13 +892,13 @@ print(f"交叉验证 AUC: {scores.mean():.4f} (+/- {scores.std():.4f})")
 
 老潘总结了一个检查清单：
 
-| 检查项 | 说明 |
-|--------|------|
-| ✅ 预处理在划分之后 | 缺失值填充、标准化在 train_test_split 之后 |
-| ✅ 使用 Pipeline | 把预处理和模型绑定在一起 |
-| ✅ 交叉验证用 Pipeline | 确保每一折的预处理独立 |
-| ✅ 检查特征定义 | 确保特征不包含目标的信息 |
-| ✅ 时间序列注意时序 | 不要用未来数据预测过去 |
+| 检查项 | 说明 | 如何验证 |
+|--------|------|----------|
+| ✅ 预处理在划分之后 | 缺失值填充、标准化在 train_test_split 之后 | 检查代码：确认没有在划分前调用 fit() |
+| ✅ 使用 Pipeline | 把预处理和模型绑定在一起 | 确认预处理步骤在 Pipeline 内 |
+| ✅ 交叉验证用 Pipeline | 确保每一折的预处理独立 | 确认 cross_val_score 的第一个参数是 Pipeline |
+| ✅ 检查特征定义 | 确保特征不包含目标的信息 | 逐个检查特征：是否有"未来信息" |
+| ✅ 时间序列注意时序 | 不要用未来数据预测过去 | 确认训练集的时间早于测试集 |
 
 阿码问："如果我怀疑有泄漏，怎么检查？"
 
@@ -1012,249 +929,23 @@ print(f"傻瓜基线 AUC: {dummy_scores.mean():.4f}")
 
 这正是本周"分类与评估（避免数据泄漏）"派上用场的地方。**本周的 StatLab 进展，是将"分类评估"升级为"带数据泄漏防护的评估流水线"——从"简单训练-测试"到"Pipeline + 交叉验证"。
 
-让我们来写一个函数，做分类评估并输出完整的评估报告。这个函数会把本周学到的所有工具（混淆矩阵、精确率/召回率/F1、ROC-AUC、Pipeline 防泄漏）整合到一起：
+**核心函数**：`classification_with_pipeline()` 训练分类模型并输出评估报告（防止数据泄漏）
 
 ```python
-# examples/10_statlab_classification.py
-import numpy as np
-import pandas as pd
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import (accuracy_score, precision_score, recall_score,
-                             f1_score, confusion_matrix, roc_curve, roc_auc_score,
-                             classification_report)
-import matplotlib.pyplot as plt
-
+# 核心函数签名（完整实现见 examples/99_statlab_classification.py）
 def classification_with_pipeline(X, y, numeric_features, categorical_features,
                                  test_size=0.3, random_state=42):
-    """
-    用 Pipeline 训练分类模型并输出评估报告（防止数据泄漏）
-
-    参数:
-    - X: 特征 DataFrame
-    - y: 目标变量（Series 或 array）
-    - numeric_features: 数值型特征列表
-    - categorical_features: 分类型特征列表
-    - test_size: 测试集比例（默认 0.3）
-    - random_state: 随机种子
-
-    返回:
-    - dict: 包含模型、评估指标、图表数据的字典
-    """
-    # 1. 定义预处理器
-    numeric_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='mean')),
-        ('scaler', StandardScaler())
-    ])
-
-    categorical_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))
-    ])
-
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', numeric_transformer, numeric_features),
-            ('cat', categorical_transformer, categorical_features)
-        ]
-    )
-
-    # 2. 创建完整 Pipeline
-    pipeline = Pipeline([
-        ('preprocessor', preprocessor),
-        ('model', LogisticRegression(max_iter=1000, random_state=random_state))
-    ])
-
+    """用 Pipeline 训练分类模型并输出评估报告（防止数据泄漏）"""
+    # 1. 定义预处理器（数值型和分类型特征分别处理）
+    # 2. 创建完整 Pipeline（预处理 + 模型）
     # 3. 划分数据
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state, stratify=y
-    )
-
     # 4. 训练
-    pipeline.fit(X_train, y_train)
-
     # 5. 预测
-    y_pred = pipeline.predict(X_test)
-    y_prob = pipeline.predict_proba(X_test)[:, 1]
-
-    # 6. 计算评估指标
-    results = {
-        'pipeline': pipeline,
-        'metrics': {
-            'accuracy': accuracy_score(y_test, y_pred),
-            'precision': precision_score(y_test, y_pred, zero_division=0),
-            'recall': recall_score(y_test, y_pred, zero_division=0),
-            'f1': f1_score(y_test, y_pred, zero_division=0),
-            'auc': roc_auc_score(y_test, y_prob)
-        },
-        'confusion_matrix': confusion_matrix(y_test, y_pred),
-        'y_test': y_test,
-        'y_pred': y_pred,
-        'y_prob': y_prob
-    }
-
+    # 6. 计算评估指标（准确率、精确率、召回率、F1、AUC）
     # 7. ROC 曲线数据
-    fpr, tpr, thresholds = roc_curve(y_test, y_prob)
-    results['roc_curve'] = {'fpr': fpr, 'tpr': tpr, 'thresholds': thresholds}
-
     # 8. 交叉验证 AUC（防止泄漏）
-    cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='roc_auc')
-    results['cv_scores'] = {
-        'mean': cv_scores.mean(),
-        'std': cv_scores.std(),
-        'scores': cv_scores.tolist()
-    }
-
     # 9. 特征重要性（逻辑回归系数）
-    # 获取特征名称（数值型 + One-Hot 后的分类型）
-    feature_names = numeric_features.copy()
-    cat_encoder = pipeline.named_steps['preprocessor'].named_transformers_['cat'].named_steps['onehot']
-    for cat_feat in categorical_features:
-        categories = cat_encoder.categories_[categorical_features.index(cat_feat)]
-        feature_names.extend([f"{cat_feat}_{cat}" for cat in categories])
-
-    # 获取系数
-    coefficients = pipeline.named_steps['model'].coef_[0]
-    results['feature_importance'] = pd.DataFrame({
-        'feature': feature_names,
-        'coefficient': coefficients
-    }).sort_values('coefficient', key=abs, ascending=False)
-
-    return results
-
-def plot_classification_results(results, figsize=(12, 5)):
-    """
-    画分类评估图表
-    """
-    fig, axes = plt.subplots(1, 2, figsize=figsize)
-
-    # 1. 混淆矩阵
-    cm = results['confusion_matrix']
-    im = axes[0].imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    axes[0].set_title('Confusion Matrix')
-    axes[0].set_xlabel('Predicted Label')
-    axes[0].set_ylabel('True Label')
-    axes[0].set_xticks([0, 1])
-    axes[0].set_yticks([0, 1])
-
-    # 添加数字
-    thresh = cm.max() / 2.
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
-            axes[0].text(j, i, format(cm[i, j], 'd'),
-                        ha="center", va="center",
-                        color="white" if cm[i, j] > thresh else "black")
-
-    # 2. ROC 曲线
-    roc = results['roc_curve']
-    axes[1].plot(roc['fpr'], roc['tpr'],
-                label=f"ROC Curve (AUC = {results['metrics']['auc']:.4f})")
-    axes[1].plot([0, 1], [0, 1], 'k--', label='Random Guess')
-    axes[1].set_xlabel('False Positive Rate')
-    axes[1].set_ylabel('True Positive Rate (Recall)')
-    axes[1].set_title('ROC Curve')
-    axes[1].legend()
-    axes[1].grid(True, alpha=0.3)
-
-    plt.tight_layout()
-    return fig
-
-def format_classification_report(results):
-    """
-    格式化分类结果为 Markdown 报告
-    """
-    md = ["## 分类模型评估\n\n"]
-
-    # 1. 评估指标
-    md.append("### 评估指标\n\n")
-    metrics = results['metrics']
-    md.append(f"| 指标 | 值 |\n")
-    md.append(f"|------|-----|\n")
-    md.append(f"| 准确率 | {metrics['accuracy']:.4f} |\n")
-    md.append(f"| 精确率 | {metrics['precision']:.4f} |\n")
-    md.append(f"| 召回率 | {metrics['recall']:.4f} |\n")
-    md.append(f"| F1 分数 | {metrics['f1']:.4f} |\n")
-    md.append(f"| AUC | {metrics['auc']:.4f} |\n\n")
-
-    # 2. 交叉验证 AUC
-    cv = results['cv_scores']
-    md.append("### 交叉验证 AUC（防止数据泄漏）\n\n")
-    md.append(f"- 平均 AUC: {cv['mean']:.4f} (+/- {cv['std']:.4f})\n")
-    md.append(f"- 各折 AUC: {', '.join([f'{s:.4f}' for s in cv['scores']])}\n\n")
-
-    # 3. 混淆矩阵
-    md.append("### 混淆矩阵\n\n")
-    cm = results['confusion_matrix']
-    md.append(f"| | 预测负类 | 预测正类 |\n")
-    md.append(f"|---|---------|---------|\n")
-    md.append(f"| **实际负类** | {cm[0, 0]} (TN) | {cm[0, 1]} (FP) |\n")
-    md.append(f"| **实际正类** | {cm[1, 0]} (FN) | {cm[1, 1]} (TP) |\n\n")
-
-    # 4. 特征重要性（Top 10）
-    md.append("### 特征重要性（逻辑回归系数绝对值 Top 10）\n\n")
-    top_features = results['feature_importance'].head(10)
-    md.append(f"| 排名 | 特征 | 系数 |\n")
-    md.append(f"|------|------|------|\n")
-    for idx, row in top_features.iterrows():
-        md.append(f"| {top_features.index.get_loc(idx) + 1} | {row['feature']} | {row['coefficient']:.4f} |\n")
-    md.append("\n")
-
-    # 5. 指标选择理由
-    md.append("### 指标选择理由\n\n")
-    md.append("**为什么选择这些评估指标？**\n\n")
-
-    # 类别比例
-    y_test = results['y_test']
-    pos_ratio = y_test.mean()
-    if pos_ratio < 0.3 or pos_ratio > 0.7:
-        md.append(f"- **类别不平衡**：正类占比 {pos_ratio:.1%}，准确率可能误导，优先参考精确率、召回率、F1 和 AUC\n")
-    else:
-        md.append(f"- **类别相对平衡**：正类占比 {pos_ratio:.1%}，准确率可用，但仍需参考其他指标\n")
-
-    # 业务场景
-    md.append("- **业务场景**：根据业务目标选择优先指标\n")
-    md.append("  - 如果优先'抓到所有正类'（如流失预测）：关注召回率\n")
-    md.append("  - 如果优先'减少误判'（如欺诈检测）：关注精确率\n")
-    md.append("  - 如果需要平衡：关注 F1 分数\n")
-    md.append("  - 如果需要排序能力：关注 AUC\n\n")
-
-    return "".join(md)
-
-# 使用示例
-import seaborn as sns
-
-# 加载数据（用泰坦尼克数据集作为示例）
-titanic = sns.load_dataset("titanic")
-
-# 准备特征和目标
-feature_cols = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-X = titanic[feature_cols].copy()
-y = titanic['survived']
-
-# 定义特征类型
-numeric_features = ['age', 'sibsp', 'parch', 'fare']
-categorical_features = ['pclass', 'sex', 'embarked']
-
-# 训练并评估
-results = classification_with_pipeline(X, y, numeric_features, categorical_features)
-
-# 生成报告
-report = format_classification_report(results)
-print(report)
-
-# 画图
-fig = plot_classification_results(results)
-plt.show()
-
-# 写入文件
-from pathlib import Path
-Path("output/classification_report.md").parent.mkdir(parents=True, exist_ok=True)
-Path("output/classification_report.md").write_text(report)
-print("\n报告已保存到 output/classification_report.md")
+    return results  # dict: 包含模型、评估指标、图表数据
 ```
 
 现在 `report.md` 会多出一个"分类模型评估"章节，包括：

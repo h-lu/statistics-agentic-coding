@@ -251,3 +251,35 @@
   introduced: week_09
   revisited: [week_10, week_11, week_16]
   bloom_level: evaluate
+
+# ─── Week 10 ───
+
+- concept_zh: 分类 vs 回归
+  concept_en: classification vs regression
+  introduced: week_10
+  revisited: [week_11, week_12, week_16]
+  bloom_level: understand
+
+- concept_zh: 逻辑回归
+  concept_en: logistic regression
+  introduced: week_10
+  revisited: [week_12, week_16]
+  bloom_level: apply
+
+- concept_zh: 混淆矩阵与评估指标
+  concept_en: confusion matrix and metrics
+  introduced: week_10
+  revisited: [week_11, week_16]
+  bloom_level: apply
+
+- concept_zh: ROC 与 AUC
+  concept_en: ROC curve and AUC
+  introduced: week_10
+  revisited: [week_12, week_16]
+  bloom_level: apply
+
+- concept_zh: 数据泄漏与防御
+  concept_en: data leakage and prevention
+  introduced: week_10
+  revisited: [week_11, week_12, week_16]
+  bloom_level: apply

@@ -1,7 +1,7 @@
 """
 示例：Pipeline 防止数据泄漏——正确使用交叉验证
 
-运行方式：python3 chapters/week_10/examples/05_pipeline_prevent_leakage.py
+运行方式：python3 chapters/week_10/examples/05_pipeline_data_leakage.py
 预期输出：对比有无 Pipeline 的交叉验证结果，展示数据泄漏的影响
 """
 from __future__ import annotations
