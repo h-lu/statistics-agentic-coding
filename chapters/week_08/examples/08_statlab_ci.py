@@ -64,7 +64,7 @@ def add_ci_to_report(data: np.ndarray, confidence: float = 0.95,
 
     try:
         res = bootstrap((data,), mean_func, confidence_level=confidence,
-                        method='BCa', n_bootstrap=n_bootstrap, random_state=42)
+                        method='BCa', n_resamples=n_bootstrap, random_state=42)
         bca_ci_low, bca_ci_high = res.confidence_interval.low, res.confidence_interval.high
     except:
         # 如果 BCa 失败，使用 Percentile

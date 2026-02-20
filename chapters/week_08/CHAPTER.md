@@ -129,7 +129,7 @@ StatLab 本周推进：
 - 如果这个均值来自 20 个样本，它可能随便换一批人就变成 2.8 或 3.7；
 - 如果这个均值来自 2 万个样本，它才更像一个"稳定的事实"。
 
-**点估计的问题在于：它没有告诉你"有多确定"**。
+**点估计的局限性：它没有告诉你"有多确定"。**
 
 上周你学了**标准误**（Standard Error）——它描述统计量的抽样波动。本周的核心就是：**不要只给点估计，要给区间估计**。
 
@@ -239,10 +239,10 @@ StatLab 本周推进：
 
 ### 置信区间与假设检验的关系
 
-置信区间和假设检验是等价的：
+置信区间和假设检验是等价的（对于双侧检验）：
 
-- **如果 95% CI 不包含 0**（对于差异），那么在 α = 0.05 的水平下，差异显著；
-- **如果 95% CI 包含 0**，那么差异不显著。
+- **如果 95% CI 不包含 0**（对于差异），那么在 α = 0.05 的水平下，双侧检验中差异显著；
+- **如果 95% CI 包含 0**，那么双侧检验中差异不显著。
 
 小北恍然大悟："所以上周的 ANOVA，我也可以看 CI，而不只是看 p 值？"
 
@@ -391,9 +391,9 @@ Bootstrap 95% CI: [2.92, 3.51]
 注意：这个 CI 和理论方法算出来的很接近——但 Bootstrap 不需要正态性假设。
 
 关键点：
-1. `np.random.choice(data, size=n, replace=True)` 是**有放回抽样**；
-2. 每个 Bootstrap 样本的大小 = 原始样本大小；
-3. 你用 10000 个 Bootstrap 均值的分布来近似真实均值的抽样分布。
+1. `np.random.choice(data, size=n, replace=True)` 是**有放回抽样**
+2. 每个 Bootstrap 样本的大小 = 原始样本大小
+3. 用 10000 个 Bootstrap 均值的分布近似真实均值的抽样分布
 
 ### Bootstrap vs 理论公式：什么时候用哪个？
 
@@ -462,6 +462,7 @@ Bootstrap 95% CI: [2.92, 3.51]
 
 你在上一节用的就是 **Percentile Bootstrap**：
 - 用 Bootstrap 统计量的 2.5% 和 97.5% 分位数作为 95% CI。
+- （α = 1 - 0.95 = 0.05，两侧各分配 α/2 = 0.025，即 2.5% 和 97.5% 分位数）
 
 **优点**：简单、直观。
 
@@ -495,7 +496,7 @@ def mean_func(x):
 
 # 计算 Bootstrap CI（使用 BCa 方法）
 res = bootstrap((data,), mean_func, confidence_level=0.95,
-                method='BCa', n_bootstrap=10000, random_state=42)
+                method='BCa', n_resamples=10000, random_state=42)
 
 print(f"95% CI (BCa): [{res.confidence_interval.low:.2f}, {res.confidence_interval.high:.2f}]")
 ```
@@ -516,7 +517,7 @@ print(f"95% CI (BCa): [{res.confidence_interval.low:.2f}, {res.confidence_interv
 
 Bootstrap 不是万能的。以下情况 Bootstrap 可能失效：
 
-1. **样本量太小**（比如 n < 20）：Bootstrap 无法很好地近似抽样分布；
+1. **样本量太小**（比如 n < 30）：Bootstrap 无法很好地近似抽样分布（Bootstrap 的准确性依赖于样本对总体的代表性）；
 2. **数据有严重依赖**（如时间序列）：重采样会破坏时间结构；
 3. **统计量对极端值非常敏感**（如最大值）：Bootstrap 样本可能不包含原始数据的极端值。
 
@@ -549,11 +550,11 @@ def median_func(x):
 
 # Percentile Bootstrap
 res_pct = bootstrap((data,), median_func, confidence_level=0.95,
-                    method='percentile', n_bootstrap=10000, random_state=42)
+                    method='percentile', n_resamples=10000, random_state=42)
 
 # BCa Bootstrap
 res_bca = bootstrap((data,), median_func, confidence_level=0.95,
-                    method='BCa', n_bootstrap=10000, random_state=42)
+                    method='BCa', n_resamples=10000, random_state=42)
 
 print(f"原始中位数: {np.median(data):.2f}")
 print(f"95% CI (Percentile): [{res_pct.confidence_interval.low:.2f}, {res_pct.confidence_interval.high:.2f}]")
@@ -656,24 +657,25 @@ for _ in range(n_permutations):
 
 perm_diffs = np.array(perm_diffs)
 
-# 计算 p 值（单尾）
-p_value = np.mean(perm_diffs >= observed_diff)
+# 计算 p 值（双尾）
+p_value = np.mean(np.abs(perm_diffs) >= np.abs(observed_diff))
 
 # 计算 95% CI（使用 percentile）
 ci_low, ci_high = np.percentile(perm_diffs, [2.5, 97.5])
 
-print(f"p 值（单尾）: {p_value:.4f}")
+print(f"p 值（双尾）: {p_value:.4f}")
 print(f"95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
 ```
 
 输出：
 ```
 真实差异（B - A）: 0.512
-p 值（单尾）: 0.0245
+p 值（双尾）: 0.0489
 95% CI: [-0.203, 0.209]
 ```
 
-注意：这个 CI 是"零假设下差异的分布"，不是真实差异的 CI。如果你要真实差异的 CI，应该用 Bootstrap。
+注意：这个 CI 反映的是"在零假设成立的情况下，差异的分布范围"，而不是真实差异的置信区间。
+如果你要估计真实差异的置信区间，应该使用 Bootstrap 方法（如第 4 节所述）。
 
 关键点：
 1. `np.random.permutation(combined)` 打乱标签；
@@ -703,164 +705,36 @@ p 值（单尾）: 0.0245
 
 这正是本周"区间估计与重采样"派上用场的地方。与其只给点估计，不如把不确定性也写进报告。
 
-让我们来写一个函数，给点估计添加置信区间：
+我们准备了两个核心函数（完整实现见 `examples/08_statlab_ci.py`）：
+
+1. `add_ci_to_report(data)` —— 给点估计添加三种 CI（t 分布、Percentile Bootstrap、BCa Bootstrap）
+2. `compare_groups_ci(group1, group2)` —— 比较两组差异（带 Bootstrap CI 和置换检验）
+
+使用方式非常简单：
 
 ```python
-# examples/08_statlab_ci.py
-import numpy as np
-from scipy import stats
-from scipy.stats import bootstrap
-import pandas as pd
-
-def add_ci_to_report(data: np.ndarray, confidence: float = 0.95) -> dict:
-    """给点估计添加置信区间（多种方法）"""
-    point_estimate = np.mean(data)
-    se = stats.sem(data)
-
-    # 方法 1：理论 t 分布
-    t_ci_low, t_ci_high = stats.t.interval(
-        confidence, df=len(data)-1, loc=point_estimate, scale=se
-    )
-
-    # 方法 2：Percentile Bootstrap
-    n_bootstrap = 10000
-    boot_means = []
-    for _ in range(n_bootstrap):
-        boot_sample = np.random.choice(data, size=len(data), replace=True)
-        boot_means.append(np.mean(boot_sample))
-    boot_means = np.array(boot_means)
-    pct_ci_low, pct_ci_high = np.percentile(boot_means, [(1-confidence)/2*100, (1+confidence)/2*100])
-
-    # 方法 3：BCa Bootstrap（用 scipy）
-    def mean_func(x):
-        return np.mean(x)
-    res = bootstrap((data,), mean_func, confidence_level=confidence,
-                    method='BCa', n_bootstrap=n_bootstrap, random_state=42)
-    bca_ci_low, bca_ci_high = res.confidence_interval.low, res.confidence_interval.high
-
-    return {
-        "point_estimate": point_estimate,
-        "t_interval": (t_ci_low, t_ci_high),
-        "percentile_bootstrap": (pct_ci_low, pct_ci_high),
-        "bca_bootstrap": (bca_ci_low, bca_ci_high),
-    }
-```
-
-接下来，我们写一个函数来比较两组数据的差异（带 Bootstrap CI 和置换检验）：
-
-```python
-def compare_groups_ci(group1: np.ndarray, group2: np.ndarray,
-                     confidence: float = 0.95) -> dict:
-    """比较两组数据的差异（带 Bootstrap CI）"""
-
-    # 点估计：差异
-    point_diff = np.mean(group2) - np.mean(group1)
-
-    # Bootstrap 差异
-    n_bootstrap = 10000
-    n1, n2 = len(group1), len(group2)
-    boot_diffs = []
-
-    for _ in range(n_bootstrap):
-        boot1 = np.random.choice(group1, size=n1, replace=True)
-        boot2 = np.random.choice(group2, size=n2, replace=True)
-        boot_diffs.append(np.mean(boot2) - np.mean(boot1))
-
-    boot_diffs = np.array(boot_diffs)
-    ci_low, ci_high = np.percentile(boot_diffs, [(1-confidence)/2*100, (1+confidence)/2*100])
-
-    # 置换检验 p 值
-    combined = np.concatenate([group1, group2])
-    perm_diffs = []
-    for _ in range(n_bootstrap):
-        permuted = np.random.permutation(combined)
-        perm1 = permuted[:n1]
-        perm2 = permuted[n1:]
-        perm_diffs.append(np.mean(perm2) - np.mean(perm1))
-
-    perm_diffs = np.array(perm_diffs)
-    p_value_two_tailed = np.mean(np.abs(perm_diffs) >= abs(point_diff))
-
-    return {
-        "point_diff": point_diff,
-        "bootstrap_ci": (ci_low, ci_high),
-        "permutation_p": p_value_two_tailed,
-    }
-```
-
-现在，让我们用这两个函数来生成报告片段：
-
-```python
-def format_ci_table(ci_dict: dict, label: str) -> str:
-    """格式化 CI 为 Markdown 表格"""
-
-    md = f"### {label}\n\n"
-    md += f"| 方法 | 点估计 | 95% CI |\n"
-    md += f"|------|--------|--------|\n"
-
-    point = ci_dict["point_estimate"]
-    t_low, t_high = ci_dict["t_interval"]
-    pct_low, pct_high = ci_dict["percentile_bootstrap"]
-    bca_low, bca_high = ci_dict["bca_bootstrap"]
-
-    md += f"| t 分布 | {point:.2f} | [{t_low:.2f}, {t_high:.2f}] |\n"
-    md += f"| Percentile Bootstrap | {point:.2f} | [{pct_low:.2f}, {pct_high:.2f}] |\n"
-    md += f"| BCa Bootstrap | {point:.2f} | [{bca_low:.2f}, {bca_high:.2f}] |\n\n"
-
-    return md
-
-def format_diff_table(diff_dict: dict, label: str) -> str:
-    """格式化组间差异为 Markdown 表格"""
-
-    md = f"### {label}\n\n"
-    point = diff_dict["point_diff"]
-    ci_low, ci_high = diff_dict["bootstrap_ci"]
-    p_val = diff_dict["permutation_p"]
-
-    md += f"| 指标 | 值 |\n"
-    md += f"|------|-----|\n"
-    md += f"| 点估计（差异） | {point:.3f} |\n"
-    md += f"| 95% Bootstrap CI | [{ci_low:.3f}, {ci_high:.3f}] |\n"
-    md += f"| 置换检验 p 值（双尾） | {p_val:.4f} |\n\n"
-
-    # 解释
-    if p_val < 0.05:
-        md += "**结论**：p < 0.05，差异显著。95% CI 不包含 0，支持组间存在差异。\n\n"
-    else:
-        md += "**结论**：p ≥ 0.05，差异不显著。95% CI 包含 0，不能拒绝无差异假设。\n\n"
-
-    return md
-
-# 使用示例
 import seaborn as sns
+# 完整实现见 examples/08_statlab_ci.py
+# 运行：python3 examples/08_statlab_ci.py
+from chapters.week_08.examples.08_statlab_ci import (
+    add_ci_to_report, compare_groups_ci, generate_uncertainty_section
+)
 
+# 加载数据
 penguins = sns.load_dataset("penguins")
 
-# 单组 CI（Adelie 企鹅的喙长）
-adelie_bill = penguins[penguins["species"] == "Adelie"]["bill_length_mm"].dropna()
-adelie_ci = add_ci_to_report(adelie_bill.values)
-
-# 组间比较（Adelie vs Gentoo 喙长）
-gentoo_bill = penguins[penguins["species"] == "Gentoo"]["bill_length_mm"].dropna()
-bill_diff = compare_groups_ci(adelie_bill.values, gentoo_bill.values)
-
-# 生成报告片段
-report_md = ["## 不确定性量化\n\n"]
-report_md.append("以下报告使用多种方法估计置信区间，并比较组间差异。\n\n")
-
 # 单组 CI
-report_md.append(format_ci_table(adelie_ci, "Adelie 企鹅喙长均值（mm）"))
+adelie_bill = penguins[penguins["species"] == "Adelie"]["bill_length_mm"].dropna()
+adelie_ci = add_ci_to_report(adelie_bill.values, label="Adelie 喙长均值 (mm)")
 
-# 组间差异
-report_md.append(format_diff_table(bill_diff, "Adelie vs Gentoo 喙长差异"))
+# 组间比较
+gentoo_bill = penguins[penguins["species"] == "Gentoo"]["bill_length_mm"].dropna()
+bill_diff = compare_groups_ci(adelie_bill.values, gentoo_bill.values,
+                              group1_name="Adelie", group2_name="Gentoo")
 
-print("".join(report_md))
-
-# 写入文件
-from pathlib import Path
-Path("output/uncertainty_sections.md").parent.mkdir(parents=True, exist_ok=True)
-Path("output/uncertainty_sections.md").write_text("".join(report_md))
-print("\n报告片段已保存到 output/uncertainty_sections.md")
+# 生成完整报告片段
+uncertainty_md = generate_uncertainty_section(penguins)
+print(uncertainty_md)
 ```
 
 现在 `report.md` 会多出一个"不确定性量化"章节：
