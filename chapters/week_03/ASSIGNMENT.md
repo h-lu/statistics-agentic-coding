@@ -170,6 +170,7 @@ Z-score 规则检测到 0 个异常值
 - 可以用 `series.quantile(0.25)` 和 `series.quantile(0.75)` 计算 Q1 和 Q3
 - 可以用 `np.abs((series - series.mean()) / series.std())` 计算 Z-score
 - 可以用 `outliers.sum()` 统计异常值数量
+- **注意**：如果 `series.std() == 0`（常量列），Z-score 会除零，需要先处理这种情况
 
 ---
 

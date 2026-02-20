@@ -159,7 +159,7 @@ print("图表已保存到 output/missing_fill_zero.png")
 
 运行后你会发现一个惊人的事实：把缺失值填成 0 后，均值从约 43 岁掉到了约 37 岁，中位数从约 43 岁掉到了约 22 岁！为什么？因为 0 是一个"假数据"，它和真实的年龄值混在一起，把整个分布拉偏了。
 
-![](images/missing_fill_zero.png)
+![缺失值填充0前后的分布对比](images/missing_fill_zero.png)
 *图：把缺失值填成 0 后，分布左侧出现一个巨大的 0 值峰值，完全改变了数据的故事*
 
 **上周的知识用上了**：均值对极端值敏感。而 0 就是一个极端值——它比所有真实年龄都小，所以均值被狠狠拉低了。中位数也被拉低，因为 0 占了 15% 的位置，直接把中位数从中间位置挤到了左边。
@@ -199,6 +199,14 @@ MCAR 是最"安全"的情况。因为缺失是随机的，删除或简单填充�
 最棘手的情况：收入越高的人，越不愿意填收入。这里缺失和"收入"本身（你不知道的值）直接相关——缺失本身就是一种"选择性偏差"。
 
 MNAR 最危险，因为你无法从已有数据推断缺失值。你可能需要外部数据或领域知识来处理。
+
+**三种缺失机制对比**：
+
+| 类型 | 缺失原因 | 安全性 | 处理建议 |
+|------|---------|--------|---------|
+| MCAR | 纯随机，与任何变量无关 | ✅ 最安全 | 可直接删除或简单填充 |
+| MAR | 与已知变量有关，与缺失值本身无关 | ⚠️ 中等 | 用多重插补等方法处理 |
+| MNAR | 与缺失值本身直接相关 | ❌ 最危险 | 需要外部数据或领域知识 |
 
 ### 如何诊断缺失机制？
 
@@ -255,6 +263,13 @@ AI 可以给你一个分类标签，但不会替你回答：这份数据的业�
 
 最简单的做法：把有缺失值的行全部删掉。
 
+**策略 2：填充（Imputation）**
+
+用某个值替代缺失值。常见的填充方法包括：
+- **均值/中位数填充**：用该列的均值或中位数填充（适合 MCAR/MAR）
+- **前向/后向填充**：用前一个或后一个值填充（适合时间序列）
+- **常量填充**：用一个固定值（如 -1 表示"未知"）
+
 ```python
 # examples/02_missing_strategies.py
 import pandas as pd
@@ -280,27 +295,13 @@ print()
 df_dropped = df.dropna()
 print("删除后数据规模：", len(df_dropped))
 print(f"丢弃了 {len(df) - len(df_dropped)} 行数据 ({(len(df) - len(df_dropped))/len(df)*100:.1f}%)")
-print()
 
 # 策略 1a：只删除在关键变量上缺失的行（更精细）
 df_dropped_selective = df.dropna(subset=["age"])  # 只要求 age 不为空
 print("选择性删除（只要求 age 不为空）：", len(df_dropped_selective))
-```
+print()
 
-删除的好处是简单、不会引入虚假数据。坏处是会丢数据。如果你的数据本来就少，删除 15% 的行可能让结论不稳定。
-
-**策略 2：填充（Imputation）**
-
-用某个值替代缺失值。常见的填充方法包括：
-
-- **均值/中位数填充**：用该列的均值或中位数填充（适合 MCAR/MAR）
-- **前向/后向填充**：用前一个或后一个值填充（适合时间序列）
-- **常量填充**：用一个固定值（如 -1 表示"未知"）
-
-```python
-# 策略 2：填充
-
-# 2.1 中位数填充（对极端值稳健）
+# 策略 2：中位数填充（对极端值稳健）
 df_filled_median = df.copy()
 df_filled_median["age"] = df_filled_median["age"].fillna(df_filled_median["age"].median())
 df_filled_median["income"] = df_filled_median["income"].fillna(df_filled_median["income"].median())
@@ -309,13 +310,15 @@ print("中位数填充后的统计：")
 print(df_filled_median.describe().round(1))
 print()
 
-# 2.2 前向填充（适合时间序列）
+# 策略 2b：前向填充（适合时间序列）
 df_ffilled = df.ffill()  # 用前一个有效值填充
 
-# 2.3 常量填充（标记为"未知"）
+# 策略 2c：常量填充（标记为"未知"）
 df_filled_const = df.copy()
 df_filled_const["age"] = df_filled_const["age"].fillna(-1)  # -1 表示"未知"
 ```
+
+删除的好处是简单、不会引入虚假数据。坏处是会丢数据。如果你的数据本来就少，删除 15% 的行可能让结论不稳定。
 
 阿码追问："那我用均值填充还是中位数填充？"
 
@@ -332,6 +335,8 @@ df_filled_const["age"] = df_filled_const["age"].fillna(-1)  # -1 表示"未知"
 1. **如果缺失率 < 5%**：直接删除（影响不大）
 2. **如果缺失率 5%-30%**：考虑填充（中位数/前向填充）
 3. **如果缺失率 > 30%**：小心！这列可能已经不可靠了，考虑删除整列或深入调查缺失原因
+
+老潘笑了笑："我刚入行的时候，有一份用户调研数据，`income` 列缺失了 60%。我当时想'那我就用均值填充吧'——结果后来发现，填进去的值让整个分析完全跑偏了。原来那份数据里，高收入用户几乎都不填收入。我用均值填充，相当于把一群 CEO 都变成了'普通人'。从那以后，我看到缺失率超过 30% 的列，手就开始抖。"
 
 小北试了一下：她发现 `age` 的缺失率是 15%，用中位数填充后，均值从 43.2 变成 43.0——几乎没变！而 `income` 的缺失率是 20%，填充后均值从 59800 变成 59500，变化也不大。
 
@@ -371,16 +376,23 @@ df_filled_const["age"] = df_filled_const["age"].fillna(-1)  # -1 表示"未知"
 
 ### 先掌握一种：IQR 规则
 
-上周你学过**箱线图**：须通常延伸到 Q1-1.5×IQR 和 Q3+1.5×IQR，超出这个范围的点会被标记为异常值。这就是 **IQR 规则**——一种不依赖分布形态的稳健方法。
+上周你学过**箱线图**：箱体从 Q1 延伸到 Q3，**须（whiskers）**是从箱体延伸出的线，通常延伸到 Q1-1.5×IQR 和 Q3+1.5×IQR。超出须的范围的点会被标记为异常值。这就是 **IQR 规则**——一种不依赖分布形态的稳健方法。
 
 为什么先学 IQR？因为它"不求人"：你不需要知道数据是不是正态分布，也不需要算均值和标准差，只要算出四分位数就行了。
+
+**另一种思路：Z-score**
+
+如果你有理由相信数据**近似正态分布**（比如身高、体重这类自然现象），可以用 **Z-score** 方法：任何偏离均值超过 3 个标准差的值，都是"可疑的"。
+
+阿码问："为什么是 3 个标准差？"
+
+因为在正态分布中，99.7% 的数据落在 ±3σ 范围内。所以超出这个范围的值，出现概率不到 0.3%——确实值得怀疑。
 
 ```python
 # examples/03_outlier_detection.py
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 penguins = sns.load_dataset("penguins")
 
@@ -394,25 +406,6 @@ def detect_outliers_iqr(series: pd.Series, multiplier: float = 1.5) -> pd.Series
     upper = q75 + multiplier * iqr
     return (series < lower) | (series > upper)
 
-# 检测体重的异常值
-body_mass = penguins["body_mass_g"].dropna()
-outliers_iqr = detect_outliers_iqr(body_mass)
-print(f"IQR 规则检测到 {outliers_iqr.sum()} 个异常值")
-```
-
-企鹅体重数据比较"干净"，IQR 规则检测到 0 个异常值。这是好事——说明数据没有明显的错误。
-
----
-
-### 另一种思路：Z-score
-
-如果你有理由相信数据**近似正态分布**（比如身高、体重这类自然现象），可以用 **Z-score** 方法：任何偏离均值超过 3 个标准差的值，都是"可疑的"。
-
-阿码问："为什么是 3 个标准差？"
-
-因为在正态分布中，99.7% 的数据落在 ±3σ 范围内。所以超出这个范围的值，出现概率不到 0.3%——确实值得怀疑。
-
-```python
 # Z-score 方法（假设数据近似正态分布）
 def detect_outliers_zscore(series: pd.Series, threshold: float = 3) -> pd.Series:
     """用 Z-score 检测异常值"""
@@ -421,13 +414,19 @@ def detect_outliers_zscore(series: pd.Series, threshold: float = 3) -> pd.Series
     z_scores = np.abs((series - mean) / std)
     return z_scores > threshold
 
+# 检测体重的异常值
+body_mass = penguins["body_mass_g"].dropna()
+outliers_iqr = detect_outliers_iqr(body_mass)
 outliers_zscore = detect_outliers_zscore(body_mass)
+print(f"IQR 规则检测到 {outliers_iqr.sum()} 个异常值")
 print(f"Z-score 规则检测到 {outliers_zscore.sum()} 个异常值")
 ```
 
+企鹅体重数据比较"干净"，两种方法都检测到 0 个异常值。这是好事——说明数据没有明显的错误。（Penguins 数据集本身已经过清洗，所以没有异常值。真实数据通常会有异常值，我们稍后会看到。）
+
 对企鹅体重数据，Z-score 也检测到 0 个异常值。两种方法结论一致，说明数据确实干净。
 
-![](images/outlier_detection_body_mass_(g).png)
+![IQR和Z-score异常值检测方法对比](images/outlier_detection_body_mass_(g).png)
 *图：箱线图（IQR 规则）和直方图（Z-score 阈值）的对比。左图的箱线图没有超出须的点，右图的 ±3SD 阈值（红色虚线）也没有数据超出*
 
 ---
@@ -442,11 +441,18 @@ print(f"Z-score 规则检测到 {outliers_zscore.sum()} 个异常值")
 
 老潘的经验法则是这样的：先用箱线图看一眼。如果箱线图显示有离群点，再用 IQR 规则把它们标记出来。如果你有理由相信数据应该近似正态（比如很多自然现象），可以同时用 Z-score 作为对照。
 
-小北试了一下：她发现 IQR 规则标记了 5 个点，Z-score 只标记了 2 个。为什么？因为这份数据有轻微的右偏（长尾在右边），Z-score 被极端值拉大了，所以"容忍度"变高了。
+小北在另一份模拟数据上试了一下：她发现 IQR 规则标记了 5 个点，Z-score 只标记了 2 个。为什么？因为这份数据有轻微的右偏（长尾在右边），Z-score 被极端值拉大了，所以"容忍度"变高了。
 
 "哦！"小北说，"所以 IQR 更稳健，Z-score 更敏感？"
 
 没错。IQR 不会因为极端值而"变形"，而 Z-score 的标准差会被极端值放大——这是一个有趣的悖论：**极端值越多，Z-score 越不容易标记它们为异常值**。
+
+> 举个例子：假设你有 10 个人的收入数据，9 个人收入在 5-10 万之间，1 个人收入 100 万。
+> - Z-score 会先算标准差。因为有一个 100 万，标准差被拉大到约 30 万。
+> - 然后它检查 100 万是否超过 3 倍标准差。100 万 - 均值（约 14 万）= 86 万，除以 30 万 ≈ 2.9，不到 3 倍。
+> - 所以 Z-score 说："100 万不是异常值"——因为它自己把阈值拉高了！
+
+这就是为什么 IQR 更"公平"：它只看中间 50% 的数据，不受极端值影响。
 
 ### 业务规则 vs 统计规则
 
@@ -706,7 +712,7 @@ print("图表已保存到 output/data_transformation_comparison.png")
 
 运行后你会发现：标准化后的两个变量，均值都是 0，标准差都是 1。归一化后的两个变量，都被压缩到 [0, 1] 区间。这样它们就可以在同一张图上比较了。
 
-![](images/data_transformation_comparison.png)
+![数据转换方法对比：原始、标准化、归一化](images/data_transformation_comparison.png)
 *图：原始数据（不同尺度）、标准化后（Z-score，均值 0 标准差 1）、归一化后（全部在 [0,1] 区间）的对比*
 
 ### 标准化 vs 归一化：什么时候用哪个？
@@ -733,29 +739,15 @@ print("图表已保存到 output/data_transformation_comparison.png")
 ```python
 # 对数变换示例
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 
 # 创建一个右偏分布（模拟收入数据）
 np.random.seed(42)
 income_data = np.random.lognormal(mean=10, sigma=0.5, size=1000)  # 对数正态分布
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-
-# 左图：原始数据（右偏）
-axes[0].hist(income_data, bins=50, edgecolor="black", alpha=0.7)
-axes[0].set_xlabel("Income")
-axes[0].set_ylabel("Frequency")
-axes[0].set_title("Original: Right-skewed")
-
-# 右图：对数变换后（更对称）
-axes[1].hist(np.log(income_data), bins=50, edgecolor="black", alpha=0.7)
-axes[1].set_xlabel("Log(Income)")
-axes[1].set_ylabel("Frequency")
-axes[1].set_title("After Log Transform: More Symmetric")
-
-plt.tight_layout()
-plt.savefig("output/log_transform_demo.png", dpi=100)
-print("图表已保存到 output/log_transform_demo.png")
+# 注意：如果数据可能包含零值，使用 np.log1p(x)（即 log(1+x)）更安全
+# 这里我们确保数据都是正数，所以可以直接用 np.log
+log_income = np.log(income_data)
 
 # 统计对比
 print("原始数据统计：")
@@ -765,10 +757,12 @@ print(f"  偏度：{pd.Series(income_data).skew():.2f}")
 print()
 
 print("对数变换后统计：")
-print(f"  均值：{np.log(income_data).mean():.2f}")
-print(f"  中位数：{np.median(np.log(income_data)):.2f}")
-print(f"  偏度：{pd.Series(np.log(income_data)).skew():.2f}")
+print(f"  均值：{log_income.mean():.2f}")
+print(f"  中位数：{np.median(log_income):.2f}")
+print(f"  偏度：{pd.Series(log_income).skew():.2f}")
 ```
+
+> **可视化说明**：对数变换后，右偏数据的分布会变得更对称，偏度从 1.5 降到接近 0，均值和中位数也更为接近。你可以运行代码并画图验证：`plt.hist(income_data)` 会显示右偏的长尾，而 `plt.hist(np.log(income_data))` 会显示更对称的钟形曲线。
 
 运行后你会发现：原始数据的偏度是 1.5（强右偏），均值（约 30000）远大于中位数（约 24000）。对数变换后，偏度降到接近 0（对称），均值和中位数接近。
 
@@ -790,30 +784,37 @@ print(f"  偏度：{pd.Series(np.log(income_data)).skew():.2f}")
 
 ```python
 # One-hot 编码示例
+from sklearn.preprocessing import LabelEncoder
+
+# One-hot 编码：为每个类别创建一个二进制列
 data_encoded = pd.get_dummies(penguins["species"], prefix="species", drop_first=True)
 print("One-hot 编码示例：")
 print(data_encoded.head())
+print()
+
+# Label 编码：把类别映射为整数（0、1、2...）
+le = LabelEncoder()
+penguins["species_encoded"] = le.fit_transform(penguins["species"])
+print("Label 编码示例：")
+print(penguins[["species", "species_encoded"]].drop_duplicates().sort_values("species_encoded"))
 ```
 
 `drop_first=True` 是为了避免"多重共线性"（Week 09 会详细讨论）。简单来说：如果你有三个物种，只需要两个二进制列就能表示全部信息（第三列可以推导出来）。
-
-**Label 编码（标签编码）**：把类别映射为整数（0、1、2...）。
-
-```python
-# Label 编码示例
-from sklearn.preprocessing import LabelEncoder
-
-le = LabelEncoder()
-penguins["species_encoded"] = le.fit_transform(penguins["species"])
-print("\nLabel 编码示例：")
-print(penguins[["species", "species_encoded"]].drop_duplicates().sort_values("species_encoded"))
-```
 
 Label 编码的问题在于：它引入了"顺序关系"（0 < 1 < 2），但 `species` 是名义变量（没有顺序）。如果你用线性回归等方法，模型会误以为 Gentoo(2) 是 Chinstrap(1) 的"两倍"——这是错误的。
 
 老潘的建议是：**名义变量用 One-hot，有序变量用 Label**。比如 `education_level`（高中、本科、硕士、博士）是有序的，可以用 Label 编码（0、1、2、3）。
 
 数据转换不是"为了看起来整齐"，而是让数据更适合分析。标准化让变量可比，对数变换改善偏态，编码让分类变量进模型。但每种方法都有前提——不要"为了用而用"。
+
+老潘总结了一个简单的"转换选择口诀"：
+
+| 你的问题 | 推荐方法 | 注意事项 |
+|----------|----------|----------|
+| 不同变量尺度差异大（如年龄 vs 收入） | 标准化（Z-score） | 统计分析优先 |
+| 需要缩放到固定范围（如神经网络输入） | 归一化（Min-Max） | 机器学习优先 |
+| 右偏数据（长尾在右边） | 对数变换 | 数据必须 > 0 |
+| 分类变量要进模型 | One-hot 或 Label | 名义用 One-hot，有序用 Label |
 
 现在你已经掌握了数据清洗的全流程：从缺失机制诊断到异常值判断，从数据转换到特征编码。接下来，让我们把这些知识整合进 StatLab 报告，让每一个清洗决策都变得可复现、可审计。
 
