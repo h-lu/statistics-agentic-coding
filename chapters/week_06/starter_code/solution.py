@@ -211,17 +211,17 @@ def choose_test_auto(group_a: np.ndarray, group_b: np.ndarray, alpha: float = 0.
     # Choose test
     if norm_a['is_normal'] and norm_b['is_normal'] and var_check['equal_variance']:
         test_name = "Student's t-test"
-        t_stat, p_value = stats.ttest_ind(group_a, group_b, equal_var=True)
+        statistic, p_value = stats.ttest_ind(group_a, group_b, equal_var=True)
     elif norm_a['is_normal'] and norm_b['is_normal']:
         test_name = "Welch's t-test"
-        t_stat, p_value = stats.ttest_ind(group_a, group_b, equal_var=False)
+        statistic, p_value = stats.ttest_ind(group_a, group_b, equal_var=False)
     else:
         test_name = "Mann-Whitney U test"
-        t_stat, p_value = stats.mannwhitneyu(group_a, group_b, alternative='two-sided')
+        statistic, p_value = stats.mannwhitneyu(group_a, group_b, alternative='two-sided')
 
     return {
         'test_chosen': test_name,
-        'statistic': float(t_stat),
+        'statistic': float(statistic),
         'p_value': float(p_value),
         'reject_null': p_value < alpha,
         'normality_a': norm_a,
