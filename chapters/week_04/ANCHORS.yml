@@ -64,7 +64,7 @@
 - id: week04_time_series_aggregation
   claim: 按周/月聚合数据可以减少噪声，让趋势和季节性更清晰
   evidence: CHAPTER.md 第4节，日数据 vs 周平均数据对比
-  verification: code_example (examples/04_time_series.py)
+  verification: code_example (examples/04_time_series_intro.py)
 
 - id: week04_time_series_confounding
   claim: 时间序列中的"相关"容易受混杂变量影响（如温度影响冰淇淋销量和溺水）

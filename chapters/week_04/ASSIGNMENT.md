@@ -69,7 +69,7 @@ age,time_on_site,purchase_amount,visit_count,is_returning,source
 **要求**：
 1. 按 `source`（渠道：direct/search/social）分组，计算各组的以下统计量：
    - `purchase_amount` 的均值、中位数、标准差
-   - `is_returning` 的复购率
+   - `is_returning` 的复购率（复购率 = is_returning=1 的用户数 / 该渠道总用户数）
 2. 画出分组箱线图（source × purchase_amount）
 3. 按是否复购（`is_returning`）分组，计算各组的平均购买金额
 4. 写出 3 条观察，每条观察都要有数据支撑
@@ -143,12 +143,13 @@ age,time_on_site,purchase_amount,visit_count,is_returning,source
 
 **任务**：对比两个时间段的数据模式差异。
 
-**数据**：`starter_code/week_04_data_period1.csv` 和 `week_04_data_period2.csv`
+**数据**：使用 `starter_code/week_04_data.csv`，按日期将数据分为两个时期（前 50% 数据为 Period 1，后 50% 数据为 Period 2）
 
 **要求**：
-1. 分别计算两个数据集的相关矩阵
-2. 找出相关系数变化最大的两对变量
-3. 提出一个假设：为什么这种差异会出现？（需要业务逻辑支持）
+1. 将数据按日期排序，分为前后两个时期
+2. 分别计算两个时期的相关矩阵
+3. 找出相关系数变化最大的两对变量
+4. 提出一个假设：为什么这种差异会出现？（需要业务逻辑支持）
 
 **输出示例**：
 ```markdown
@@ -186,9 +187,9 @@ Period 2 中 age 与 purchase 的相关性减弱，可能是因为...
 
 ### 6. 从 EDA 到假设清单（30 分）
 
-**任务**：给定一个新数据集，产出完整的假设清单。
+**任务**：基于 `week_04_data.csv` 进行完整的 EDA 分析并产出假设清单。
 
-**数据**：`starter_code/week_04_challenge.csv`（包含更多变量和缺失值）
+**数据**：使用 `starter_code/week_04_data.csv`，探索数据中可能存在的缺失值和异常值
 
 **要求**：
 1. 完成数据质量检查（缺失值、异常值）
@@ -287,13 +288,15 @@ Period 2 中 age 与 purchase 的相关性减弱，可能是因为...
 ```
 week_04_assignment/
 ├── analysis.py          # 你的分析代码
-├── output/              # 生成的图表
+├── output/              # 生成的图表（代码会自动创建此目录）
 │   ├── scatter_matrix.png
 │   ├── heatmap.png
 │   └── ...
 ├── report.md            # 你的分析报告
 └── ai_review.md         # AI 审查报告（如果做了 AI 练习）
 ```
+
+**注意**：`output/` 目录会在代码运行时自动创建（使用 `Path("output").mkdir(exist_ok=True)`），无需手动创建。
 
 ### 报告格式（report.md）
 ```markdown

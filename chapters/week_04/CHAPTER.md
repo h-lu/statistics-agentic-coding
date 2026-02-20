@@ -194,7 +194,18 @@ Pearson 相关系数的范围是 -1 到 1：
 
 阿码问："那 r = 0.5 算强还是弱？"
 
-好问题。这取决于领域。在社会科学中，r = 0.5 已经算强相关；在物理学中，r < 0.9 可能都嫌弱。这就像评价"这个山高不高"——在平原地区，200 米就算"山"了；在青藏高原，200 米只是个土坡。
+好问题。在社会科学和行为科学中，一个常用的经验规则是：
+
+| |r| 范围 | 相关强度 |
+|---------|----------|
+| 0.00 - 0.10 | 微弱相关，几乎可以忽略 |
+| 0.10 - 0.30 | 弱相关 |
+| 0.30 - 0.50 | 中等相关 |
+| 0.50 - 0.70 | 强相关 |
+| 0.70 - 0.90 | 很强相关 |
+| 0.90 - 1.00 | 极强相关，几乎完全相关 |
+
+但要注意，这取决于领域。在社会科学中，r = 0.5 已经算强相关；在物理学中，r < 0.9 可能都嫌弱。这就像评价"这个山高不高"——在平原地区，200 米就算"山"了；在青藏高原，200 米只是个土坡。
 
 但 Pearson 相关系数有个前提：**它假设数据近似正态分布，且关系是线性的**。上周你学过**偏态**：如果数据有长尾，Pearson 相关系数会被极端值拉偏。
 
@@ -293,25 +304,24 @@ n = 300
 # 三个来源渠道：direct, search, social
 source = np.random.choice(["direct", "search", "social"], n)
 
-# 不同渠道的购买金额分布不同
-purchase_by_source = {
-    "direct": np.random.normal(100, 20, n),
-    "search": np.random.normal(120, 25, n),
-    "social": np.random.normal(80, 15, n)
-}
-
-purchase_amount = np.concatenate([
-    purchase_by_source[s] for s in ["direct", "search", "social"]
-])
-
-# 重新分配（简化处理）
+# 创建渠道标签和对应的购买金额
 source_list = []
+purchase_amount = []
+
 for s in ["direct", "search", "social"]:
+    # 为每个渠道生成 n 个数据点
+    if s == "direct":
+        amounts = np.random.normal(100, 20, n)
+    elif s == "search":
+        amounts = np.random.normal(120, 25, n)
+    else:  # social
+        amounts = np.random.normal(80, 15, n)
+
     source_list.extend([s] * n)
-source = np.array(source_list[:len(purchase_amount)])
+    purchase_amount.extend(amounts)
 
 df = pd.DataFrame({
-    "source": source,
+    "source": source_list,
     "purchase_amount": purchase_amount
 })
 
@@ -412,11 +422,7 @@ print(pivot)
 >
 > AutoEDA 的正确用法是：**让 AI 生成候选图表，你负责筛选和解释**。AI 是扫描仪，你是编辑。
 >
-> 参考（访问日期：2026-02-15）：
-> - https://www.findanomaly.ai/ai-data-analysis-tools-2026（2026 年 AI 数据分析工具综述）
-> - https://towardsdatascience.com/comparing-five-most-popular-eda-tools-dccdef05aa4c/（五种最流行的 EDA 工具对比）
-> - https://www.splunk.com/en_us/blog/learn/data-analysis-tools.html（数据分析工具指南）
-> - https://www.montecarlodata.com/blog/data-ai-predictions/（数据与 AI 预测）
+> 相关工具包括：ydata-profiling（原 pandas-profiling）、Sweetviz、dtale、Lux 等自动化 EDA 库。使用时请确保先完成数据清洗和质量检查，再让这些工具帮你"扫描"。
 
 ## 3. 怎么一眼看懂所有变量之间的关系？
 
@@ -441,24 +447,33 @@ import matplotlib.pyplot as plt
 np.random.seed(42)
 n = 200
 
+# income 是独立变量，用于演示与其他变量无明显相关的场景
 df = pd.DataFrame({
     "age": np.random.randint(18, 70, n),
-    "income": np.random.lognormal(10, 0.5, n),
+    "income": np.random.lognormal(10, 0.5, n),  # 对数正态分布，模拟收入
     "purchase_amount": 50 + np.random.randint(18, 70, n) * 2 + np.random.normal(0, 20, n),
     "time_on_site": np.random.exponential(180, n)
 })
 
-# 选择要可视化的变量
 vars_to_plot = ["age", "income", "purchase_amount", "time_on_site"]
 
 # 散点图矩阵
 sns.pairplot(df[vars_to_plot], diag_kind="hist", plot_kws={"alpha": 0.6})
 plt.suptitle("Scatter Plot Matrix: All Variables", y=1.02)
 plt.savefig("output/scatter_matrix_all.png", dpi=100, bbox_inches="tight")
-print("图表已保存到 output/scatter_matrix_all.png")
+
+# 相关热力图
+corr_matrix = df[vars_to_plot].corr(method="pearson")
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", center=0,
+            square=True, linewidths=0.5, cbar_kws={"shrink": 0.8})
+plt.title("Correlation Heatmap")
+plt.tight_layout()
+plt.savefig("output/heatmap_correlation.png", dpi=100)
+print("图表已保存")
 ```
 
-运行后你会得到一个 4×4 的网格：对角线是每个变量的直方图（上周你学过的**分布形状**），非对角线是两两散点图。
+运行后你会得到一个 4×4 的网格：对角线是每个变量的直方图（上周你学过的**分布形状**），非对角线是两两散点图。热力图则用颜色编码相关强度，让你快速识别强相关和弱相关。
 
 ![](images/multivariate_pairplot.png)
 *图：散点图矩阵让你一眼看到所有变量之间的关系。对角线是单变量分布，非对角线是两两散点图*
@@ -470,19 +485,6 @@ print("图表已保存到 output/scatter_matrix_all.png")
 ### 相关热力图：用颜色编码相关强度
 
 **相关热力图**（Correlation Heatmap）是把相关矩阵可视化的方法：颜色越深/越暖（如红色），相关性越强；颜色越浅/越冷（如蓝色），相关性越弱。
-
-```python
-# 相关热力图
-corr_matrix = df[vars_to_plot].corr(method="pearson")
-
-plt.figure(figsize=(8, 6))
-sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", center=0,
-            square=True, linewidths=0.5, cbar_kws={"shrink": 0.8})
-plt.title("Correlation Heatmap")
-plt.tight_layout()
-plt.savefig("output/heatmap_correlation.png", dpi=100)
-print("图表已保存到 output/heatmap_correlation.png")
-```
 
 运行后你会发现：`income` 和 `purchase_amount` 的格子是深红色（强正相关），`age` 和 `time_on_site` 的格子是浅蓝色（弱负相关）。
 
@@ -574,8 +576,10 @@ print(df_ts.head(10))
 print()
 
 # 按周聚合，减少噪声
-df_ts["week"] = df_ts["date"].dt.isocalendar().week
-weekly_sales = df_ts.groupby("week")["sales"].mean().reset_index()
+# 使用年-周组合避免跨年时周数混淆（如 2024-W1 和 2025-W1）
+df_ts["year_week"] = df_ts["date"].dt.strftime("%Y-W%W")
+weekly_sales = df_ts.groupby("year_week")["sales"].mean().reset_index()
+weekly_sales["week_num"] = range(1, len(weekly_sales) + 1)  # 用于 X 轴绘图
 
 # 可视化
 fig, axes = plt.subplots(2, 1, figsize=(12, 8))
@@ -588,8 +592,8 @@ axes[0].set_title("Daily Sales (Noisy)")
 axes[0].grid(True, alpha=0.3)
 
 # 下图：周平均数据（更清晰）
-axes[1].plot(weekly_sales["week"], weekly_sales["sales"], marker="o", linewidth=2)
-axes[1].set_xlabel("Week")
+axes[1].plot(weekly_sales["week_num"], weekly_sales["sales"], marker="o", linewidth=2)
+axes[1].set_xlabel("Week (Sequential)")
 axes[1].set_ylabel("Weekly Average Sales ($)")
 axes[1].set_title("Weekly Average Sales (Trend + Seasonality Clearer)")
 axes[1].grid(True, alpha=0.3)
@@ -607,6 +611,10 @@ print("图表已保存到 output/time_series_trend_seasonality.png")
 小北说："哦！所以时间序列分析的第一步是'去噪声'？"
 
 对。聚合（如按周/月平均）能减少随机波动，让趋势和季节性更清晰。但要注意：**聚合会掩盖细节**，比如你无法再看到"周五晚上 vs 周六早上"的差异。
+
+除了聚合，还有一个常用技巧是**移动平均**（moving average）：用滑动窗口的均值来平滑曲线。比如 7 天移动平均可以消除"周几效应"，让长期趋势更明显。实现方式是 `df["sales"].rolling(window=7).mean()`。
+
+但老潘提醒："移动平均会引入**滞后**——当趋势开始转向时，移动平均线要过几天才会反应过来。所以它适合'看趋势'，不适合'预测拐点'。"
 
 ### 时间序列的陷阱：把相关当成因果
 
@@ -682,11 +690,10 @@ print("图表已保存到 output/time_series_trend_seasonality.png")
 2. **你认为为什么会这样？**（业务逻辑）
 3. **你打算怎么验证？**（统计方法）
 
-```python
-# examples/05_hypothesis_list.py
-import pandas as pd
+完整示例见 `examples/05_hypothesis_list.py`。核心结构是：
 
-# 假设清单模板
+```python
+# 假设清单模板（简化版）
 hypothesis_list = []
 
 def add_hypothesis(observation, explanation, test_method, priority="high"):
@@ -706,30 +713,8 @@ add_hypothesis(
     priority="high"
 )
 
-add_hypothesis(
-    observation="年龄与购买金额呈正相关（Pearson r = 0.65）",
-    explanation="年龄大的用户购买力更强，可能因为收入更高",
-    test_method="回归分析（Week 09）",
-    priority="medium"
-)
-
-add_hypothesis(
-    observation="周末的平均购买金额比工作日高 20%",
-    explanation="周末用户有更多时间浏览和购买",
-    test_method="按星期分组的方差分析（Week 07）",
-    priority="high"
-)
-
-add_hypothesis(
-    observation="停留时长与购买金额的相关性较弱（Pearson r = 0.3）",
-    explanation="停留时长可能包含浏览行为（如比较价格），不直接转化为购买",
-    test_method="相关系数的置信区间（Week 08）",
-    priority="low"
-)
-
 # 输出假设清单
 hypothesis_df = pd.DataFrame(hypothesis_list)
-print("可检验假设清单：")
 print(hypothesis_df.to_string(index=False))
 ```
 
@@ -767,56 +752,28 @@ print(hypothesis_df.to_string(index=False))
 - 分组比较：不同组之间有什么差异？
 - 可检验假设清单：准备验证什么？
 
+完整示例见 `examples/99_statlab.py`，核心结构如下：
+
 ```python
-# examples/04_statlab_eda.py
+# examples/99_statlab.py（简化版）
 import pandas as pd
 import seaborn as sns
-from pathlib import Path
 
 penguins = sns.load_dataset("penguins")
-
-# 1. 相关性分析（数值变量）
 numeric_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
+
+# 1. 相关性分析
 corr_matrix = penguins[numeric_cols].corr()
 
-def generate_correlation_section(corr_df: pd.DataFrame) -> str:
-    """生成相关性分析的 Markdown 片段"""
-    md = ["## 相关性分析\n\n"]
-    md.append("以下展示数值型变量两两之间的 Pearson 相关系数。\n\n")
-
-    # 找出最强的相关
-    corr_unstacked = corr_df.abs().unstack()
-    corr_unstacked = corr_unstacked[corr_unstacked < 1]  # 排除自相关
-    max_corr = corr_unstacked.idxmax()
-    max_corr_value = corr_unstacked.max()
-
-    md.append(f"**最强相关**：{max_corr[0]} 与 {max_corr[1]}（r = {corr_df.loc[max_corr[0], max_corr[1]]:.2f}）\n\n")
-
-    return "".join(md)
-
-# 2. 分组比较（按物种分组）
-def generate_group_comparison_section(df: pd.DataFrame) -> str:
-    """生成分组比较的 Markdown 片段"""
-    md = ["## 分组比较\n\n"]
-    md.append("以下按物种（species）分组，比较数值型变量的分布。\n\n")
-
-    # 计算各物种的描述统计
-    group_stats = df.groupby("species")[numeric_cols].describe().T
-    md.append("### 各物种的描述统计\n\n")
-    md.append(group_stats.to_html())
-    md.append("\n\n")
-
-    return "".join(md)
+# 2. 分组比较
+group_stats = penguins.groupby("species")[numeric_cols].describe()
 
 # 3. 假设清单生成
 class HypothesisList:
-    """假设清单：记录可检验的假设"""
-
     def __init__(self):
         self.hypotheses = []
 
-    def add(self, observation: str, explanation: str, test_method: str, priority: str = "medium"):
-        """添加一个假设"""
+    def add(self, observation, explanation, test_method, priority="medium"):
         self.hypotheses.append({
             "observation": observation,
             "explanation": explanation,
@@ -824,62 +781,13 @@ class HypothesisList:
             "priority": priority
         })
 
-    def to_dataframe(self) -> pd.DataFrame:
-        """转换为 DataFrame"""
-        return pd.DataFrame(self.hypotheses)
-
-def generate_hypothesis_section(hypotheses: HypothesisList) -> str:
-    """生成假设清单的 Markdown 片段"""
-    df = hypotheses.to_dataframe()
-    if df.empty:
-        return "## 可检验假设清单\n\n本数据集暂无待检验假设。\n"
-
-    md = ["## 可检验假设清单\n\n"]
-    md.append("以下假设基于 EDA 观察，将在后续章节用统计方法验证。\n\n")
-
-    for priority in ["high", "medium", "low"]:
-        priority_hyps = df[df["priority"] == priority]
-        if not priority_hyps.empty:
-            md.append(f"### {priority.capitalize()} 优先级\n\n")
-            for _, row in priority_hyps.iterrows():
-                md.append(f"**观察**：{row['observation']}\n\n")
-                md.append(f"**解释**：{row['explanation']}\n\n")
-                md.append(f"**检验方法**：{row['test_method']}\n\n")
-
-    return "".join(md)
-
-# 使用示例
 hypotheses = HypothesisList()
-
-# 添加假设（基于 EDA 观察）
 hypotheses.add(
-    observation="Gentoo 企鹅的 flipper_length_mm（翅长）均值显著高于其他物种",
-    explanation="Gentoo 体型更大，翅长可能是物种特征",
+    observation="Gentoo 企鹅的翅长均值显著高于其他物种",
+    explanation="Gentoo 体型更大",
     test_method="方差分析 ANOVA（Week 07）",
     priority="high"
 )
-
-hypotheses.add(
-    observation="bill_length_mm 与 flipper_length_mm 呈正相关（r ≈ 0.65）",
-    explanation="体型更大的企鹅嘴峰更长",
-    test_method="相关系数的置信区间（Week 08）",
-    priority="medium"
-)
-
-# 输出各部分
-corr_md = generate_correlation_section(corr_matrix)
-group_md = generate_group_comparison_section(penguins)
-hyp_md = generate_hypothesis_section(hypotheses)
-
-print("=== StatLab EDA 报告片段 ===\n")
-print(corr_md)
-print(group_md)
-print(hyp_md)
-
-# 写入文件
-Path("output/eda_sections.md").parent.mkdir(parents=True, exist_ok=True)
-Path("output/eda_sections.md").write_text(corr_md + group_md + hyp_md)
-print("\n报告片段已保存到 output/eda_sections.md")
 ```
 
 ### 与本周知识的连接
