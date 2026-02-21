@@ -3,7 +3,9 @@
 > "With great power comes great responsibility."
 > — Voltaire (also attributed to Spider-Man)
 
-2024年，一家大型医疗AI公司被曝光其算法在分配医疗资源时存在系统性偏见：对白人患者的推荐优先级明显高于少数族裔患者，即使两者症状相似。问题不在"模型不准"，而在模型训练数据本身反映了历史上的医疗不平等——模型忠实地学到了数据中的偏见，并将其放大。
+2024年，一家大型医疗AI公司被曝光其算法在分配医疗资源时存在系统性偏见：对白人患者的推荐优先级明显高于少数族裔患者，即使两者症状相似。问题不在"模型不准"，而在于模型训练数据本身反映了历史上的医疗不平等——模型忠实地学到了数据中的偏见，并将其放大。
+
+这不是孤例。从招聘筛选算法对女性简历的系统性降权，到信用评分模型对低收入群体的隐性歧视，"能预测的模型"不等于"负责任的模型"。欧盟 GDPR 的"解释权"条款、美国 NIST 的 AI 风险管理框架、中国《深度合成管理规定》——各国监管都在强调同一个原则：**可解释性和公平性不再是可有可无的选项，而是模型部署的前提**。
 
 这不是孤例。从招聘筛选算法对女性简历的系统性降权，到信用评分模型对低收入群体的隐性歧视，"能预测的模型"不等于"负责任的模型"。欧盟 GDPR 的"解释权"条款、美国 NIST 的 AI 风险管理框架、中国《深度合成管理规定》——各国监管都在强调同一个原则：**可解释性和公平性不再是可有可无的选项，而是模型部署的前提**。
 
@@ -177,14 +179,10 @@ import shap
 explainer = shap.TreeExplainer(rf)
 shap_values = explainer.shap_values(X_test)
 
-# 解释单个样本
+# 解释单个样本（注意：force_plot 在新版本中已弃用，推荐使用 waterfall）
+# 完整示例见 examples/12_02_shap_values.py
 sample_idx = 0  # 选择一个被预测为流失的样本
-shap.force_plot(
-    explainer.expected_value[1],
-    shap_values[1][sample_idx],
-    X_test.iloc[sample_idx],
-    matplotlib=True
-)
+# shap.force_plot(...)  # 旧版 API，使用 shap.plots.waterfall() 替代
 ```
 
 阿码第一次看到 SHAP 图时的反应和你可能一样：一个"瀑布图"，每个特征是一个箭头，向右推表示增加流失概率，向左推表示降低流失概率。
@@ -195,18 +193,11 @@ shap.force_plot(
 
 "对。"老潘说，"这就是 SHAP 的核心——**局部可解释性**。`days_since_last_purchase` 对这个样本贡献 +0.31，但对另一个样本可能只贡献 +0.05。因为模型不是线性的，特征的贡献会因样本而异。"
 
-这正好呼应了 Week 08 学的**点估计与区间估计**：特征重要性是一个"点估计"（平均重要性），SHAP 值是一个"分布"（每个样本有不同的贡献）。
+这正好呼应了 Week 08 学的**置信区间**：特征重要性是一个"平均值"（类似点估计），SHAP 值是一个"分布"（类似区间估计）。同一个特征在不同样本上的贡献可以不同，就像样本均值有置信区间一样。
 
 ### SHAP 汇总图：全局 + 局部
 
-SHAP 还可以画出"汇总图"，同时展示全局和局部信息：
-
-```python
-# SHAP 汇总图
-shap.summary_plot(shap_values[1], X_test, plot_type="dot")
-```
-
-这张图告诉你两件事：
+SHAP 还可以画出"汇总图"，同时展示全局和局部信息（完整实现见 `examples/12_02_shap_values.py`）。这张图告诉你两件事：
 1. **全局**：哪些特征最重要（点的分布宽度）
 2. **局部**：同一特征对不同样本的贡献方向（红色=高特征值，蓝色=低特征值）
 
@@ -236,7 +227,7 @@ shap.summary_plot(shap_values[1], X_test, plot_type="dot")
 > - **欧盟 GDPR**：第 22 条赋予个人"不接受纯自动化决策"的权利，包括"获得解释"的权利
 > - **欧盟 AI Act**：将 AI 系统按风险分类，"高风险"系统（如招聘、信贷、医疗）必须提供可解释性
 > - **美国 NIST AI RMF**：要求 AI 系统"透明、可解释、可问责"
-> - **中国《深度合成管理规定》**：要求深度合成服务提供者"在生成内容中添加不影响使用的标识"
+> - **中国《互联网信息服务算法推荐管理规定》**：要求算法推荐服务提供者"建立健全算法机制机理审核、科技伦理审查等管理制度"，保障用户知情权和选择权
 >
 > **为什么 AI 时代可解释性更重要？**
 >
@@ -256,11 +247,13 @@ shap.summary_plot(shap_values[1], X_test, plot_type="dot")
 >
 > 你本周学的 SHAP 值、特征重要性、公平性评估，不是"可选的附加功能"，而是"负责任建模"的核心部分。**能预测的模型不等于能部署的模型**——前者需要 AUC，后者需要可解释性和公平性。
 >
-> 参考（访问日期：2026-02-18）：
+> 参考（访问日期：2026-02-21）：
 > - [GDPR Article 22: Automated individual decision-making](https://gdpr-info.eu/art-22-gdpr/)
 > - [EU AI Act: High-Risk AI Systems](https://artificialintelligenceact.eu/)
 > - [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)
 > - [Google Model Cards](https://modelcards.withgoogle.com/)
+>
+> 注：以上链接基于当前监管文档，具体条款可能随时间更新。
 
 ---
 
@@ -329,30 +322,30 @@ print(gender_results)
 
 ### 按群体分解：混淆矩阵告诉你哪里不公平
 
-更详细的偏见检测需要看混淆矩阵：
+更详细的偏见检测需要看混淆矩阵。完整实现见 `examples/12_03_bias_detection.py`，核心思路：
 
 ```python
+# 按 sensitive_attr 分组计算混淆矩阵
+import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
-def group_confusion_matrices(y_true, y_pred, sensitive_attr):
-    """计算每个群体的混淆矩阵"""
-    groups = sensitive_attr.unique()
-    cms = {}
+# 为每个群体绘制混淆矩阵热图
+fig, axes = plt.subplots(1, len(sensitive_attr.unique()), figsize=(12, 4))
 
-    for group in groups:
-        mask = sensitive_attr == group
-        cm = confusion_matrix(y_true[mask], y_pred[mask])
-        cms[group] = cm
+for idx, group in enumerate(sensitive_attr.unique()):
+    mask = sensitive_attr == group
+    cm = confusion_matrix(y_true[mask], y_pred[mask])
 
-    return cms
+    # 绘制热图：行=真实值，列=预测值
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[idx])
+    axes[idx].set_title(f'Group: {group}')
+    axes[idx].set_xlabel('Predicted')
+    axes[idx].set_ylabel('Actual')
 
-# 可视化
-fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-for (group, cm), ax in zip(cms.items(), axes):
-    sns.heatmap(cm, annot=True, fmt='d', ax=ax, cmap='Blues')
-    ax.set_title(f'Confusion Matrix: {group}')
-    ax.set_xlabel('Predicted')
-    ax.set_ylabel('Actual')
+# 输出示例：两张并排的混淆矩阵，直观对比不同群体的 TP/FP/FN/TN
+plt.tight_layout()
+plt.savefig('images/group_confusion_matrices.png')
 ```
 
 老潘看着图说："看这里，女性群体的假阳性（FP=45）比男性（FP=28）高很多。这意味着**女性更容易被错误地预测为流失**。如果模型用于营销（给流失风险高的人发优惠券），女性会收到更多不必要的影响，男性会收不到——这是分配不公。"
@@ -369,17 +362,43 @@ for (group, cm), ax in zip(cms.items(), axes):
 
 "如果我让模型对所有人的预测流失率一样，"小北说，"那是不是更公平？"
 
-老潘摇头。"**公平不是单一指标，而是多个相互冲突的目标之间的权衡**。"
+老潘摇头。"**这就像给全班学生打分——如果你强制要求男生和女生的平均分完全一样，那对真正考得好的那些人不公平**。"
 
-### 三种常见的公平性定义
+"啊？"小北愣住了。
+
+"公平不是一个开关，而是一把尺子——而且有三把不同的尺子，它们给出的答案还经常打架。"老潘打开白板，"先别记公式，我们先看三个直觉。"
+
+### 直觉先行：三把"公平尺"
+
+**第一把尺子：统计均等——"各群体得到的结果数量一样"**
+
+想象你运营一个优惠券发放系统。如果男性用户收到 100 张优惠券，女性用户也应该收到大约 100 张——不管他们的实际流失率是不是真的不同。
+
+这听起来很公平，但有个问题：**如果男性真实流失率确实是女性的两倍呢？** 强制让发放数量相同，意味着你对男性"发少了"，对女性"发多了"。
+
+**第二把尺子：机会均等——"各群体被'正确判断'的比例一样"**
+
+这把尺子不看"发了多少优惠券"，而是看"判断对不对"。它要求：
+- 真正会流失的人，男性和女性被识别出来的比例一样（真阳性率相同）
+- 真正不会流失的人，男性和女性被误判为流失的比例一样（假阳性率相同）
+
+问题来了：**如果训练数据中女性样本本来就少，模型很难学出和男性一样好的判断**。这把尺子理论上完美，但现实中很难同时满足。
+
+**第三把尺子：校准——"预测概率和真实概率匹配"**
+
+这把尺子说：如果模型预测"这位客户的流失概率是 70%"，那么无论男女，真实流失概率都应该是 70% 左右。
+
+听起来很合理？但老潘指出了一个陷阱：**"如果历史数据显示女性获得的贷款更少（因为历史上的偏见），即使模型校准完美，女性还是会持续收到更少的贷款批准——这是'公平的模型'产生'不公平的结果'。"**
+
+### 三种公平性定义（对比表）
+
+其中：Ŷ = 预测值，Y = 真实值，A = 敏感属性（如性别），P 表示概率，TPR = 真阳性率，FPR = 假阳性率
 
 | 公平性定义 | 直觉含义 | 公式（简化） | 问题 |
 |-----------|---------|-------------|------|
 | **统计均等（Demographic Parity）** | 各群体的预测正率相同 | P(Ŷ=1\|A=0) = P(Ŷ=1\|A=1) | 忽略真实风险差异 |
 | **机会均等（Equalized Odds）** | 各群体的真阳性率、假阳性率相同 | TPR(A=0) = TPR(A=1)<br>FPR(A=0) = FPR(A=1) | 可能无法同时满足 |
 | **校准（Calibration）** | 各群体的预测概率与真实概率匹配 | P(Y=1\|Ŷ=p, A=0) = P(Y=1\|Ŷ=p, A=1) | 可能掩盖分配不公 |
-
-老潘解释："**统计均等**要求模型对男性和女性预测同样比例的流失。但如果男性的真实流失率是 25%，女性是 15%，强制让预测比例相同会导致模型对男性'低估'、对女性'高估'——这也不公平。"
 
 "**机会均等**要求模型对男性和女性的真阳性率相同（抓到真正流失客户的比例），以及假阳性率相同（误判为流失的比例）。但这往往无法同时满足——如果女性在训练数据中的正样本更少，模型很难有相同的召回率。"
 
@@ -406,6 +425,7 @@ for (group, cm), ax in zip(cms.items(), axes):
 
 这正好呼应了 Week 06 学的**效应量**：p 值小不等于差异大。同样，"公平性改进"不等于"公平性完美"——你需要量化权衡，而不是二选一。
 
+<!-- 需要先安装 fairlearn: pip install fairlearn -->
 ```python
 # 第一步：计算原始模型的不公平程度
 from fairlearn.metrics import MetricFrame
@@ -426,6 +446,8 @@ print(f"性别组准确率差异: {metric_frame.difference['accuracy']:.4f}")
 
 ```python
 # 第二步：使用后处理技术减少不公平（简化示例）
+# 注意：sensitive_features 必须从原始数据分离，不能包含在 X_train/X_test 中
+# 这是防止数据泄漏的关键步骤
 from fairlearn.postprocessing import ThresholdOptimizer
 
 postprocess_est = ThresholdOptimizer(
@@ -433,6 +455,7 @@ postprocess_est = ThresholdOptimizer(
     constraints="demographic_parity",
     prefit=True
 )
+# 敏感属性必须单独传入，不能作为模型训练特征
 postprocess_est.fit(X_train, y_train, sensitive_features=X_train['gender'])
 y_pred_fair = postprocess_est.predict(X_test, sensitive_features=X_test['gender'])
 
@@ -479,11 +502,13 @@ print(f"性别组准确率差异: ...")
 >
 > 偏见检测不是"一次性检查"，而是**持续监控**。模型部署后，实际使用中的数据分布可能变化，导致新的偏见出现。本周学的分组评估、混淆矩阵分解、公平性指标，应该成为你模型报告的标准部分。
 >
-> 参考（访问日期：2026-02-18）：
+> 参考（访问日期：2026-02-21）：
 > - [Fairlearn Documentation](https://fairlearn.org/)
 > - [IBM AI Fairness 360](https://aif360.mybluemix.net/)
 > - [Google What-If Tool](https://pair-code.github.io/what-if-tool/)
 > - [Google Fairness Indicators](https://github.com/tensorflow/fairness-indicators)
+>
+> 注：以上链接基于当前开源项目文档，API 可能随版本更新。
 
 ---
 
@@ -574,162 +599,42 @@ print(f"性别组准确率差异: ...")
 
 ### 第一步：SHAP 可解释性模块
 
+完整的可解释性模块见 `examples/12_statlab_interpretability.py`，这里展示核心函数签名：
+
 ```python
-# examples/12_statlab_interpretability.py
-import shap
-import matplotlib.pyplot as plt
-from pathlib import Path
-
+# examples/12_statlab_interpretability.py 核心函数
 def compute_shap_values(model, X_train, X_test, model_type='rf'):
-    """
-    计算 SHAP 值
-    """
-    if model_type == 'rf':
-        explainer = shap.TreeExplainer(model)
-    else:
-        explainer = shap.KernelExplainer(model.predict_proba, X_train[:100])
-
-    shap_values = explainer.shap_values(X_test)
-
-    return explainer, shap_values
+    """计算 SHAP 值，返回 explainer 和 shap_values"""
 
 def plot_shap_summary(explainer, shap_values, X_test, output_dir='output'):
-    """
-    画出 SHAP 汇总图
-    """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    fig = plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_values[1], X_test, plot_type="dot", show=False)
-    plt.tight_layout()
-    plt.savefig(f"{output_dir}/shap_summary.png", dpi=150, bbox_inches='tight')
-    plt.close()
-
-    return f"{output_dir}/shap_summary.png"
+    """生成 SHAP 汇总图并保存到 output_dir"""
 
 def explain_single_prediction(explainer, shap_values, X_test, sample_idx,
                              feature_names, output_dir='output'):
-    """
-    解释单个预测，返回 Markdown 文本和图
-    """
-    # 瀑布图
-    fig = shap.force_plot(
-        explainer.expected_value[1],
-        shap_values[1][sample_idx],
-        X_test.iloc[sample_idx],
-        matplotlib=True,
-        show=False
-    )
-    fig.savefig(f"{output_dir}/shap_sample_{sample_idx}.png",
-                dpi=150, bbox_inches='tight')
-    plt.close()
-
-    # 生成解释文本
-    sample = X_test.iloc[sample_idx]
-    shap_vals = shap_values[1][sample_idx]
-
-    # 找出贡献最大的 3 个特征
-    top_idx = np.argsort(np.abs(shap_vals))[-3:][::-1]
-
-    md = ["### 单样本预测解释\n\n"]
-    md.append(f"**样本 ID**: {sample_idx}\n\n")
-    md.append("**预测流失概率**: 基线 + 特征贡献\n\n")
-    md.append("**主要影响因素**:\n\n")
-
-    for idx in top_idx:
-        feature = feature_names[idx]
-        contribution = shap_vals[idx]
-        value = sample[feature]
-        direction = "增加" if contribution > 0 else "降低"
-        md.append(f"- **{feature}** = {value:.2f}: {direction}流失风险 {abs(contribution)*100:.1f}%\n")
-
-    md.append(f"\n![SHAP 瀑布图](output/shap_sample_{sample_idx}.png)\n\n")
-
-    return "".join(md)
+    """解释单个预测，返回 Markdown 文本并保存瀑布图"""
 ```
 
 ### 第二步：公平性评估模块
 
 ```python
+# 按敏感属性分组评估（完整代码见 examples/12_statlab_interpretability.py）
 def compute_fairness_metrics(y_true, y_pred, y_prob, sensitive_attrs):
     """
     计算公平性指标
-
     sensitive_attrs: dict, 如 {'gender': X_test['gender'], 'age_group': X_test['age_group']}
+    返回: 各分组的准确率、真阳性率、假阳性率等
     """
-    from sklearn.metrics import confusion_matrix, accuracy_score, recall_score
-
-    results = {}
-
-    for attr_name, attr_values in sensitive_attrs.items():
-        attr_results = {}
-        unique_groups = attr_values.unique()
-
-        # 整体指标
-        overall_acc = accuracy_score(y_true, y_pred)
-        overall_recall = recall_score(y_true, y_pred, zero_division=0)
-
-        for group in unique_groups:
-            mask = attr_values == group
-            group_size = mask.sum()
-
-            if group_size < 10:  # 样本太少，跳过
-                continue
-
-            group_y_true = y_true[mask]
-            group_y_pred = y_pred[mask]
-            group_y_prob = y_prob[mask]
-
-            cm = confusion_matrix(group_y_true, group_y_pred)
-            tn, fp, fn, tp = cm.ravel()
-
-            attr_results[group] = {
-                'count': group_size,
-                'positive_rate': group_y_pred.mean(),
-                'true_positive_rate': tp / (tp + fn) if (tp + fn) > 0 else 0,
-                'false_positive_rate': fp / (fp + tn) if (fp + tn) > 0 else 0,
-                'accuracy': accuracy_score(group_y_true, group_y_pred),
-                'avg_predicted_prob': group_y_prob.mean()
-            }
-
-        results[attr_name] = attr_results
-
-    return results
 
 def format_fairness_report(fairness_results):
-    """
-    格式化公平性评估报告
-    """
-    md = ["## 公平性评估\n\n"]
-
-    for attr_name, groups in fairness_results.items():
-        md.append(f"### 按 {attr_name} 分组\n\n")
-        md.append("| 分组 | 样本数 | 预测正率 | 真阳性率 | 假阳性率 | 准确率 |\n")
-        md.append("|------|--------|---------|---------|---------|--------|\n")
-
-        for group, metrics in groups.items():
-            md.append(f"| {group} | {metrics['count']} | {metrics['positive_rate']:.3f} | "
-                     f"{metrics['true_positive_rate']:.3f} | {metrics['false_positive_rate']:.3f} | "
-                     f"{metrics['accuracy']:.3f} |\n")
-
-        # 计算差异
-        if len(groups) > 1:
-            tpr_diff = max(g['true_positive_rate'] for g in groups.values()) - \
-                       min(g['true_positive_rate'] for g in groups.values())
-            fpr_diff = max(g['false_positive_rate'] for g in groups.values()) - \
-                       min(g['false_positive_rate'] for g in groups.values())
-
-            md.append(f"\n**指标差异**:\n")
-            md.append(f"- 真阳性率差异: {tpr_diff:.3f}\n")
-            md.append(f"- 假阳性率差异: {fpr_diff:.3f}\n\n")
-
-            if tpr_diff > 0.1 or fpr_diff > 0.1:
-                md.append("⚠️ **警告**: 检测到显著的分组差异，建议进一步调查数据来源或考虑后处理校准。\n\n")
-            else:
-                md.append("✅ 分组差异在可接受范围内。\n\n")
-
-    return "".join(md)
+    """生成公平性评估报告（Markdown 格式）"""
 ```
+
+输出示例：
+
+| 分组 | 样本数 | 预测正率 | 真阳性率 | 假阳性率 | 准确率 |
+|------|--------|---------|---------|---------|--------|
+| A | 500 | 0.18 | 0.72 | 0.08 | 0.85 |
+| B | 300 | 0.22 | 0.65 | 0.15 | 0.81 |
 
 ### 第三步：面向非技术读者的解释生成
 
@@ -737,22 +642,23 @@ def format_fairness_report(fairness_results):
 def generate_non_technical_summary(model_results, fairness_results, top_features=5):
     """
     生成面向非技术读者的模型总结
+    注意：以下行动建议是示例模板，实际应用时应根据具体数据特征和业务场景定制
     """
     md = ["## 模型结论与行动建议（面向非技术读者）\n\n"]
 
-    # 1. 一句话总结
+    # 1. 模型性能总结
     auc = model_results['metrics']['auc']
     md.append(f"**模型性能**: 该模型能正确识别约 {auc*100:.0f}% 的客户流失状态。\n\n")
 
-    # 2. 关键风险信号
+    # 2. 关键风险信号（基于实际特征重要性）
     if 'feature_importance' in model_results:
         top_feats = model_results['feature_importance'].head(top_features)
         md.append("**主要风险信号**:\n\n")
         for _, row in top_feats.iterrows():
             md.append(f"- **{row['feature']}** 是影响流失预测的最重要因素\n")
 
-    # 3. 行动建议（根据特征重要性生成）
-    md.append("\n**行动建议**:\n\n")
+    # 3. 行动建议（示例模板，应根据实际业务调整）
+    md.append("\n**行动建议（示例）**:\n\n")
     md.append("- 优先联系：最近购买天数超过 30 天的客户\n")
     md.append("- 考虑激励：购买次数较少（< 3 次）的客户\n")
     if fairness_results:
@@ -769,79 +675,18 @@ def generate_non_technical_summary(model_results, fairness_results, top_features
 
 ### 第四步：完整的可解释性报告
 
-```python
-def generate_interpretability_report(model, X_train, X_test, y_test,
-                                   y_pred, y_prob, sensitive_attrs,
-                                   output_dir='output'):
-    """
-    生成完整的可解释性与伦理报告
-    """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    report_parts = []
-
-    # 1. SHAP 可解释性
-    explainer, shap_values = compute_shap_values(model, X_train, X_test)
-    shap_img = plot_shap_summary(explainer, shap_values, X_test, output_dir)
-
-    report_parts.append("## 模型可解释性\n\n")
-    report_parts.append(f"![]({shap_img})\n\n")
-    report_parts.append("**SHAP 汇总图解读**:\n")
-    report_parts.append("- 横轴: SHAP 值（正值表示增加流失风险，负值表示降低风险）\n")
-    report_parts.append("- 颜色: 特征值大小（红色=高值，蓝色=低值）\n")
-    report_parts.append("- 点的分布: 同一特征对不同样本的贡献可能不同\n\n")
-
-    # 2. 单样本解释示例
-    sample_idx = y_test[y_test == 1].index[0]  # 选择一个真实流失的样本
-    single_expl = explain_single_prediction(
-        explainer, shap_values, X_test, sample_idx,
-        X_test.columns.tolist(), output_dir
-    )
-    report_parts.append(single_expl)
-
-    # 3. 公平性评估
-    fairness_results = compute_fairness_metrics(y_test, y_pred, y_prob, sensitive_attrs)
-    fairness_report = format_fairness_report(fairness_results)
-    report_parts.append(fairness_report)
-
-    # 4. 非技术读者总结
-    model_results = {
-        'metrics': {'auc': roc_auc_score(y_test, y_prob)},
-        'feature_importance': pd.DataFrame({
-            'feature': X_test.columns,
-            'importance': model.feature_importances_ if hasattr(model, 'feature_importances_') else [0]*len(X_test.columns)
-        }).sort_values('importance', ascending=False)
-    }
-    non_tech_summary = generate_non_technical_summary(model_results, fairness_results)
-    report_parts.append(non_tech_summary)
-
-    # 5. 伦理风险清单
-    report_parts.append("## 伦理风险清单\n\n")
-    report_parts.append("| 风险类型 | 风险等级 | 缓解措施 |\n")
-    report_parts.append("|---------|---------|---------|\n")
-    report_parts.append("| 数据偏见 | 中 | 定期审计分组指标，增加少数群体样本 |\n")
-    report_parts.append("| 分配不公 | 低 | 分组真阳性率差异 < 10% |\n")
-    report_parts.append("| 隐私风险 | 中 | 数据匿名化，限制访问权限 |\n")
-    report_parts.append("| 模型边界 | 中 | 明确有效期，定期重新训练 |\n")
-
-    return "".join(report_parts)
-```
-
-### 使用示例
+将以上模块整合，生成完整的报告。使用方式：
 
 ```python
-# 加载上周训练的随机森林模型
+# 完整报告生成（详见 examples/12_statlab_interpretability.py）
 import pickle
+from pathlib import Path
 
+# 加载模型和数据
 with open('models/random_forest_model.pkl', 'rb') as f:
     rf_model = pickle.load(f)
 
-# 准备数据
-X_test, y_test = ...  # 从上周的代码加载
-y_pred = rf_model.predict(X_test)
-y_prob = rf_model.predict_proba(X_test)[:, 1]
-
-# 定义敏感属性（用于公平性评估）
+# 准备数据（敏感属性必须从原始数据分离，不能作为训练特征）
 sensitive_attrs = {
     'gender': X_test['gender'],
     'age_group': pd.cut(X_test['age'], bins=[0, 25, 35, 50, 100],
@@ -855,7 +700,6 @@ report = generate_interpretability_report(
 
 # 保存报告
 Path('output/interpretability_report.md').write_text(report)
-print("可解释性报告已保存到 output/interpretability_report.md")
 ```
 
 ### 与本周知识的连接
