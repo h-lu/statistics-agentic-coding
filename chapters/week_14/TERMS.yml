@@ -1,6 +1,6 @@
 # Week 14 术语表
 #
-# 本周新引入的概念（4 个，符合高级专题阶段预算）
+# 本周新引入的概念（7 个，符合高级专题阶段预算）
 # 回顾桥概念（p 值、置信区间、Bootstrap、假设检验框架）已在 shared/glossary.yml 中定义
 
 - term_zh: 贝叶斯定理
@@ -16,6 +16,21 @@
 - term_zh: 后验分布
   term_en: Posterior Distribution
   definition_zh: 给定数据后，参数的条件概率分布。后验分布整合了先验知识和数据信息，是贝叶斯推断的核心输出。
+  first_seen: week_14
+
+- term_zh: 可信区间
+  term_en: Credible Interval
+  definition_zh: 贝叶斯学派的区间估计。95% 可信区间表示"参数有 95% 的概率落在这个区间内"，与频率学派的置信区间有本质区别。
+  first_seen: week_14
+
+- term_zh: 共轭先验
+  term_en: Conjugate Prior
+  definition_zh: 使后验分布与先验分布属于同一分布族的先验分布。例如 Beta 分布是二项分布似然的共轭先验，后验仍为 Beta 分布，计算方便。
+  first_seen: week_14
+
+- term_zh: 先验敏感性分析
+  term_en: Prior Sensitivity Analysis
+  definition_zh: 通过尝试多个合理的先验来检验结论稳健性的方法。如果不同先验的后验差异很小，说明结论对先验不敏感（稳健）。
   first_seen: week_14
 
 - term_zh: MCMC 采样
