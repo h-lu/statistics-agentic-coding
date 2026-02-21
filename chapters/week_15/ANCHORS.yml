@@ -1,0 +1,39 @@
+# Week 15 锚点
+#
+# 记录本章可验证的核心主张
+# 每个锚点包含：id, claim, evidence, verification
+
+- id: week_15_curse_of_dimensionality
+  claim: 在高维空间中，点对之间的距离会趋同，导致最近邻概念失去意义
+  evidence: "CHAPTER.md 第 1 节：维度灾难演示代码显示，维度从 1 增加到 100 时，平均距离的变异系数减小"
+  verification: "运行 examples/01_curse_of_dimensionality.py，观察距离变异系数随维度增加而减小"
+
+- id: week_15_pca_variance
+  claim: PCA 通过找到方差最大的方向来降维，前 k 个主成分的累积方差比例不超过 1
+  evidence: "CHAPTER.md 第 3 节：explained_variance_ratio_ 之和等于各主成分方差比例之和，总和 <= 1"
+  verification: "运行 tests/test_pca.py::test_explained_variance_ratio_sum，验证 PCA 方差比例之和 <= 1"
+
+- id: week_15_pca_standardization
+  claim: PCA 对尺度敏感，必须先标准化，否则方差大的特征会主导主成分
+  evidence: "CHAPTER.md 第 3 节：PCA 陷阱部分明确指出标准化的重要性"
+  verification: "运行 examples/02_pca_demo.py 中的反例部分，对比标准化前后的主成分差异"
+
+- id: week_15_kmeans_inertia
+  claim: K-means 的 inertia（簇内平方和）随 K 增加单调递减，但递减速度在拐点后变慢
+  evidence: "CHAPTER.md 第 4 节：肘部法则使用 inertia 来选择 K 值"
+  verification: "运行 tests/test_kmeans.py::test_inertia_decreases_with_k，验证 inertia 单调递减"
+
+- id: week_15_silhouette_range
+  claim: 轮廓系数取值范围为 [-1, 1]，越大表示聚类效果越好
+  evidence: "CHAPTER.md 第 4 节：轮廓系数用于评估聚类质量和选择 K 值"
+  verification: "运行 tests/test_kmeans.py::test_silhouette_score_range，验证轮廓系数在 [-1, 1] 范围内"
+
+- id: week_15_clustering_vs_classification
+  claim: 聚类是无监督学习，发现隐藏分组；分类是有监督学习，预测预定义标签
+  evidence: "CHAPTER.md 第 4 节：聚类与分类的区别对比表"
+  verification: "阅读 CHAPTER.md 第 4 节的对比表，理解两种方法的本质差异"
+
+- id: week_15_interpretation
+  claim: 降维和聚类的核心价值不在算法，而在将数学输出翻译成业务语言
+  evidence: "CHAPTER.md 第 5 节：主成分载荷解释和簇业务含义翻译"
+  verification: "阅读 CHAPTER.md 第 5 节，理解如何将 PC1 翻译为'综合活跃度'，将簇 0 翻译为'高价值客户'"

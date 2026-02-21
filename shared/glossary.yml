@@ -644,6 +644,27 @@
   definition_zh: 使后验分布与先验分布属于同一分布族的先验。例如 Beta 分布是二项分布似然的共轭先验：Beta 先验 + Binomial 似然 → Beta 后验。共轭先验的优点是后验有解析解，计算简便。
   first_seen: week_14
 
+# ─── Week 15 ───
+- term_zh: 维度灾难
+  term_en: Curse of Dimensionality
+  definition_zh: 当特征数量（维度）增加时，数据在高维空间中变得极其稀疏，导致距离度量失效、样本需求指数增长、过拟合风险增加的现象。在高维空间中，所有点对之间的距离趋同，"最近邻"概念失去意义。
+  first_seen: week_15
+
+- term_zh: 主成分分析
+  term_en: Principal Component Analysis (PCA)
+  definition_zh: 通过正交变换将高维数据投影到低维空间的降维方法。PCA 找到方差最大的方向（主成分），每个主成分是原始特征的线性组合，主成分之间互不相关（正交）。第一主成分解释最多方差，第二主成分解释次多方差，以此类推。
+  first_seen: week_15
+
+- term_zh: 聚类分析
+  term_en: Clustering Analysis
+  definition_zh: 无监督学习方法，将相似样本分到同一组（簇），使组内样本相似度高、组间样本相似度低。常用算法包括 K-means（最小化簇内平方和）和层次聚类（生成树状图）。与分类不同，聚类没有预定义的标签，目标是发现数据中的隐藏结构。
+  first_seen: week_15
+
+- term_zh: 轮廓系数
+  term_en: Silhouette Score
+  definition_zh: 聚类质量评估指标，衡量样本与自身簇及邻近簇的关系。计算公式为 (b - a) / max(a, b)，其中 a 是样本与同簇其他样本的平均距离，b 是样本与最近其他簇样本的平均距离。取值范围 [-1, 1]，越大表示聚类效果越好。用于选择最优 K 值。
+  first_seen: week_15
+
 - term_zh: 先验敏感性分析
   term_en: Prior Sensitivity Analysis
   definition_zh: 测试结论对先验选择依赖程度的分析过程。方法：尝试多个合理的先验（无信息、弱信息、信息性），计算每个先验的后验分布，比较后验的差异。如果差异小，说明结论稳健；如果差异大，说明需要更多数据或更强的先验依据。数据量大时不同先验的后验会收敛（"数据最终战胜先验"）。
