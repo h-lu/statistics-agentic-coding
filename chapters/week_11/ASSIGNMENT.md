@@ -398,7 +398,9 @@ auc_rf_dist = bootstrap_auc(rf_model, X_test, y_test)
 
 # 计算置信区间
 def ci_interval(dist, alpha=0.05):
-    return np.percentile(dist, [alpha/2*100, (1-alpha/2)*100])
+    lower = alpha / 2 * 100  # 如 0.05/2 * 100 = 2.5
+    upper = (1 - alpha / 2) * 100  # 如 (1-0.025) * 100 = 97.5
+    return np.percentile(dist, [lower, upper])
 
 ci_lr = ci_interval(auc_lr_dist)
 ci_rf = ci_interval(auc_rf_dist)
