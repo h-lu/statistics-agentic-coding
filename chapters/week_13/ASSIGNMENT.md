@@ -41,7 +41,7 @@
 第 2 层 - 干预 (Intervention)：
 问题：发放优惠券会降低流失率吗？
 回答方式：P(churn|do(coupon)) vs P(churn|do(no coupon))
-你的模型能回答：❌ 不能（需要因果识别策略，如 RCT）
+你的模型能回答：⚠️ 不能直接回答（需要因果识别策略：RCT 或观察研究方法如 PSM/DID/IV）
 
 第 3 层 - 反事实 (Counterfactual)：
 问题：如果当时没给这个客户发优惠券，他会流失吗？
