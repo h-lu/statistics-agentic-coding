@@ -13,3 +13,17 @@ build/
 # 运行时生成的图表和报告输出
 output/
 /*.png
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Serena MCP
+.serena/
+
+# Backup files
+*.backup
+
+# Test outputs
+test_output.md
+test_report.md
