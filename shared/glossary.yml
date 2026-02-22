@@ -669,3 +669,20 @@
   term_en: Prior Sensitivity Analysis
   definition_zh: 测试结论对先验选择依赖程度的分析过程。方法：尝试多个合理的先验（无信息、弱信息、信息性），计算每个先验的后验分布，比较后验的差异。如果差异小，说明结论稳健；如果差异大，说明需要更多数据或更强的先验依据。数据量大时不同先验的后验会收敛（"数据最终战胜先验"）。
   first_seen: week_14
+
+# ─── Week 16 ───
+
+- term_zh: 可复现报告流水线
+  term_en: Reproducible Report Pipeline
+  definition_zh: 一个系统，把数据分析从"人工流程"变成"自动化脚本"，包含数据、代码、环境、随机种子、决策记录、报告生成六个组件，确保任何人运行脚本能得到完全相同的结论。
+  first_seen: week_16
+
+- term_zh: 分析报告审计清单
+  term_en: Analysis Report Audit Checklist
+  definition_zh: 一份系统化的检查列表，用于验证报告的完整性、可复现性、诚实性。包含四个维度：数据与可复现性、统计假设与方法、诚实性与透明度、叙事与结构。
+  first_seen: week_16
+
+- term_zh: 展示叙事结构
+  term_en: Presentation Narrative Structure
+  definition_zh: 面向非技术受众的故事框架，包含五个环节：问题（为什么听众要关心）、方法（你做了什么）、发现（你发现了什么）、边界（结论的限制）、反思（意味着什么）。
+  first_seen: week_16

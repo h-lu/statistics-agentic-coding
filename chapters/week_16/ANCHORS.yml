@@ -1,0 +1,65 @@
+# Week 16 锚点定义
+#
+# 每个锚点包含：
+# - id: 唯一标识符（周内唯一）
+# - claim: 可验证的断言
+# - evidence: 证据位置（文件:行号 或 代码块）
+# - verification: 验证方法（如何验证断言成立）
+
+# ─── 概念锚点 ───
+
+- id: anchor_reproducible_pipeline
+  claim: 可复现报告流水线包含六个核心组件：数据、代码、环境、随机种子、决策记录、报告生成
+  evidence: "CHAPTER.md:109-119 (可复现报告流水线表格)"
+  verification: "阅读 CHAPTER.md 第 1 节，确认表格列出的六个组件"
+
+- id: anchor_audit_dimensions
+  claim: 分析报告审计清单包含四个维度：数据与可复现性、统计假设与方法、诚实性与透明度、叙事与结构
+  evidence: "CHAPTER.md:378-413 (审计维度表格)"
+  verification: "阅读 CHAPTER.md 第 3 节，确认四个维度的检查项"
+
+- id: anchor_narrative_structure
+  claim: 展示叙事结构包含五个环节：问题、方法、发现、边界、反思
+  evidence: "CHAPTER.md:492-499 (展示叙事结构表格)"
+  verification: "阅读 CHAPTER.md 第 4 节，确认五个环节的时间分配"
+
+# ─── 代码锚点 ───
+
+- id: anchor_random_seed
+  claim: 所有随机操作必须固定随机种子以确保可复现性
+  evidence: "examples/16_report_pipeline.py:RANDOM_SEED = 42"
+  verification: "运行 pytest tests/test_report_pipeline.py::TestRandomSeedControl -v"
+
+- id: anchor_markdown_generation
+  claim: 报告可以用脚本自动生成 Markdown 格式
+  evidence: "examples/16_markdown_generator.py:generate_report_markdown()"
+  verification: "运行 pytest tests/test_markdown_generator.py -v"
+
+- id: anchor_audit_checklist_automation
+  claim: 审计清单可以部分自动化检查（数据来源、随机种子、版本记录）
+  evidence: "examples/16_audit_checklist.py:audit_reproducibility()"
+  verification: "运行 pytest tests/test_audit_checklist.py::TestReproducibilityAudit -v"
+
+# ─── 统计锚点 ───
+
+- id: anchor_honesty_patterns
+  claim: 诚实的分析报告应避免因果声明（用"支持"而非"证明"）、应包含量化不确定性
+  evidence: "CHAPTER.md:399-403 (诚实性检查项)"
+  verification: "阅读 CHAPTER.md 第 3 节，确认因果声明边界和不确定性量化要求"
+
+- id: anchor_ci_reproducibility
+  claim: 置信区间的可复现性需要固定随机种子和记录计算方法
+  evidence: "CHAPTER.md:393-395 (不确定性量化检查项)"
+  verification: "运行 pytest tests/test_audit_checklist.py::TestStatisticalAssumptionsAudit -v"
+
+# ─── 工程锚点 ───
+
+- id: anchor_delivery_checklist
+  claim: 交付前需要检查五个问题：可复现、可审计、诚实、完整、叙事清晰
+  evidence: "CHAPTER.md:641-648 (交付前最终检查)"
+  verification: "阅读 CHAPTER.md 第 5 节，确认五个检查问题"
+
+- id: anchor_ai_usage_log
+  claim: AI 辅助润色需要保留审查记录，包含采纳的建议、拒绝的建议、自己的修改
+  evidence: "CHAPTER.md:666-684 (审查记录模板)"
+  verification: "阅读 CHAPTER.md 第 5 节，确认审查记录模板格式"
