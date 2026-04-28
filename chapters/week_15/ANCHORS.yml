@@ -10,8 +10,8 @@
 
 - id: week_15_pca_variance
   claim: PCA 通过找到方差最大的方向来降维，前 k 个主成分的累积方差比例不超过 1
-  evidence: "CHAPTER.md 第 3 节：explained_variance_ratio_ 之和等于各主成分方差比例之和，总和 <= 1"
-  verification: "运行 tests/test_pca.py::TestPCAHappyPath::test_pca_explained_variance_ratio_sum_less_than_one，验证 PCA 方差比例之和 <= 1"
+  evidence: "CHAPTER.md 第 3 节：explained_variance_ratio_ 之和等于各主成分方差比例之和，总和 ≤ 1"
+  verification: "运行 tests/test_pca.py::TestPCAHappyPath::test_pca_explained_variance_ratio_sum_less_than_one，验证 PCA 方差比例之和 ≤ 1"
 
 - id: week_15_pca_standardization
   claim: PCA 对尺度敏感，必须先标准化，否则方差大的特征会主导主成分
