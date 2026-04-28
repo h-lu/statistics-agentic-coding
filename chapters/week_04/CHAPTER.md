@@ -86,7 +86,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志
 - 本周改进：相关分析 + 分组比较 + 假设清单（为 Week 06-08 做铺垫）
 - 涉及的本周概念：相关分析、分组比较、多变量可视化、EDA 假设生成
-- 建议示例文件：examples/04_statlab_eda.py（本周报告生成入口脚本）
+- 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
 
 ## 1. 两个变量一起看，会发生什么？
@@ -291,7 +291,7 @@ print(f"含异常值：Pearson r = {corr_with_outlier:.2f}")
 上周你学过**箱线图**：它能显示中位数、四分位数和异常值。现在我们要做的是**分组箱线图**（grouped boxplot）：按类别变量（如来源渠道）分组，看数值变量（如购买金额）的分布差异。
 
 ```python
-# examples/02_grouped_comparison.py
+# examples/02_groupby_analysis.py
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -546,7 +546,7 @@ print("图表已保存")
 2. **季节性**（Seasonality）：是否有固定的周期性模式（如周末高、工作日低；冬季高、夏季低）？
 
 ```python
-# examples/04_time_series_intro.py
+# examples/04_time_series.py
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

@@ -98,7 +98,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志 + 相关分析 + 分组比较 + 假设清单 + 多组比较 + 区间估计 + Bootstrap + 置换检验 + 回归分析 + 模型诊断 + 分类评估（逻辑回归、混淆矩阵、ROC-AUC、Pipeline 防泄漏）+ 树模型 + 基线对比 + SHAP 可解释性 + 公平性评估 + 非技术读者解释 + 伦理风险清单
 - 本周改进：添加因果图（明确分析假设）、区分"相关性发现"和"因果性结论"、识别混杂因素、讨论因果识别策略
 - 涉及的本周概念：因果推断三层级、因果图、d-分离、RCT、观察研究中的因果推断
-- 建议示例文件：examples/13_causal_diagram.py（本周因果图绘制与识别策略脚本）
+- 建议示例文件：examples/13_statlab_causal.py（本周因果图绘制与识别策略脚本）
 -->
 
 ## 1. 模型能回答"如果……会怎样"吗？——因果推断的三层级
@@ -891,7 +891,7 @@ print(second_stage.summary())
 首先，我们用 NetworkX 创建因果图的核心骨架：
 
 ```python
-# examples/13_causal_diagram.py
+# examples/13_statlab_causal.py
 import matplotlib.pyplot as plt
 import networkx as nx
 from pathlib import Path

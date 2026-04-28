@@ -577,7 +577,7 @@ print("随机共同原因检验:", refute2)
 
 如果你在完成作业时遇到困难：
 1. 回顾 CHAPTER.md 中的示例代码
-2. 参考本周的 StatLab 示例（`examples/13_causal_diagram.py`）
+2. 参考本周的 StatLab 示例（`examples/13_statlab_causal.py`）
 3. 查阅 DoWhy 官方文档：https://py-why.github.io/dowhy/
 4. 如果你遇到困难，可以参考 `starter_code/solution.py`（但不要直接复制）
 

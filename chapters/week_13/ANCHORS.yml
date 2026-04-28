@@ -34,7 +34,7 @@
 - id: week_13_collider_bias
   claim: 控制碰撞变量会引入偏差，导致原本独立的变量产生虚假关联
   evidence: CHAPTER.md 第 3 节，碰撞变量陷阱的 Python 实验
-  verification: 运行代码示例，确认控制碰撞变量后系数符号反转
+  verification: 运行 examples/02_dag_basics.py，并对照 CHAPTER.md 第 3 节碰撞变量实验，确认控制碰撞变量会引入虚假关联
 
 - id: week_13_correlation_not_causation
   claim: 相关不等于因果，回归系数不等于因果效应，除非满足因果识别条件

@@ -99,7 +99,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志 + 相关分析 + 分组比较 + 假设清单 + 多组比较 + 区间估计 + Bootstrap + 置换检验 + 回归分析 + 模型诊断 + 分类评估（逻辑回归、混淆矩阵、ROC-AUC、Pipeline 防泄漏）+ 树模型 + 基线对比 + SHAP 可解释性 + 公平性评估 + 非技术读者解释 + 伦理风险清单 + 因果图 + 因果推断报告
 - 本周改进：添加贝叶斯分析模块（流失率的后验分布）、先验敏感性分析、贝叶斯方式的不确定性量化
 - 涉及的本周概念：贝叶斯定理、先验分布、后验分布、MCMC 采样、先验敏感性
-- 建议示例文件：examples/14_bayesian_analysis.py（贝叶斯流失率估计与先验敏感性分析脚本）
+- 建议示例文件：examples/statlab_week14.py（贝叶斯流失率估计与先验敏感性分析脚本）
 -->
 
 ## 1. p 值不是"原假设成立的概率"——频率学派 vs 贝叶斯学派
@@ -130,7 +130,7 @@ print(f"p 值: {p_value:.4f}")
 
 小北自信地回答："p 值是原假设成立的概率。"
 
-老潘摇头："**这是最常见的误解**。p 值不是 P(H0|data)，而是 P(data|H0)——在原假设成立时，观察到当前数据或更极端数据的概率。"
+老潘摇头："**这是最常见的误解**。p 值不是 P(H0|data)，而是：在原假设成立时，观察到当前或更极端统计量的概率。"
 
 小北愣住了。"这不是绕口令吗？到底有什么区别？"
 
@@ -159,7 +159,7 @@ print(f"p 值: {p_value:.4f}")
 | **参数** | 固定但未知 | 随机变量（有分布） |
 | **数据** | 随机 | 固定（已观测） |
 | **推断** | 基于长期频率 | 基于信念更新 |
-| **p 值** | P(data|H0) | P(H0|data)（后验概率） |
+| **p 值** | 在 H0 成立时观察到当前或更极端统计量的概率 | P(H0|data)（后验概率） |
 | **区间** | 置信区间 | 可信区间 |
 
 阿码这时问："**那频率学派是不是过时了？**"
@@ -426,7 +426,7 @@ print(f"产品部后验: {prod_post_mean:.3f}")  # 约 21.7%
 > 如果安装遇到困难（某些系统需要编译依赖），可以使用 `examples/02_beta_binomial_model.py` 中的 SciPy 解析解方法作为替代。
 
 ```python
-# examples/14_bayesian_analysis.py
+# examples/statlab_week14.py
 import pymc as pm
 import arviz as az
 import numpy as np
@@ -617,7 +617,7 @@ churned = 10
 ### 第一步：定义先验分布
 
 ```python
-# examples/14_bayesian_analysis.py
+# examples/statlab_week14.py
 import numpy as np
 import pandas as pd
 from scipy import stats

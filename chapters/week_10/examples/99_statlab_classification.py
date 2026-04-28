@@ -1,7 +1,7 @@
 """
 示例：StatLab 分类评估流水线——完整的分类模型评估报告
 
-运行方式：python3 chapters/week_10/examples/10_statlab_classification.py
+运行方式：python3 chapters/week_10/examples/99_statlab_classification.py
 预期输出：生成完整的分类评估报告（Markdown + 图表），输出到 output/
 
 这是 Week 10 的 StatLab 超级线代码，在上周回归分析的基础上增量添加分类评估模块。

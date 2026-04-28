@@ -88,7 +88,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化
 - 本周改进：加入清洗日志（missing summary、outlier summary、transformation record）
 - 涉及的本周概念：缺失值机制、异常值检测、数据转换、特征编码
-- 建议示例文件：examples/03_cleaning_log.py（本周报告生成入口脚本）
+- 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
 
 ## 1. 缺失值为什么发生了？
@@ -830,7 +830,7 @@ Label 编码的问题在于：它引入了"顺序关系"（0 < 1 < 2），但 `s
 - 做了哪些数据转换？为什么？
 
 ```python
-# examples/03_statlab_cleaning_log.py
+# examples/99_statlab.py
 import pandas as pd
 import seaborn as sns
 from pathlib import Path

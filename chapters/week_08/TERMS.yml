@@ -18,17 +18,17 @@
 
 - term_zh: 置信区间
   term_en: confidence interval
-  definition_zh: 一个统计量可能落入的区间范围。95% CI 的正确解释是：如果我们重复抽样 100 次，大约有 95 个计算出的区间会包含真实参数。
+  definition_zh: 由样本数据构造、用于估计固定但未知参数的区间。95% CI 的频率学派解释是：如果重复抽样并用同一方法构造区间，长期来看约 95% 的区间会覆盖真实参数。
   first_seen: week_08
 
 - term_zh: 置信水平
   term_en: confidence level
-  definition_zh: 置信区间包含真实参数的概率，常用值有 90%、95%、99%。
+  definition_zh: 构造区间的方法在重复抽样中的长期覆盖率，常用值有 90%、95%、99%；不是某个已算出区间“包含真实参数的概率”。
   first_seen: week_08
 
 - term_zh: Bootstrap
   term_en: bootstrap
-  definition_zh: 一种重采样技术，从样本中有放回地抽取很多个样本，用这些 Bootstrap 样本的统计量分布来近似真实的抽样分布。
+  definition_zh: 一种重采样技术，从样本中有放回地抽取很多个样本，用这些 Bootstrap 样本的统计量分布来近似真实的抽样分布；Week 05 已初步出现，本周进一步用于区间估计。
   first_seen: week_08
 
 - term_zh: 重采样

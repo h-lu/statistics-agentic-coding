@@ -60,12 +60,14 @@
 
 **提交物**：
 - 一段文字（400-600 字）回答上述问题
+- 一小段可运行代码或 notebook 单元：模拟不同维度下随机点之间的平均距离，并解释结果
 - 用自己的话解释，不是复制粘贴
 
 **评分点**：
 - [ ] 正确解释了维度灾难的概念和表现
 - [ ] 给出了三个需要降维的信号
 - [ ] 正确区分了特征选择和降维的本质差异
+- [ ] 提交了维度灾难的距离模拟代码，并能解释平均距离/距离变异随维度变化的现象
 - [ ] 用自己的话，不是复制粘贴
 
 **常见错误**：
@@ -637,7 +639,7 @@ else:
 如果你在完成作业时遇到困难：
 
 1. 回顾 CHAPTER.md 中的示例代码
-2. 参考本周的 StatLab 示例（`examples/15_dimensionality_reduction.py`、`examples/15_clustering.py`）
+2. 参考本周的 StatLab 示例（`examples/02_pca_demo.py`、`examples/03_kmeans_demo.py`、`examples/15_statlab_pca.py`、`examples/15_statlab_clustering.py`）
 3. 查阅 scikit-learn 官方文档：https://scikit-learn.org/stable/modules/decomposition.html
 4. 如果你对 PCA 或 K-means 的参数不熟悉，可以参考 `starter_code/solution.py`（但不要直接复制）
 

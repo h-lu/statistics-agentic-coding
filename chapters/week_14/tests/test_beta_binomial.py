@@ -508,7 +508,7 @@ class TestNumericalVerification:
         # 数值积分
         x = np.linspace(0, 1, 1000)
         pdf_values = stats.beta.pdf(x, alpha, beta)
-        integral = np.trapz(pdf_values, x)
+        integral = np.trapezoid(pdf_values, x)
 
         # 验证：积分约等于 1
         assert abs(integral - 1.0) < 0.01

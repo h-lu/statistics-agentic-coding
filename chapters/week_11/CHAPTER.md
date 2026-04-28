@@ -872,7 +872,7 @@ def baseline_comparison(X, y, numeric_features, categorical_features,
 
 ### 第二步：定义四个模型
 
-```python
+```text
     # 3. 定义模型
     models = {
         'dummy': Pipeline([
@@ -911,7 +911,7 @@ def baseline_comparison(X, y, numeric_features, categorical_features,
 
 ### 第三步：训练和评估
 
-```python
+```text
     # 4. 训练和评估
     results = {}
     for name, pipeline in models.items():
@@ -950,7 +950,7 @@ def baseline_comparison(X, y, numeric_features, categorical_features,
 
 ### 第四步：提取特征重要性
 
-```python
+```text
     # 5. 获取特征重要性（随机森林）
     rf_pipeline = models['random_forest']
     # 获取特征名称（数值型 + One-Hot 后的分类型）
@@ -972,7 +972,7 @@ def baseline_comparison(X, y, numeric_features, categorical_features,
 
 ### 第五步：格式化报告
 
-```python
+```text
 def format_model_comparison_report(results):
     """格式化模型对比结果为 Markdown 报告"""
     md = ["## 模型对比与选择\n\n"]
@@ -1043,7 +1043,7 @@ def format_model_comparison_report(results):
 
 ### 第六步：可视化对比
 
-```python
+```text
 def plot_model_comparison(results, figsize=(14, 5)):
     """画模型对比图表"""
     fig, axes = plt.subplots(1, 2, figsize=figsize)

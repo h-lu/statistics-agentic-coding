@@ -241,7 +241,7 @@ StatLab 本周推进：
 
 置信区间和假设检验是等价的（对于双侧检验）：
 
-- **如果 95% CI 不包含 0**（对于差异），那么在 α = 0.05 的水平下，双侧检验中差异显著；
+- **如果 95% CI 不包含 0**（对于差异），在同一模型、同一参数、同一标准误构造且未做多重比较校正的双侧检验中，通常对应 α = 0.05 水平下差异显著；
 - **如果 95% CI 包含 0**，那么双侧检验中差异不显著。
 
 小北恍然大悟："所以上周的 ANOVA，我也可以看 CI，而不只是看 p 值？"
@@ -716,9 +716,14 @@ p 值（双尾）: 0.0489
 import seaborn as sns
 # 完整实现见 examples/08_statlab_ci.py
 # 运行：python3 examples/08_statlab_ci.py
-from chapters.week_08.examples.08_statlab_ci import (
-    add_ci_to_report, compare_groups_ci, generate_uncertainty_section
-)
+import importlib
+
+# 示例文件名以数字开头，不能直接写成
+# from chapters.week_08.examples.08_statlab_ci import ...
+statlab_ci = importlib.import_module("chapters.week_08.examples.08_statlab_ci")
+add_ci_to_report = statlab_ci.add_ci_to_report
+compare_groups_ci = statlab_ci.compare_groups_ci
+generate_uncertainty_section = statlab_ci.generate_uncertainty_section
 
 # 加载数据
 penguins = sns.load_dataset("penguins")

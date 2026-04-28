@@ -12,7 +12,7 @@
   verification: 运行 examples/01_bayes_theorem_demo.py，确认后验参数计算正确
 
 - id: week_14_frequentist_vs_bayesian
-  claim: 频率学派将参数视为固定但未知的值，贝叶斯学派将参数视为随机变量；p 值是 P(data|H0)，后验概率是 P(H0|data)
+  claim: 频率学派将参数视为固定但未知的值，贝叶斯学派将参数视为随机变量；p 值是在 H0 成立时观察到当前或更极端统计量的概率，后验概率是 P(H0|data)
   evidence: CHAPTER.md 第 1 节，两派核心差异对比表
   verification: 读取 CHAPTER.md，确认 p 值和后验概率的定义区别已明确说明
 
