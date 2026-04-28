@@ -68,7 +68,7 @@
 
 - term_zh: Cohen's d
   term_en: Cohen's d
-  definition_zh: 用于比较两组均值差异的标准化效应量。d < 0.2 小效应，0.2-0.8 中等效应，≥ 0.8 大效应。
+  definition_zh: 用于比较两组均值差异的标准化效应量。常用经验阈值：|d| < 0.2 小效应，0.2-0.5 小到中等，0.5-0.8 中等，≥ 0.8 大效应。
   first_seen: week_06
 
 - term_zh: 正态性假设

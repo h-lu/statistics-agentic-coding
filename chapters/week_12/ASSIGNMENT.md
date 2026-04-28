@@ -68,11 +68,12 @@ shap_values = explainer.shap_values(X_test)
 # 选择一个被预测为流失的样本
 churn_samples = X_test[y_test == 1]
 if len(churn_samples) > 0:
-    sample_idx = churn_samples.index[0]
+    sample_idx = churn_samples.index[0]      # 原始索引标签
+    pos = X_test.index.get_loc(sample_idx)   # 转成 X_test / shap_values 中的位置索引
     # 解释这个样本
     shap.force_plot(
         explainer.expected_value[1],
-        shap_values[1][sample_idx],
+        shap_values[1][pos],
         X_test.loc[sample_idx],
         matplotlib=True
     )

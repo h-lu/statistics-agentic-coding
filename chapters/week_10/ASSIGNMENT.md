@@ -18,7 +18,7 @@
 小北上周学会了回归分析，这周他遇到了一个新问题：老板问的不是"客户会花多少钱"，而是"这个客户会不会流失"。
 
 **你的任务**：
-1. 加载 `data/customer_churn.csv`（或使用 `starter_code/week_10.py` 中的示例数据）
+1. 加载 `chapters/week_10/starter_code/week_10.py` 生成的示例客户流失数据（或使用 `starter_code/week_10.py` 中的示例数据）
 2. 探索数据：查看目标变量 `is_churned` 的分布（流失/不流失各占多少比例）
 3. 选择至少 3 个特征作为预测变量（建议：`purchase_count`, `avg_spend`, `days_since_last_purchase`）
 4. 划分训练集和测试集（test_size=0.3, random_state=42）
@@ -442,7 +442,7 @@ print(f"各折 AUC: {cv_scores}")
 
 如果你在完成作业时遇到困难：
 1. 回顾 CHAPTER.md 中的示例代码
-2. 参考本周的 StatLab 示例（`examples/10_statlab_classification.py`）
+2. 参考本周的 StatLab 示例（`examples/99_statlab_classification.py`）
 3. 查阅 scikit-learn 官方文档（不要害怕查文档！）
 
 **记住**：作业的目的是巩固理解，不是完美复制代码。即使遇到困难，也要尝试用自己的话解释问题和思路。

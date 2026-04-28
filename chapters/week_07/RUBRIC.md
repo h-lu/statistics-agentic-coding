@@ -178,11 +178,11 @@
 
 本评分标准与 `tests/` 目录下的测试文件对应：
 
-- `test_fwer.py`：测试题目 1 的 FWER 计算函数
-- `test_anova.py`：测试题目 2 的 ANOVA 执行
+- `test_multiple_comparisons.py`：测试题目 1 的 FWER 与多重比较基础
+- `test_anova.py`：测试题目 2 的 ANOVA 执行与 η² 计算
 - `test_posthoc.py`：测试题目 3 的 Tukey HSD 执行
 - `test_correction.py`：测试题目 4 的校正方法比较
-- `test_effect_size.py`：测试题目 6 的 η² 计算
+- `test_edge_cases.py` / `test_solution.py`：边界情况与参考实现可运行性
 
 **注意**：
 - 测试文件只检查核心函数的正确性

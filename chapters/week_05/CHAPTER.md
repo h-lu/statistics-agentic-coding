@@ -89,7 +89,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志 + 相关分析 + 分组比较 + 假设清单
 - 本周改进：加入不确定性量化（用 Bootstrap 估计标准误和置信区间）
 - 涉及的本周概念：抽样分布、Bootstrap、标准误
-- 建议示例文件：examples/05_statlab_uncertainty.py（本周报告生成入口脚本）
+- 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
 
 ## 1. 你的结论有多稳定？——用模拟理解随机性
@@ -854,7 +854,7 @@ print("\n图表已保存到 output/false_positive_distribution.png")
 - 不确定性量化：关键统计量的标准误和置信区间
 
 ```python
-# examples/05_statlab_uncertainty.py
+# examples/99_statlab.py
 import pandas as pd
 import numpy as np
 import seaborn as sns

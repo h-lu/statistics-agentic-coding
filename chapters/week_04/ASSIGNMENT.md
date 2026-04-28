@@ -139,7 +139,7 @@ age,time_on_site,purchase_amount,visit_count,is_returning,source
 
 ## 进阶题（选做）
 
-### 4. 多数据集对比分析（20 分）
+### 4. 多数据集对比分析（10 分）
 
 **任务**：对比两个时间段的数据模式差异。
 
@@ -167,11 +167,11 @@ Period 2 中 age 与 purchase 的相关性减弱，可能是因为...
 
 ---
 
-### 5. 时间序列分解（20 分）
+### 5. 时间序列分解（10 分）
 
 **任务**：识别时间序列中的趋势和季节性。
 
-**数据**：`starter_code/week_04_timeseries.csv`（包含 date 和 daily_sales）
+**数据**：继续使用 `starter_code/week_04_data.csv`。其中 `date` 是日期字段，`purchase_amount` 可按天聚合为每日销售额（daily_sales）。
 
 **要求**：
 1. 画出每日销售额的时间序列图

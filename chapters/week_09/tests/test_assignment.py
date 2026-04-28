@@ -37,7 +37,7 @@ class TestLinearRegression:
         assert np.isfinite(model.params).all(), "系数应该是有限数"
 
     def test_coefficient_signs(self):
-        """测试系数符号（喙长度和喙深度通常是负相关）"""
+        """测试系数符号（当前 Adelie 清洗样本中喙长度和喙深度呈正斜率）"""
         X = adelie["bill_length_mm"].values
         y = adelie["bill_depth_mm"].values
         X_with_const = sm.add_constant(X)

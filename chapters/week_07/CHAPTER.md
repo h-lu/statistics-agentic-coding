@@ -51,7 +51,7 @@
 
 最终成果：读者能执行 ANOVA 并选择合适的校正方法，能识别 AI 工具中未校正的多重比较问题
 
-数据集：复用电商数据，聚焦"多渠道（A/B/C/D）转化率比较"和"多用户群组消费金额比较"
+数据集：复用电商数据，聚焦"多渠道（A/B/C/D）连续指标均值比较"和"多用户群组消费金额比较"
 
 ---
 
@@ -312,37 +312,37 @@ from scipy import stats
 
 np.random.seed(42)
 
-# 模拟数据：4 个渠道的转化率
-# A: 10%, B: 10%, C: 10%, D: 12%（只有 D 不同）
-n_per_group = 500
-conversions_a = np.random.binomial(1, 0.10, n_per_group)
-conversions_b = np.random.binomial(1, 0.10, n_per_group)
-conversions_c = np.random.binomial(1, 0.10, n_per_group)
-conversions_d = np.random.binomial(1, 0.12, n_per_group)
+# 模拟数据：4 个渠道的客单价（连续型指标，适合 ANOVA）
+# A/B/C/D 的均值略有差异
+n_per_group = 50
+spend_a = np.random.normal(100, 15, n_per_group)
+spend_b = np.random.normal(102, 15, n_per_group)
+spend_c = np.random.normal(105, 15, n_per_group)
+spend_d = np.random.normal(108, 15, n_per_group)
 
 # 合并成 DataFrame
 data = pd.DataFrame({
     'channel': ['A'] * n_per_group + ['B'] * n_per_group + ['C'] * n_per_group + ['D'] * n_per_group,
-    'converted': np.concatenate([conversions_a, conversions_b, conversions_c, conversions_d])
+    'avg_spend': np.concatenate([spend_a, spend_b, spend_c, spend_d])
 })
 
 # 描述统计
 print("=== 描述统计 ===")
-print(data.groupby('channel')['converted'].agg(['mean', 'count']))
+print(data.groupby('channel')['avg_spend'].agg(['mean', 'std', 'count']))
 print()
 
 # 可视化
 plt.figure(figsize=(8, 5))
-sns.barplot(data=data, x='channel', y='converted', errorbar='sd')
-plt.ylabel('转化率')
-plt.title('4 个渠道的转化率比较（误差线：标准差）')
+sns.barplot(data=data, x='channel', y='avg_spend', errorbar='sd')
+plt.ylabel('客单价')
+plt.title('4 个渠道的客单价比较（误差线：标准差）')
 plt.tight_layout()
 plt.savefig('output/anova_barplot.png', dpi=100)
 print('图表已保存到 output/anova_barplot.png')
 print()
 
 # 执行 ANOVA
-groups = [group['converted'].values for name, group in data.groupby('channel')]
+groups = [group['avg_spend'].values for name, group in data.groupby('channel')]
 f_stat, p_value = stats.f_oneway(*groups)
 
 print("=== 单因素 ANOVA 结果 ===")
@@ -351,17 +351,17 @@ print(f"p 值: {p_value:.4f}")
 
 alpha = 0.05
 if p_value < alpha:
-    print(f"\n结论: p < {alpha}，拒绝原假设。至少有一对渠道的转化率存在显著差异。")
+    print(f"\n结论: p < {alpha}，拒绝原假设。至少有一对渠道的客单价均值存在显著差异。")
 else:
     print(f"\n结论: p ≥ {alpha}，无法拒绝原假设。")
 ```
 
-运行后你会得到：p 值 ≈ 0.02-0.04（取决于随机种子）。按照 α = 0.05，你会说"至少有一对渠道的转化率存在显著差异"。
+固定随机种子后，运行结果约为 p = 0.0002。按照 α = 0.05，你会说"至少有一对渠道的客单价均值存在显著差异"。
 
 但注意：**ANOVA 只告诉你"有差异"，不告诉你"哪一对有差异"**。这正是下一节要解决的问题。
 
 ![](images/anova_barplot.png)
-*图：4 个渠道的转化率。D 渠道略高（12% vs 10%），ANOVA 检验会判断这种差异是否显著*
+*图：4 个渠道的客单价。D 渠道均值略高，ANOVA 检验会判断这种均值差异是否显著*
 
 ### ANOVA 的前提假设
 
@@ -448,21 +448,21 @@ from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 np.random.seed(42)
 
-# 模拟数据：4 个渠道的转化率
-n_per_group = 500
-conversions_a = np.random.binomial(1, 0.10, n_per_group)
-conversions_b = np.random.binomial(1, 0.10, n_per_group)
-conversions_c = np.random.binomial(1, 0.10, n_per_group)
-conversions_d = np.random.binomial(1, 0.12, n_per_group)
+# 模拟数据：4 个渠道的客单价（连续型指标）
+n_per_group = 50
+spend_a = np.random.normal(100, 15, n_per_group)
+spend_b = np.random.normal(102, 15, n_per_group)
+spend_c = np.random.normal(105, 15, n_per_group)
+spend_d = np.random.normal(108, 15, n_per_group)
 
 # 合并成 DataFrame
 data = pd.DataFrame({
     'channel': ['A'] * n_per_group + ['B'] * n_per_group + ['C'] * n_per_group + ['D'] * n_per_group,
-    'converted': np.concatenate([conversions_a, conversions_b, conversions_c, conversions_d])
+    'avg_spend': np.concatenate([spend_a, spend_b, spend_c, spend_d])
 })
 
 # Tukey HSD 检验
-tukey = pairwise_tukeyhsd(endog=data['converted'],
+tukey = pairwise_tukeyhsd(endog=data['avg_spend'],
                           groups=data['channel'],
                           alpha=0.05)
 

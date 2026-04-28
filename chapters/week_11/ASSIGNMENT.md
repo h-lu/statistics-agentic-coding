@@ -18,7 +18,7 @@
 小北上周用逻辑回归预测流失，AUC 0.87。他很好奇：如果用决策树，会更好吗？
 
 **你的任务**：
-1. 加载 `data/customer_churn.csv`（或使用 `starter_code/week_11.py` 中的示例数据）
+1. 加载 `chapters/week_11/starter_code/week_11.py` 生成的示例客户流失数据（或使用 `starter_code/week_11.py` 中的示例数据）
 2. 复用 Week 10 的特征选择（`purchase_count`, `avg_spend`, `days_since_last_purchase` 等）
 3. 划分训练集和测试集（test_size=0.3, random_state=42）
 4. 训练一棵决策树，**限制深度为 3**（防止过拟合）
@@ -368,74 +368,81 @@ for name, res in results.items():
 
 阿码问了一个很统计的问题："随机森林比逻辑回归好了 0.02 AUC，这是真实的提升，还是运气？"
 
-"好问题。"老潘说，"你可以用 Bootstrap 估计 AUC 的置信区间，看看两个模型的置信区间是否重叠。"
+"好问题。"老潘说，"你应该用 paired bootstrap 估计 AUC 提升量（随机森林 - 逻辑回归）的置信区间，而不是只看两个模型各自的置信区间是否重叠。"
 
 **你的任务**：
-1. 用 Bootstrap 估计随机森林和逻辑回归的 AUC 分布（n_bootstrap=1000）
-2. 计算 95% 置信区间
-3. 回答：**提升量是否显著？（置信区间是否重叠）**
+1. 在同一批 bootstrap 索引下分别计算随机森林和逻辑回归的 AUC
+2. 记录 AUC 提升量：`auc_rf - auc_lr`，形成提升量分布
+3. 计算提升量的 95% 置信区间，并回答：**提升量是否显著？（差值 CI 是否包含 0）**
 
 **输入示例**：
 ```python
 import numpy as np
+from sklearn.metrics import roc_auc_score
 
-def bootstrap_auc(model, X, y, n_bootstrap=1000):
-    """Bootstrap 估计 AUC 的分布"""
-    np.random.seed(42)
-    auc_scores = []
+def paired_bootstrap_auc_diff(lr_model, rf_model, X, y, n_bootstrap=1000, seed=42):
+    """在同一批 bootstrap 样本上估计 AUC 提升量的分布。
+
+    注意：判断“随机森林是否显著优于逻辑回归”，应该看
+    AUC 差值（RF - LR）的置信区间，而不是只看两个 AUC
+    置信区间是否重叠。
+    """
+    rng = np.random.default_rng(seed)
+    X = X.reset_index(drop=True)
+    y = y.reset_index(drop=True)
     n = len(X)
+    diffs = []
+
     for _ in range(n_bootstrap):
-        idx = np.random.choice(n, n, replace=True)
+        idx = rng.choice(n, n, replace=True)
         X_boot = X.iloc[idx]
         y_boot = y.iloc[idx]
-        y_prob = model.predict_proba(X_boot)[:, 1]
-        auc_scores.append(roc_auc_score(y_boot, y_prob))
-    return np.array(auc_scores)
 
-# 获取 AUC 分布
-auc_lr_dist = bootstrap_auc(log_reg_model, X_test, y_test)
-auc_rf_dist = bootstrap_auc(rf_model, X_test, y_test)
+        # bootstrap 样本可能刚好只包含一个类别，AUC 此时无定义；跳过即可
+        if y_boot.nunique() < 2:
+            continue
 
-# 计算置信区间
-def ci_interval(dist, alpha=0.05):
-    lower = alpha / 2 * 100  # 如 0.05/2 * 100 = 2.5
-    upper = (1 - alpha / 2) * 100  # 如 (1-0.025) * 100 = 97.5
-    return np.percentile(dist, [lower, upper])
+        auc_lr = roc_auc_score(y_boot, lr_model.predict_proba(X_boot)[:, 1])
+        auc_rf = roc_auc_score(y_boot, rf_model.predict_proba(X_boot)[:, 1])
+        diffs.append(auc_rf - auc_lr)
 
-ci_lr = ci_interval(auc_lr_dist)
-ci_rf = ci_interval(auc_rf_dist)
+    return np.array(diffs)
 
-print(f"逻辑回归 AUC: {auc_lr_dist.mean():.4f}, 95% CI: [{ci_lr[0]:.4f}, {ci_lr[1]:.4f}]")
-print(f"随机森林 AUC: {auc_rf_dist.mean():.4f}, 95% CI: [{ci_rf[0]:.4f}, {ci_rf[1]:.4f}]")
+auc_diff_dist = paired_bootstrap_auc_diff(log_reg_model, rf_model, X_test, y_test)
+ci_diff = np.percentile(auc_diff_dist, [2.5, 97.5])
 
-# 判断是否显著
-if ci_lr[1] < ci_rf[0] or ci_rf[1] < ci_lr[0]:
-    print("提升量显著（置信区间不重叠）")
+print(f"AUC 提升量（RF - LR）: {auc_diff_dist.mean():.4f}")
+print(f"95% CI: [{ci_diff[0]:.4f}, {ci_diff[1]:.4f}]")
+
+if ci_diff[0] > 0:
+    print("随机森林的 AUC 提升在统计上较稳健")
+elif ci_diff[1] < 0:
+    print("随机森林反而可能更差")
 else:
-    print("提升量可能不显著（置信区间重叠）")
+    print("提升量可能不显著：差值 CI 包含 0")
 ```
 
 **输出示例**：
 ```
-逻辑回归 AUC: 0.8700, 95% CI: [0.8234, 0.9156]
-随机森林 AUC: 0.8900, 95% CI: [0.8498, 0.9302]
-提升量可能不显著（置信区间重叠）
+AUC 提升量（RF - LR）: 0.0200
+95% CI: [-0.0120, 0.0525]
+提升量可能不显著：差值 CI 包含 0
 ```
 
 **分析要点**：
-- 虽然随机森林 AUC 更高，但置信区间重叠，说明提升量可能不显著
+- 虽然随机森林 AUC 更高，但 AUC 提升量（RF - LR）的 paired bootstrap CI 包含 0，说明提升量可能不显著
 - 这意味着随机森林的优势可能只是运气，不是真实差异
 - 在这种情况下，逻辑回归可能更合适（更简单、更快、更可解释）
 
 **提交物**：
 - 代码
-- Bootstrap 置信区间结果
+- paired bootstrap 的 AUC 差值置信区间结果
 - 一段分析（3-4 句话）解释提升量是否显著
 
 **评分点**：
 - [ ] 正确实现了 Bootstrap
-- [ ] 计算了 95% 置信区间
-- [ ] 正确判断了提升量是否显著
+- [ ] 计算了 AUC 提升量（RF - LR）的 95% 置信区间
+- [ ] 使用差值 CI 是否包含 0 来判断提升量是否显著
 - [ ] 给出了模型选择建议
 
 ---

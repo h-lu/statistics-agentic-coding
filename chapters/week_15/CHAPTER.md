@@ -92,7 +92,7 @@ StatLab 本周推进：
 - 上周状态：数据卡 + 描述统计 + 可视化 + 清洗日志 + 相关分析 + 分组比较 + 假设清单 + 多组比较 + 区间估计 + Bootstrap + 置换检验 + 回归分析 + 模型诊断 + 分类评估（逻辑回归、混淆矩阵、ROC-AUC、Pipeline 防泄漏）+ 树模型 + 基线对比 + SHAP 可解释性 + 公平性评估 + 非技术读者解释 + 伦理风险清单 + 因果图 + 因果推断报告 + 贝叶斯分析（后验分布、先验敏感性）
 - 本周改进：添加降维/聚类模块（PCA 可视化、客户分群、业务解释）
 - 涉及的本周概念：维度灾难、PCA、聚类分析、轮廓系数、结果解释
-- 建议示例文件：examples/15_dimensionality_reduction.py（PCA 降维与可视化）、examples/15_clustering.py（K-means 聚类与评估）
+- 建议示例文件：examples/02_pca_demo.py（PCA 降维与可视化）、examples/03_kmeans_demo.py（K-means 聚类与评估）
 -->
 
 ## 1. 特征越多越好吗？——理解维度灾难
@@ -132,7 +132,7 @@ StatLab 本周推进：
 
 让我们用一个模拟实验理解维度灾难。
 
-> **完整代码见**：`examples/15_curse_of_dimensionality.py`
+> **完整代码见**：`examples/01_curse_of_dimensionality.py`
 
 核心思路很简单：在不同维度下生成随机点，计算"最近邻"和"最远邻"的距离差异。
 
@@ -238,7 +238,7 @@ X_selected = selector.fit_transform(X)
 
 ### 一个对比实验
 
-> **完整代码见**：`examples/15_feature_selection_vs_pca.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 核心思路：生成 50 个特征的高维数据（真实信息集中在 5 个潜在因子），对比三种方法的分类性能。
 
@@ -368,7 +368,7 @@ X_selected = selector.fit_transform(X)
 
 ### 用 scikit-learn 实现 PCA
 
-> **完整代码见**：`examples/15_pca_demo.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 关键步骤：标准化 → PCA 保留所有主成分 → 查看累积解释方差。
 
@@ -422,7 +422,7 @@ X_selected = selector.fit_transform(X)
 
 让我们把 50 维数据降到 2 维，然后画散点图：
 
-> **完整代码见**：`examples/15_pca_demo.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 你可以看到：流失客户（标签=1）可能在"低活跃度、高价格敏感度"区域聚集。这给了你业务洞察：**流失的不是"高价值客户"，而是"价格敏感、活跃度低"的客户**。
 
@@ -481,7 +481,7 @@ X_selected = selector.fit_transform(X)
 3. 重新计算每个簇的中心点
 4. 重复步骤 2-3，直到中心点收敛
 
-> **完整代码见**：`examples/15_kmeans_demo.py`
+> **完整代码见**：`examples/03_kmeans_demo.py`
 
 **如何选择 K？**
 
@@ -505,7 +505,7 @@ X_selected = selector.fit_transform(X)
 
 除了 K-means，还有**层次聚类**（Hierarchical Clustering）：不需要预设 K 值，而是生成一个"树状图"（dendrogram）。
 
-> **完整代码见**：`examples/15_hierarchical_clustering.py`
+> **完整代码见**：`examples/15_clustering_viz.py`
 
 使用 `scipy.cluster.hierarchy.linkage` 和 `dendrogram` 函数，`method='ward'` 最小化簇内方差。
 
@@ -613,7 +613,7 @@ X_selected = selector.fit_transform(X)
 
 第一张图是**累积方差图**：
 
-> **完整代码见**：`examples/15_pca_demo.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 关键思路：绘制累积解释方差比例，标注 80% 和 90% 的阈值线。
 
@@ -628,7 +628,7 @@ X_selected = selector.fit_transform(X)
 
 第二张图是**载荷热力图**：
 
-> **完整代码见**：`examples/15_pca_demo.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 关键思路：用热力图展示前 5 个主成分的载荷，每个原始特征对主成分的贡献大小。
 
@@ -641,7 +641,7 @@ X_selected = selector.fit_transform(X)
 
 第三张图是**2D 散点图**：
 
-> **完整代码见**：`examples/15_pca_demo.py`
+> **完整代码见**：`examples/02_pca_demo.py`
 
 关键思路：将 50 维数据降到 2 维，用散点图展示，颜色标注流失标签。
 
@@ -716,7 +716,7 @@ X_selected = selector.fit_transform(X)
 
 ### 第三步：结果解释与报告生成
 
-> **完整代码见**：`examples/15_statlab_report.py`
+> **完整代码见**：`examples/15_statlab_pca.py 和 examples/15_statlab_clustering.py`
 
 核心步骤：反标准化簇中心 → 计算每簇样本数 → 生成 Markdown 报告。
 

@@ -8,8 +8,8 @@
 
 # Bootstrap 的优势
 - id: week_08_bootstrap_advantage
-  claim: "Bootstrap 不依赖分布假设，适用于任何统计量"
-  evidence: "Bootstrap 可以用于均值、中位数等任何统计量的 CI 估计"
+  claim: "Bootstrap 不要求强参数分布假设，适用于许多常见统计量，但并非对任何统计量和任何数据结构都稳健"
+  evidence: "Bootstrap 可以用于均值、中位数等常见统计量的 CI 估计；但小样本、时间序列、强依赖数据或极值类统计量需要谨慎处理"
   verification: "见 03_bootstrap_method.py 和 04_bootstrap_ci_methods.py"
 
 # Bootstrap 与理论方法的关系
@@ -26,8 +26,8 @@
 
 # CI 与假设检验的关系
 - id: week_08_ci_vs_hypothesis
-  claim: "CI 与假设检验等价：95% CI 不包含 0 ↔ p < 0.05"
-  evidence: "当 CI 不包含 0 时，对应的假设检验 p 值必然小于 0.05"
+  claim: "在同一模型、同一参数、同一标准误构造且未校正的双侧检验中，95% CI 不包含 0 通常对应 p < 0.05"
+  evidence: "当双侧 95% CI 与同一检验共享模型、参数和标准误构造时，CI 不包含零值与 α=0.05 拒绝零假设相对应"
   verification: "见 02_ci_interpretation.py 的演示"
 
 # 点估计 vs 区间估计

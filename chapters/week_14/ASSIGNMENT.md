@@ -51,7 +51,7 @@
 - 为什么：在贝叶斯学派看来，参数是随机变量（有分布）
 
 p 值是什么？
-- p 值是 P(data|H0)，不是 P(H0|data)
+- p 值是在 H0 成立时观察到当前或更极端统计量的概率，不是 P(H0|data)
 - 即：在原假设成立时，观察到当前数据或更极端数据的概率
 - 不是：原假设成立的概率
 
@@ -548,7 +548,7 @@ else:
 如果你在完成作业时遇到困难：
 
 1. 回顾 CHAPTER.md 中的示例代码
-2. 参考本周的 StatLab 示例（`examples/14_bayesian_analysis.py`）
+2. 参考本周的 StatLab 示例（`examples/statlab_week14.py`）
 3. 查阅 PyMC 官方文档：https://www.pymc.io/welcome.html
 4. 如果你对 Beta 分布的参数不熟悉，可以参考 `starter_code/solution.py`（但不要直接复制）
 

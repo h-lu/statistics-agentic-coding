@@ -10,8 +10,8 @@
 
 - id: week_15_pca_variance
   claim: PCA 通过找到方差最大的方向来降维，前 k 个主成分的累积方差比例不超过 1
-  evidence: "CHAPTER.md 第 3 节：explained_variance_ratio_ 之和等于各主成分方差比例之和，总和 <= 1"
-  verification: "运行 tests/test_pca.py::test_explained_variance_ratio_sum，验证 PCA 方差比例之和 <= 1"
+  evidence: "CHAPTER.md 第 3 节：explained_variance_ratio_ 之和等于各主成分方差比例之和，总和 ≤ 1"
+  verification: "运行 tests/test_pca.py::TestPCAHappyPath::test_pca_explained_variance_ratio_sum_less_than_one，验证 PCA 方差比例之和 ≤ 1"
 
 - id: week_15_pca_standardization
   claim: PCA 对尺度敏感，必须先标准化，否则方差大的特征会主导主成分
@@ -21,12 +21,12 @@
 - id: week_15_kmeans_inertia
   claim: K-means 的 inertia（簇内平方和）随 K 增加单调递减，但递减速度在拐点后变慢
   evidence: "CHAPTER.md 第 4 节：肘部法则使用 inertia 来选择 K 值"
-  verification: "运行 tests/test_kmeans.py::test_inertia_decreases_with_k，验证 inertia 单调递减"
+  verification: "运行 tests/test_kmeans.py::TestKMeansBoundaryCases::test_kmeans_inertia_decreases_with_k，验证 inertia 单调递减"
 
 - id: week_15_silhouette_range
   claim: 轮廓系数取值范围为 [-1, 1]，越大表示聚类效果越好
   evidence: "CHAPTER.md 第 4 节：轮廓系数用于评估聚类质量和选择 K 值"
-  verification: "运行 tests/test_kmeans.py::test_silhouette_score_range，验证轮廓系数在 [-1, 1] 范围内"
+  verification: "运行 tests/test_kmeans.py::TestSilhouetteScore::test_silhouette_score_in_valid_range，验证轮廓系数在 [-1, 1] 范围内"
 
 - id: week_15_clustering_vs_classification
   claim: 聚类是无监督学习，发现隐藏分组；分类是有监督学习，预测预定义标签
