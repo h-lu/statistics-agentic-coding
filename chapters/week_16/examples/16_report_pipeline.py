@@ -65,15 +65,31 @@ def load_and_clean_data(random_state: int = 42) -> pd.DataFrame:
     print("=" * 60)
 
     # 生成模拟数据（在实际项目中这里是读取真实数据）
-    np.random.seed(random_state)
+    # 关键教学点：目标变量必须来自可解释的特征信号，而不是独立随机噪声。
+    # 下面的 synthetic data 让“短使用时长 + 较高客服联系 + 较低消费”稳定提高流失概率，
+    # 因而正文、报告、展示中的 AUC/显著性叙事可以被脚本复现。
+    rng = np.random.default_rng(random_state)
     n_samples = 1000
+
+    tenure = rng.gamma(shape=2, scale=12, size=n_samples).astype(int)
+    monthly_spend = rng.lognormal(mean=3, sigma=0.5, size=n_samples)
+    support_calls = rng.poisson(lam=2, size=n_samples)
+
+    logit = (
+        -1.8
+        - 1.50 * (tenure - tenure.mean()) / tenure.std()
+        - 0.50 * (monthly_spend - monthly_spend.mean()) / monthly_spend.std()
+        + 0.40 * (support_calls - support_calls.mean()) / support_calls.std()
+    )
+    churn_probability = 1 / (1 + np.exp(-logit))
+    churn = rng.binomial(n=1, p=churn_probability)
 
     data = {
         'customer_id': range(1, n_samples + 1),
-        'tenure': np.random.gamma(shape=2, scale=12, size=n_samples).astype(int),
-        'monthly_spend': np.random.lognormal(mean=3, sigma=0.5, size=n_samples),
-        'support_calls': np.random.poisson(lam=2, size=n_samples),
-        'churn': np.random.binomial(n=1, p=0.2, size=n_samples)
+        'tenure': tenure,
+        'monthly_spend': monthly_spend,
+        'support_calls': support_calls,
+        'churn': churn
     }
     df = pd.DataFrame(data)
 
@@ -118,7 +134,7 @@ def compute_descriptive_stats(df: pd.DataFrame, output_dir: Path) -> dict:
     summary = df[numeric_cols].describe()
     print(summary)
 
-    stats_summary['summary'] = summary
+    stats_summary['summary'] = summary.T
 
     # 2.2 流失组比较
     print("\n分组比较（流失 vs 非流失）：")
@@ -411,7 +427,7 @@ def run_analysis_pipeline(data_path: str = None,
     print("写清楚数据来源——这三点是基础。'\n")
 
     output_path = Path(output_dir)
-    output_path.mkdir(exist_ok=True)
+    output_path.mkdir(parents=True, exist_ok=True)
 
     # 步骤 1：数据加载与清洗
     df = load_and_clean_data(random_state=random_state)

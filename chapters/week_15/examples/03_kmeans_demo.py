@@ -99,10 +99,16 @@ def correct_kmeans_pipeline(X: np.ndarray, feature_names: list,
     print("-" * 50)
 
     # 方法 1：肘部法则（主观，找拐点）
-    # 找 inertia 下降速度明显变缓的点
-    # 简化方法：找差值最大的点
-    inertia_diffs = np.diff(inertias)
-    elbow_k = K_range[np.argmax(inertia_diffs) + 1]
+    # inertia 单调下降，不能对一阶差分直接 argmax；那会偏向尾部。
+    # 这里用“端点连线最大距离”的 knee heuristic，只作为课堂提示。
+    k_values = np.array(list(K_range), dtype=float)
+    inertia_values = np.array(inertias, dtype=float)
+    points = np.column_stack([k_values, inertia_values])
+    start, end = points[0], points[-1]
+    line = end - start
+    line_norm = np.linalg.norm(line)
+    distances = np.abs(np.cross(line, start - points)) / line_norm
+    elbow_k = int(k_values[np.argmax(distances)])
 
     # 方法 2：轮廓系数（客观，选最大值）
     best_silhouette_k = K_range[np.argmax(silhouette_scores)]

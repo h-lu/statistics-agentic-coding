@@ -224,7 +224,7 @@ plt.savefig('output/14_prior_posterior.png', dpi=150)
 
 ## 进阶层（推荐完成）
 
-### 任务 4：用 PyMC 进行 MCMC 采样
+### 任务 4：用 PyMC（可选扩展，默认环境可使用 SciPy fallback） 进行 MCMC 采样
 
 小北本周学会了 Beta-Binomial 共轭先验的解析解。但他问："**如果先验和似然不是共轭的，怎么算后验？**"
 
@@ -232,8 +232,8 @@ plt.savefig('output/14_prior_posterior.png', dpi=150)
 
 **你的任务**：
 
-1. 安装 PyMC：`pip install pymc arviz`
-2. 用 PyMC 重新计算流失率的后验分布
+1. 安装 PyMC（可选扩展，默认环境可使用 SciPy fallback）：`pip install pymc arviz`
+2. 用 PyMC（可选扩展，默认环境可使用 SciPy fallback） 重新计算流失率的后验分布
 3. 检查 MCMC 收敛性（R-hat、ESS）
 4. 绘制后验分布和迹图
 
@@ -283,7 +283,7 @@ ESS: 4521 (> 400 表示样本量足够)
 - 一段文字解释：如何判断 MCMC 是否收敛？
 
 **评分点**：
-- [ ] 正确使用了 PyMC 进行 MCMC 采样
+- [ ] 正确使用了 PyMC（可选扩展，默认环境可使用 SciPy fallback） 进行 MCMC 采样
 - [ ] 检查了收敛性（R-hat、ESS）
 - [ ] 绘制了后验分布和迹图
 - [ ] 解释了如何判断 MCMC 是否收敛
@@ -339,7 +339,7 @@ for name, (alpha, beta) in priors.items():
 # 打印结果
 for name, res in results.items():
     print(f"{name}: 均值 = {res['后验均值']:.3f}, "
-          f"95% CI = [{res['CI'][0]:.3f}, {res['CI'][1]:.3f}]")
+          f"95% CI = [{res['95% CI'][0]:.3f}, {res['95% CI'][1]:.3f}]")
 
 # 计算后验均值的差异
 posterior_means = [res['后验均值'] for res in results.values()]
@@ -549,7 +549,7 @@ else:
 
 1. 回顾 CHAPTER.md 中的示例代码
 2. 参考本周的 StatLab 示例（`examples/statlab_week14.py`）
-3. 查阅 PyMC 官方文档：https://www.pymc.io/welcome.html
+3. 查阅 PyMC（可选扩展，默认环境可使用 SciPy fallback） 官方文档：https://www.pymc.io/welcome.html
 4. 如果你对 Beta 分布的参数不熟悉，可以参考 `starter_code/solution.py`（但不要直接复制）
 
 **记住**：作业的目的是巩固理解，不是完美复制代码。即使遇到困难，也要尝试用自己的话解释问题和思路。

@@ -216,7 +216,7 @@ def identify_backdoor_paths() -> dict:
     - 前门路径：优惠券 → 购买次数 → 流失率（因果机制，不阻断）
 
     问题：高价值客户可能不可观测
-    解决：用代理变量（如 purchase_count, vip_status）
+    解决：用预处理代理变量（如 vip_status；不要用可能受优惠券影响的 purchase_count）
     """
     backdoor_paths = {
         'coupon -> churn': [
@@ -225,7 +225,7 @@ def identify_backdoor_paths() -> dict:
                 'type': '混杂',
                 'need_to_control': '高价值客户',
                 'observable': False,
-                'proxy_variables': ['purchase_count', 'vip_status']
+                'proxy_variables': ['vip_status']
             }
         ]
     }

@@ -64,7 +64,7 @@ def bayes_theorem_correct(prior: float, sensitivity: float, false_positive: floa
 
 
 # ===== 反例：常见误解 =====
-def common_misunderstanding(prior: float, sensitivity: float) -> dict:
+def common_misunderstanding(prior: float, sensitivity: float, false_positive: float) -> dict:
     """
     常见误解：直接把灵敏度当成后验概率
 
@@ -77,9 +77,7 @@ def common_misunderstanding(prior: float, sensitivity: float) -> dict:
     # 错误：直接用灵敏度作为"阳性时患病的概率"
     wrong_posterior = sensitivity
 
-    # 正确：需要用贝叶斯定理计算
-    # 假设假阳性率为 10%
-    false_positive = 0.10
+    # 正确：需要用同一场景的假阳性率计算，不能偷偷更换参数
     p_positive = sensitivity * prior + false_positive * (1 - prior)
     correct_posterior = (sensitivity * prior) / p_positive
 
@@ -204,7 +202,7 @@ def main() -> None:
     print("示例 2：常见误解（反例）")
     print("=" * 60)
 
-    misunderstanding = common_misunderstanding(prior_disease, sensitivity)
+    misunderstanding = common_misunderstanding(prior_disease, sensitivity, false_positive)
 
     print(f"\n❌ 错误理解：\"检测阳性，所以我有 {sensitivity:.1%} 的概率患病\"")
     print(f"   问题：混淆了 P(阳性|患病) 和 P(患病|阳性)")

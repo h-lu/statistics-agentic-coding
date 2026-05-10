@@ -67,7 +67,7 @@
 - 图表保存路径不统一
 
 改进计划：
-1. 创建 generate_report.py 作为入口脚本
+1. 创建一个入口脚本（如 generate_report.py，或复用 examples/16_final_delivery.py 的结构）
 2. 在脚本开头固定所有随机种子
 3. 添加 requirements.txt
 4. 统一图表保存路径到 figures/ 目录
@@ -101,7 +101,7 @@
 
 **你的任务**：
 
-1. 创建一个报告生成脚本 `generate_report.py`：
+1. 创建一个报告生成入口脚本（例如 `generate_report.py`）：
    - 从原始数据开始，加载并清洗
    - 按顺序调用 16 周的分析函数
    - 用 f-string 或 Jinja2 生成 Markdown 内容
@@ -502,14 +502,14 @@ img {
 
 ## 方法（2 分钟）
 "我们分析了 5000 个客户的行为数据，包括使用时长、消费金额、客服联系次数等 15 个变量。
-我们用了逻辑回归预测流失，用 SHAP 值解释模型。
+我们用了逻辑回归预测流失，用 模型系数解释；如已安装 SHAP，可追加 SHAP 分析。
 在分析前，我们检查了数据的缺失机制。"
 
 ## 发现（4 分钟）
 "这张图是我们最重要的发现（指向 ROC 曲线）。
-模型的 AUC 是 0.82，这意味着如果我们用模型识别前 20% 高风险客户，能捕获 60% 的实际流失者。
+模型的 AUC 约为 0.78，这意味着如果我们用模型识别前 20% 高风险客户，能更集中地找到高风险客户（覆盖率需用当前数据实际计算）。
 
-更重要的是，SHAP 值告诉我们（指向特征重要性图）：'使用时长'和'客服联系次数'是最大的预测因子。
+更重要的是，模型系数/可选 SHAP 分析提示：'使用时长'和'客服联系次数'是重点关注变量。
 这给我们一个可操作的建议：主动联系低活跃客户。"
 
 ## 边界（1 分钟）
@@ -656,7 +656,7 @@ img {
 **GitHub Actions 示例**（仅供参考格式）：
 
 ```yaml
-# .github/workflows/generate_report.yml
+# 可选示例路径：.github/workflows/generate_report.yml（需学生自行创建）
 name: Generate Report
 
 on:
@@ -684,7 +684,7 @@ jobs:
 
     - name: Run analysis
       run: |
-        python generate_report.py
+        python generate_report.py  # 或 python chapters/week_16/examples/16_final_delivery.py
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -701,10 +701,10 @@ jobs:
 all: report
 
 data:
-	python scripts/download_data.py
+	# 如有外部数据下载脚本，可运行：python scripts/download_data.py
 
 report: data
-	python generate_report.py
+	python generate_report.py  # 或 python chapters/week_16/examples/16_final_delivery.py
 
 clean:
 	rm -rf output/* figures/*.png
@@ -828,7 +828,7 @@ deploy: report
 **你的任务**：
 
 1. **创建报告生成流水线**：
-   - 创建 `generate_report.py` 入口脚本
+   - 创建 `generate_report.py` 或等价入口脚本
    - 调用 16 周的分析函数
    - 生成 `report.md` 和 `report.html`
 
@@ -896,7 +896,7 @@ deploy: report
 **提交物**：
 - `report.md`（终稿报告）
 - `report.html`（可选，HTML 版本）
-- `generate_report.py`（报告生成脚本）
+- `generate_report.py` 或等价入口脚本（报告生成脚本）
 - `audit_checklist.md`（审计清单 + 自检结果）
 - `ai_usage_log.md`（如果使用 AI）
 - 展示脚本和关键图表清单

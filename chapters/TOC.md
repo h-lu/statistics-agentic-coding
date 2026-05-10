@@ -37,10 +37,10 @@
 |---|---|---|
 | 13 | [从相关到因果——为什么你的模型不会回答"如果……会怎样"](week_13/CHAPTER.md) | 因果图 + 估计策略（`report.md` v1.3） |
 | 14 | [贝叶斯视角——从"p 值游戏"到"信念更新"](week_14/CHAPTER.md) | 后验推断 + 敏感性分析（`report.md` v1.4） |
-| 15 | [高级统计计算——当数据太多、太快、太复杂时](week_15/CHAPTER.md) | 降维/聚类/A-B（`report.md` v1.5） |
+| 15 | [高级统计计算——当数据太多、太快、太复杂时](week_15/CHAPTER.md) | PCA/聚类分群（`report.md` v1.5） |
 
 ## 阶段五：综合实战（Week 16）
 
 | 周次 | 章节 | 本周交付（StatLab 报告线） |
 |---|---|---|
-| 16 | [从分析到交付——完整数据项目的终章](week_16/CHAPTER.md) | 终稿报告 + 展示版（`report.md` / `report.html` v2.0） |
+| 16 | [从分析到交付——终稿报告与展示](week_16/CHAPTER.md) | 终稿报告 + 展示版（`report.md` / `report.html` v2.0） |

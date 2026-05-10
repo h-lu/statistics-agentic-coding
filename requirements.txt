@@ -1,4 +1,5 @@
 # Runtime dependencies for examples and the StatLab analysis workflow.
+# Release validation runs matplotlib in headless mode (`MPLBACKEND=Agg`).
 #
 # Keep this list small and broadly compatible. Pin versions only when needed
 # for reproducibility across machines.
@@ -10,4 +11,3 @@ statsmodels
 scikit-learn
 matplotlib
 seaborn
-

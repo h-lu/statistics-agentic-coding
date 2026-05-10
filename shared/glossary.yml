@@ -8,7 +8,7 @@
 
 - term_zh: StatLab
   term_en: StatLab
-  definition_zh: 本书贯穿项目的代号：一条可复现的统计分析报告流水线，每周增量迭代输出 report.md（可选导出 report.html）。
+  definition_zh: 本书贯穿项目的代号：一条可复现的统计分析报告流水线。跨周统一产物名是 report.md（可选导出 report.html）；各周 examples 里的 statlab 脚本文件名只用于教学示例，不是固定提交契约。
   first_seen: week_01
 
 # ─── Week 01 ───

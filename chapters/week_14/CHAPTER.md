@@ -63,7 +63,7 @@ AI 可以快速计算后验分布，但只有人类能设定合理的先验和�
 ---
 
 认知负荷预算：
-- 本周新概念（4 个，预算上限 4 个）：
+- 本周核心新概念（4 个，另有 3 个支撑术语）：
   1. 贝叶斯定理（Bayes' Theorem）：P(θ|data) ∝ P(data|θ) × P(θ)
   2. 先验分布（Prior Distribution）：信息性先验 vs 无信息先验
   3. 后验分布（Posterior Distribution）：给定数据后的参数分布
@@ -159,7 +159,7 @@ print(f"p 值: {p_value:.4f}")
 | **参数** | 固定但未知 | 随机变量（有分布） |
 | **数据** | 随机 | 固定（已观测） |
 | **推断** | 基于长期频率 | 基于信念更新 |
-| **p 值** | 在 H0 成立时观察到当前或更极端统计量的概率 | P(H0|data)（后验概率） |
+| **关于假设的量** | p 值：在 H0 成立时观察到当前或更极端统计量的概率 | 后验假设概率或 Bayes factor：需要额外先验与模型，不能把它当成“贝叶斯版 p 值” |
 | **区间** | 置信区间 | 可信区间 |
 
 阿码这时问："**那频率学派是不是过时了？**"
@@ -273,7 +273,7 @@ print(f"95% 可信区间: [{ci_low:.3f}, {ci_high:.3f}]")
 **信息性先验**基于历史数据或领域知识，比如 Beta(150, 850) 基于 1000 个历史客户、流失率 15%。风险是：如果先验错了，数据很难"修正"它。
 
 ![不同类型先验分布的比较](images/02_beta_binomial_priors.png)
-*图：三种先验分布的比较——无信息（均匀）、弱信息（Beta(5,20)）、信息性（Beta(150,850))*
+*图：三种先验分布的比较——无信息（均匀）、弱信息（Beta(5,20)）、信息性（Beta(150,850)*
 
 ---
 
@@ -447,13 +447,13 @@ with pm.Model() as churn_model:
     trace = pm.sample(2000, tune=1000, chains=4, random_seed=42)
 
 # 可视化后验分布和检查迹图
-az.plot_posterior(trace, var_names=['theta'])
+az.plot_posterior(trace, var_names=['theta'], hdi_prob=0.95)
 az.plot_trace(trace, var_names=['theta'])  # 迹图像"毛毛虫"表示收敛
 ```
 
 结果：你会看到后验分布的密度图，以及：
 - 后验均值：约 17.7%
-- 94% HDI（Highest Density Interval）：约 [16.0%, 19.5%]
+- 95% HDI（Highest Density Interval）：约 [16.0%, 19.5%]
 
 阿码问："**为什么要采 2000 个样本？**"
 
@@ -502,7 +502,7 @@ for name, (alpha, beta) in priors.items():
 
 # 打印结果
 for name, res in results.items():
-    print(f"{name}: 均值 = {res['后验均值']:.3f}, 95% CI = [{res['CI'][0]:.3f}, {res['CI'][1]:.3f}]")
+    print(f"{name}: 均值 = {res['后验均值']:.3f}, 95% CI = [{res['95% CI'][0]:.3f}, {res['95% CI'][1]:.3f}]")
 ```
 
 结果：

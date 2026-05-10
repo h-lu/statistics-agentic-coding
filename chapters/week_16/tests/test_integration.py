@@ -9,6 +9,7 @@ Tests for Integration and End-to-End Scenarios
 from __future__ import annotations
 
 import sys
+import json
 from pathlib import Path
 import tempfile
 import shutil
@@ -614,3 +615,45 @@ class TestErrorRecovery:
             assert result is not None
         else:
             pytest.skip("compute_descriptive function not implemented")
+
+
+def test_final_delivery_pipeline_generates_required_artifacts(tmp_path):
+    """端到端：最终交付入口应生成报告、HTML、审计清单、展示材料和清单。"""
+    import importlib.util
+
+    module_path = Path(__file__).parent.parent / "examples" / "16_final_delivery.py"
+    spec = importlib.util.spec_from_file_location("week16_final_delivery", module_path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+
+    output_dir = tmp_path / "final_delivery"
+    pipeline = module.FinalDeliveryPipeline(output_dir=str(output_dir), random_state=42)
+    result = pipeline.run_full_pipeline()
+
+    assert result["status"]["pipeline"] is True
+    assert result["status"]["report"] is True
+    assert result["status"]["html"] is True
+    assert result["status"]["audit"] is True
+    assert result["status"]["presentation"] is True
+
+    required = [
+        "report.md",
+        "report.html",
+        "audit_checklist.md",
+        "presentation_reveal.html",
+        "speaker_script.md",
+        "delivery_manifest.json",
+        "requirements.txt",
+    ]
+    for rel_path in required:
+        path = output_dir / rel_path
+        assert path.exists(), f"missing {rel_path}"
+        assert path.stat().st_size > 0, f"empty {rel_path}"
+
+    manifest = json.loads((output_dir / "delivery_manifest.json").read_text(encoding="utf-8"))
+    incomplete_required = [
+        name for name, spec in manifest["deliverables"].items()
+        if spec["required"] and not spec["complete"]
+    ]
+    assert incomplete_required == []

@@ -18,6 +18,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 import sys
+import html
+import re
 
 
 # ===== 方式 1：使用 Pandoc 命令行 =====
@@ -123,9 +125,8 @@ def convert_with_python_markdown(markdown_path: str,
     try:
         import markdown
     except ImportError:
-        print("markdown 库未安装")
-        print("请运行: pip install markdown")
-        return False
+        print("markdown 库未安装，使用内置轻量转换器")
+        markdown = None
 
     # 读取 Markdown 文件
     md_path = Path(markdown_path)
@@ -136,16 +137,18 @@ def convert_with_python_markdown(markdown_path: str,
     with open(md_path, 'r', encoding='utf-8') as f:
         md_content = f.read()
 
-    # 转换为 HTML
-    md = markdown.Markdown(extensions=[
-        'tables',  # 支持表格
-        'fenced_code',  # 支持代码块
-        'toc',  # 支持目录
-        'nl2br',  # 换行转 <br>
-        'sane_lists'  # 更好的列表支持
-    ])
-
-    html_body = md.convert(md_content)
+    # 转换为 HTML；优先使用 markdown 库，缺失时降级到轻量转换，保证最终交付入口可运行。
+    if markdown is not None:
+        md = markdown.Markdown(extensions=[
+            'tables',  # 支持表格
+            'fenced_code',  # 支持代码块
+            'toc',  # 支持目录
+            'nl2br',  # 换行转 <br>
+            'sane_lists'  # 更好的列表支持
+        ])
+        html_body = md.convert(md_content)
+    else:
+        html_body = _basic_markdown_to_html(md_content)
 
     # 生成完整 HTML
     if css_style is None:
@@ -222,6 +225,55 @@ def convert_with_python_markdown(markdown_path: str,
     return True
 
 
+
+
+def _basic_markdown_to_html(md_content: str) -> str:
+    """Very small Markdown fallback used when the optional markdown package is absent."""
+    blocks = []
+    in_list = False
+    for raw_line in md_content.splitlines():
+        line = raw_line.rstrip()
+        if not line:
+            if in_list:
+                blocks.append('</ul>')
+                in_list = False
+            continue
+        if line.startswith('#'):
+            if in_list:
+                blocks.append('</ul>')
+                in_list = False
+            level = len(line) - len(line.lstrip('#'))
+            text = line[level:].strip()
+            blocks.append(f'<h{level}>{_inline_markdown(text)}</h{level}>')
+        elif line.startswith('- '):
+            if not in_list:
+                blocks.append('<ul>')
+                in_list = True
+            blocks.append(f'<li>{_inline_markdown(line[2:].strip())}</li>')
+        elif re.match(r'^\d+\.\s+', line):
+            if in_list:
+                blocks.append('</ul>')
+                in_list = False
+            text = re.sub(r'^\d+\.\s+', '', line)
+            blocks.append(f'<p>{_inline_markdown(text)}</p>')
+        else:
+            if in_list:
+                blocks.append('</ul>')
+                in_list = False
+            blocks.append(f'<p>{_inline_markdown(line)}</p>')
+    if in_list:
+        blocks.append('</ul>')
+    return '\n'.join(blocks)
+
+
+def _inline_markdown(text: str) -> str:
+    text = html.escape(text)
+    text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', r'<img src="\2" alt="\1">', text)
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
+    return text
+
 # ===== 方式 3：使用 WeasyPrint 生成带样式的 PDF =====
 def convert_to_pdf_with_weasyprint(markdown_path: str,
                                     pdf_path: str) -> bool:
@@ -256,9 +308,8 @@ def convert_to_pdf_with_weasyprint(markdown_path: str,
     try:
         import markdown
     except ImportError:
-        print("markdown 库未安装")
-        print("请运行: pip install markdown")
-        return False
+        print("markdown 库未安装，使用内置轻量转换器")
+        markdown = None
 
     # 读取 Markdown
     with open(markdown_path, 'r', encoding='utf-8') as f:

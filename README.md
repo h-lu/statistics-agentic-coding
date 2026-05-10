@@ -38,6 +38,8 @@ make book-check       # 全书一致性检查
 
 所有命令见 `make help`。
 
+`scripts/validate_week.py --mode release` 会在子进程里默认注入 `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` 和 `MPLBACKEND=Agg`，避免宿主机 pytest 插件或图形后端污染校验结果。若你直接运行 `pytest`，也建议显式带上这两个环境变量。
+
 ## 一周写作流程
 
 在 Claude Code / Cursor 中打开本项目，使用 skill 命令：
@@ -98,6 +100,7 @@ Makefile                   # 快捷命令入口
 - **场景驱动**：先让读者感受到需求，再引出概念
 - **贯穿案例**：每章一个渐进式分析任务（数据故事/小报告），每节推进一步
 - **StatLab 超级线**：全书一条可复现分析报告流水线（`report.md` / `report.html`），每章推进一次
+- **命名约定**：StatLab 的跨周正式产物统一叫 `report.md`（可选导出 `report.html`）；各周 `examples/*statlab*.py` 只是教学示例入口，不是固定提交文件名
 - **禁止模板感**：不能每节都用相同结构，不能 bullet list 堆砌做小结
 - **叙事质量评分**：`student-qa` agent 打 1-5 分，>= 4 分才能发布
 - **修订回路**：QA 发现问题 → 回传 writer/polisher 修复 → 再次 QA

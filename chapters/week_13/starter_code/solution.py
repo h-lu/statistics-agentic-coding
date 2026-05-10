@@ -343,7 +343,7 @@ def propensity_score_matching(
         'control_outcome': matched_control_outcome,
         'n_matched': len(treated),
         'propensity_score_model': ps_model,
-        'matched_indices': indices.flatten()
+        'matched_indices': matched_control.index.to_numpy()
     }
 
 
@@ -366,7 +366,7 @@ def check_matching_balance(
     - DataFrame: 平衡性检验结果
     """
     treated = df[df[treatment_col] == 1]
-    matched_control = df.iloc[matched_indices]
+    matched_control = df.loc[matched_indices]
 
     results = []
 
@@ -485,7 +485,7 @@ def main() -> None:
 
     # 假设数据是 RCT（虽然实际不是）
     balance_results = check_balance_assumption(
-        df, 'coupon', ['high_value', 'purchase_count']
+        df, 'coupon', ['high_value']
     )
 
     print("\n平衡性检验结果:")
@@ -499,7 +499,7 @@ def main() -> None:
         df,
         treatment_col='coupon',
         outcome_col='churn',
-        covariate_cols=['high_value', 'purchase_count']
+        covariate_cols=['high_value']
     )
 
     print(f"\nPSM 结果:")
@@ -509,7 +509,7 @@ def main() -> None:
 
     # 检查匹配后平衡性
     balance_after = check_matching_balance(
-        df, 'coupon', ['high_value', 'purchase_count'],
+        df, 'coupon', ['high_value'],
         psm_results['matched_indices']
     )
 

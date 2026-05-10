@@ -457,14 +457,14 @@ graph TB
 **步骤 1：找后门路径**
 - 路径 1：C ← H → L（混杂路径，需要控制 H）
 - 路径 2：C → P → L（前门路径，不需要控制，这是中介机制）
-- 路径 3：C ← H → P → L（如果控制 H，这条路径也会被阻断）
+- 路径 3：C ← H → V → L（如果控制 H，这条路径也会被阻断；V 是预处理代理变量）
 
 **步骤 2：应用后门准则**
 - 需要控制 H（高价值客户）
 - 但问题是：H 可能不可观测
 
 **步骤 3：找代理变量**
-- 如果 H 不可观测，可以尝试用可观测变量代理（如 'purchase_count', 'vip_status'）
+- 如果 H 不可观测，可以尝试用真正的预处理变量代理（如 'vip_status'，而不是处理后才发生变化的 purchase_count）
 - 但代理不完美——如果代理不能完全捕捉 H，仍然会有剩余混杂
 
 ---
@@ -959,13 +959,13 @@ def identify_backdoor_paths(treatment, outcome, dag_edges):
     confounders_to_control = ['high_value_customer']  # 需要控制，但可能不可观测
 
     # 代理变量（如果混杂不可观测）
-    proxy_variables = ['purchase_count', 'vip_status']
+    proxy_variables = ['vip_status']
 
     return {
         'backdoor_paths': backdoor_paths,
         'confounders': confounders_to_control,
         'proxies': proxy_variables,
-        'note': 'high_value_customer 可能不可观测，使用代理变量不完美'
+        'note': 'high_value_customer 可能不可观测，使用预处理代理变量不完美，不能替代真实随机化'
     }
 ```
 
@@ -1121,24 +1121,20 @@ def generate_causal_inference_report(df, treatment, outcome, causal_dag_img,
 ### 使用示例
 
 ```python
-import pandas as pd
-import pickle
+from pathlib import Path
+# 真实脚本文件名为 13_statlab_causal.py；建议直接运行下方命令。
+# 推荐方式：直接运行真实示例脚本生成 Week 13 的 causal demo 数据和报告
+# python3 chapters/week_13/examples/13_statlab_causal.py
 
-# 加载数据（假设从之前的周加载）
-df = pd.read_csv('data/customer_churn.csv')
+# 若在 notebook 中复用，请先从示例脚本中生成含 coupon/churn/high_value/vip_status 的 causal demo 数据；
+# 不要直接读取 data/customer_churn.csv，因为那份分类数据没有 coupon/vip_status 字段。
 
-# 1. 画因果图
-dag_img = draw_causal_dag()
-
-# 2. 识别因果路径
-identification = identify_backdoor_paths('coupon', 'churn', None)
-
-# 3. 估计因果效应（PSM）
+# 估计总效应时，purchase_count 是中介，不应放进 adjustment set。
 psm_results = propensity_score_matching(
     df,
     treatment_col='coupon',
     outcome_col='churn',
-    covariates=['purchase_count', 'vip_status', 'days_since_last_purchase']
+    covariate_cols=['high_value']  # 若 high_value 不可观测，可用 vip_status 等预处理 proxy 做敏感性分析
 )
 
 # 4. 生成报告

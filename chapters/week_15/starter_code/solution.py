@@ -342,3 +342,75 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# ============================================================
+# Public API wrappers used by smoke tests and student templates
+# ============================================================
+
+def standardize_data(X):
+    """Return standardized data and the fitted StandardScaler."""
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(np.asarray(X))
+    return X_scaled, scaler
+
+
+def pca_analysis(X, n_components=2, random_state=42):
+    """Run the core PCA workflow on a provided matrix."""
+    X_scaled, scaler = standardize_data(X)
+    pca = PCA(n_components=n_components, random_state=random_state)
+    X_pca = pca.fit_transform(X_scaled)
+    return {
+        'X_scaled': X_scaled,
+        'scaler': scaler,
+        'pca': pca,
+        'X_pca': X_pca,
+        'explained_variance_ratio': pca.explained_variance_ratio_,
+        'cumulative_variance': np.cumsum(pca.explained_variance_ratio_),
+        'components': pca.components_,
+    }
+
+
+def perform_pca(X, n_components=2, random_state=42):
+    """Alias for pca_analysis, kept for tests/notebooks."""
+    return pca_analysis(X, n_components=n_components, random_state=random_state)
+
+
+def perform_kmeans(X, n_clusters=3, random_state=42):
+    """Fit K-means and return labels, model, and silhouette score."""
+    X_scaled, scaler = standardize_data(X)
+    model = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
+    labels = model.fit_predict(X_scaled)
+    sil = silhouette_score(X_scaled, labels) if n_clusters > 1 else np.nan
+    return {
+        'labels': labels,
+        'model': model,
+        'kmeans': model,
+        'scaler': scaler,
+        'silhouette_score': sil,
+        'cluster_centers': model.cluster_centers_,
+    }
+
+
+def kmeans_clustering(X, n_clusters=3, random_state=42):
+    """Alias for perform_kmeans."""
+    return perform_kmeans(X, n_clusters=n_clusters, random_state=random_state)
+
+
+def elbow_method(X, k_range=None, max_k=10, random_state=42):
+    """Compute inertia and silhouette scores across K values."""
+    if k_range is None:
+        k_range = range(2, max_k + 1)
+    X_scaled, _ = standardize_data(X)
+    inertias = []
+    silhouettes = []
+    for k in k_range:
+        model = KMeans(n_clusters=k, random_state=random_state, n_init=10)
+        labels = model.fit_predict(X_scaled)
+        inertias.append(model.inertia_)
+        silhouettes.append(silhouette_score(X_scaled, labels))
+    return {
+        'k_values': list(k_range),
+        'inertias': inertias,
+        'silhouette_scores': silhouettes,
+        'best_k_by_silhouette': list(k_range)[int(np.argmax(silhouettes))],
+    }

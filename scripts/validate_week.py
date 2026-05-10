@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -439,8 +440,18 @@ def _check_review_bridges(errors: list[str], chapter_path: Path, root: Path, wee
 def _run_pytest(errors: list[str], root: Path, week: str) -> None:
     week_tests = root / "chapters" / week / "tests"
     cmd = [sys.executable, "-m", "pytest", str(week_tests), "-q"]
-    verbose(f"running: {' '.join(cmd)}")
-    proc = subprocess.run(cmd, cwd=root, text=True, capture_output=True)
+    env = os.environ.copy()
+    # Release validation should not pick up host-level pytest plugins and
+    # should default to a headless-safe matplotlib backend.
+    env.setdefault("PYTEST_DISABLE_PLUGIN_AUTOLOAD", "1")
+    env.setdefault("MPLBACKEND", "Agg")
+    verbose(
+        "running: "
+        f"{' '.join(cmd)} "
+        f"(PYTEST_DISABLE_PLUGIN_AUTOLOAD={env['PYTEST_DISABLE_PLUGIN_AUTOLOAD']}, "
+        f"MPLBACKEND={env['MPLBACKEND']})"
+    )
+    proc = subprocess.run(cmd, cwd=root, text=True, capture_output=True, env=env)
     if proc.returncode != 0:
         add_error(errors, "pytest failed")
         if proc.stdout:

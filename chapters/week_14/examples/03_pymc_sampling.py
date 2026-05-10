@@ -151,8 +151,8 @@ class PyMCSampler:
             results[var] = {
                 'mean': float(summary.loc[var, 'mean']),
                 'sd': float(summary.loc[var, 'sd']),
-                'hdi_3%': float(summary.loc[var, 'hdi_3%']),
-                'hdi_97%': float(summary.loc[var, 'hdi_97%']),
+                'hdi_2.5%': float(summary.loc[var, 'hdi_2.5%']),
+                'hdi_97.5%': float(summary.loc[var, 'hdi_97.5%']),
             }
         return results
 
@@ -211,8 +211,8 @@ def simulate_with_scipy(n: int, successes: int,
     return {
         'samples': samples,
         'mean': float(alpha_post / (alpha_post + beta_post)),
-        'hdi_3%': float(stats.beta.ppf(0.03, alpha_post, beta_post)),
-        'hdi_97%': float(stats.beta.ppf(0.97, alpha_post, beta_post)),
+        'hdi_2.5%': float(stats.beta.ppf(0.03, alpha_post, beta_post)),
+        'hdi_97.5%': float(stats.beta.ppf(0.97, alpha_post, beta_post)),
         'alpha_post': alpha_post,
         'beta_post': beta_post
     }
@@ -309,7 +309,7 @@ def main() -> None:
             print(f"\n参数：{var}")
             print(f"  后验均值: {s['mean']:.4f}")
             print(f"  后验标准差: {s['sd']:.4f}")
-            print(f"  94% HDI: [{s['hdi_3%']:.4f}, {s['hdi_97%']:.4f}]")
+            print(f"  95% HDI: [{s['hdi_2.5%']:.4f}, {s['hdi_97.5%']:.4f}]")
 
         # 绘图
         print("\n### 生成图表")
@@ -329,7 +329,7 @@ def main() -> None:
 
         print(f"\n后验：Beta({result['alpha_post']}, {result['beta_post']})")
         print(f"  后验均值: {result['mean']:.4f}")
-        print(f"  94% HDI: [{result['hdi_3%']:.4f}, {result['hdi_97%']:.4f}]")
+        print(f"  95% HDI: [{result['hdi_2.5%']:.4f}, {result['hdi_97.5%']:.4f}]")
 
         plot_scipy_posterior(result['samples'], result['mean'],
                             output_dir / '03_scipy_posterior.png')

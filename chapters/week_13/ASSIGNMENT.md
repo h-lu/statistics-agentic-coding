@@ -188,14 +188,14 @@ plt.savefig('output/causal_dag.png', dpi=150, bbox_inches='tight')
 
 步骤 2：找后门路径（混杂路径）
 - 路径 1：coupon ← high_value_customer → churn（混杂！）
-- 路径 2：coupon ← high_value_customer → purchase_count → churn（如果控制 high_value_customer，也会被阻断）
+- 路径 2：coupon ← high_value_customer → vip_status → churn（如果控制 high_value_customer，也会被阻断）
 
 步骤 3：应用后门准则
 - 需要控制：high_value_customer
 - 问题：high_value_customer 可能不可观测
 
 步骤 4：找代理变量
-- 如果 high_value_customer 不可观测，可以用 purchase_count、vip_status 作为代理
+- 如果 high_value_customer 不可观测，可以用 vip_status 等预处理变量作为代理；不要把 purchase_count 这种可能受优惠券影响的中介放进总效应调整集
 - 但代理不完美——如果代理不能完全捕捉 high_value_customer，仍有剩余混杂
 
 步骤 5：不要控制碰撞变量
@@ -238,11 +238,12 @@ plt.savefig('output/causal_dag.png', dpi=150, bbox_inches='tight')
 import pandas as pd
 import statsmodels.formula.api as smf
 
-# 加载数据
-df = pd.read_csv("data/customer_churn.csv")
+# 使用你在本周生成/整理的 causal demo 数据；不要直接读取 data/customer_churn.csv，
+# 因为那份分类数据没有 coupon/vip_status 字段。
+# df = make_causal_demo_data(...)
 
 # 相关性分析（不是因果！）
-model = smf.logit("churn ~ coupon + purchase_count + vip_status + days_since_last_purchase", data=df).fit()
+model = smf.logit("churn ~ coupon + vip_status", data=df).fit()
 print(model.summary())
 
 # 计算相关系数
@@ -299,7 +300,7 @@ print(f"优惠券和流失率的相关系数: {correlation:.3f}")
 老潘说："**有个叫 DoWhy 的库，可以帮你系统地做因果推断**。它不会替你画因果图，但会帮你识别因果路径、估计效应、做敏感性分析。"
 
 **你的任务**：
-1. 安装 DoWhy：`pip install dowhy`
+1. 如果选择扩展题，安装 DoWhy：`pip install dowhy`（默认环境不要求安装）
 2. 用 DoWhy 重新分析"优惠券对流失率的影响"
 3. 生成因果报告：
    - 因果识别（Identify）
@@ -312,8 +313,9 @@ import pandas as pd
 import dowhy
 from dowhy import CausalModel
 
-# 加载数据
-df = pd.read_csv("data/customer_churn.csv")
+# 使用你在本周生成/整理的 causal demo 数据；不要直接读取 data/customer_churn.csv，
+# 因为那份分类数据没有 coupon/vip_status 字段。
+# df = make_causal_demo_data(...)
 
 # 定义因果模型
 causal_graph = """
@@ -367,7 +369,7 @@ print("随机共同原因检验:", refute2)
 - 一段文字解释结果（3-4 句话）
 
 **评分点**：
-- [ ] 正确使用了 DoWhy 库
+- [ ] 如选择 DoWhy 扩展题，正确安装并使用了 DoWhy 库
 - [ ] 定义了因果图（DAG）
 - [ ] 进行了因果识别和估计
 - [ ] 进行了敏感性分析

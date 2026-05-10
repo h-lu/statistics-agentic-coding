@@ -102,8 +102,8 @@ def generate_markdown_with_fstring(results: Dict[str, Any],
 
     # 添加可视化
     markdown += "### 数据分布\n\n"
-    markdown += "![使用时长分布](tenure_distribution.png)\n\n"
-    markdown += "![消费金额分布](spend_distribution.png)\n\n"
+    markdown += "![使用时长分布](figures/tenure_distribution.png)\n\n"
+    markdown += "![消费金额分布](figures/spend_distribution.png)\n\n"
 
     # 添加统计检验
     markdown += "## 统计检验\n\n"
@@ -155,7 +155,7 @@ def generate_markdown_with_fstring(results: Dict[str, Any],
 
     markdown += f"""
 3. **模型预测能力**：逻辑回归模型的 AUC 为 {model_results['auc']:.3f}，
-   表明模型具有一定的预测能力。
+   表明模型具有可用于排序高风险客户的预测能力。
 
 ### 业务建议
 

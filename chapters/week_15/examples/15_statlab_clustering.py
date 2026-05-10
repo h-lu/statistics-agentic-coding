@@ -385,8 +385,8 @@ def generate_clustering_report(results: Dict,
     report_lines.append("3. 流失风险客户需要及时干预。\n")
 
     report_lines.append("**后续行动**：\n")
-    report_lines.append("1. 对不同群体设计差异化营销策略")
-    report_lines.append("2. 定期监控群体分布变化")
+    report_lines.append("1. 对不同群体设计差异化营销策略\n")
+    report_lines.append("2. 定期监控群体分布变化\n")
     report_lines.append("3. 结合业务验证分群的有效性\n")
 
     report = ''.join(report_lines)

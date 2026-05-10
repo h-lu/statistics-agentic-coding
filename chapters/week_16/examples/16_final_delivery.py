@@ -22,14 +22,28 @@ from __future__ import annotations
 
 import sys
 import subprocess
+import shutil
+import importlib.util
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any
 import json
+import pandas as pd
 
 # 添加当前目录到路径，以便导入其他示例模块
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
+
+
+def load_example_module(filename: str, module_name: str):
+    """Load a sibling example file whose filename may start with a number."""
+    module_path = current_dir / filename
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 # ===== 交付物清单 =====
@@ -106,12 +120,12 @@ class FinalDeliveryPipeline:
         self.print_header("步骤 1：运行分析流水线")
 
         try:
-            # 导入流水线模块
-            from week_16.examples import report_pipeline
+            # 导入流水线模块（文件名以数字开头，不能用常规 import）
+            report_pipeline = load_example_module('16_report_pipeline.py', 'week16_report_pipeline')
 
-            # 运行流水线
+            # 运行流水线；图表统一写入 figures/，供 Markdown/HTML 复用
             results = report_pipeline.run_analysis_pipeline(
-                output_dir=str(self.output_dir / 'intermediate'),
+                output_dir=str(self.output_dir / 'figures'),
                 random_state=self.random_state
             )
 
@@ -133,12 +147,18 @@ class FinalDeliveryPipeline:
 
     def _get_mock_results(self) -> Dict[str, Any]:
         """获取模拟结果（用于演示）"""
+        summary = pd.DataFrame({
+            'tenure': [24.5, 15.3, 1, 21, 72],
+            'monthly_spend': [85.2, 45.6, 10, 76, 260],
+            'support_calls': [2.1, 1.8, 0, 2, 9]
+        }, index=['mean', 'std', 'min', '50%', 'max']).T
         return {
             'data': {
                 'n_samples': 1000,
                 'n_features': 3,
                 'churn_rate': 0.2
             },
+            'descriptive': {'summary': summary},
             'tests': {
                 'tenure': {
                     'test': 'Mann-Whitney U',
@@ -185,7 +205,7 @@ class FinalDeliveryPipeline:
             return False
 
         try:
-            from week_16.examples import markdown_generator
+            markdown_generator = load_example_module('16_markdown_generator.py', 'week16_markdown_generator')
 
             report_path = self.output_dir / 'report.md'
             markdown = markdown_generator.generate_markdown_with_fstring(
@@ -213,7 +233,7 @@ class FinalDeliveryPipeline:
             return False
 
         try:
-            from week_16.examples import html_export
+            html_export = load_example_module('16_html_export.py', 'week16_html_export')
 
             html_path = self.output_dir / 'report.html'
             success = html_export.convert_with_python_markdown(
@@ -245,7 +265,7 @@ class FinalDeliveryPipeline:
             return False
 
         try:
-            from week_16.examples import audit_checklist
+            audit_checklist = load_example_module('16_audit_checklist.py', 'week16_audit_checklist')
 
             auditor = audit_checklist.ReportAuditor(
                 str(report_md),
@@ -292,7 +312,7 @@ class FinalDeliveryPipeline:
             return False
 
         try:
-            from week_16.examples import presentation_generator
+            presentation_generator = load_example_module('16_presentation_generator.py', 'week16_presentation_generator')
 
             generator = presentation_generator.PresentationGenerator(
                 self.analysis_results
@@ -335,25 +355,28 @@ class FinalDeliveryPipeline:
             "deliverables": {}
         }
 
-        # 检查每个交付物的存在性
+        # 检查每个交付物的存在性：普通文件必须全部存在；通配符至少匹配一个。
         for key, spec in DELIVERABLES.items():
             files_exist = []
+            pattern_complete = []
             for file_pattern in spec["files"]:
                 if '*' in file_pattern:
-                    # 通配符模式
                     matching = list(self.output_dir.glob(file_pattern))
                     files_exist.extend([str(f.relative_to(self.output_dir))
                                        for f in matching])
+                    pattern_complete.append(len(matching) > 0)
                 else:
                     file_path = self.output_dir / file_pattern
-                    if file_path.exists():
+                    exists = file_path.exists()
+                    if exists:
                         files_exist.append(file_pattern)
+                    pattern_complete.append(exists)
 
             manifest["deliverables"][key] = {
                 "name": spec["name"],
                 "required": spec["required"],
                 "files": files_exist,
-                "complete": len(files_exist) > 0
+                "complete": all(pattern_complete)
             }
 
         # 保存清单
@@ -383,6 +406,22 @@ class FinalDeliveryPipeline:
 
         return manifest_path
 
+
+    def prepare_support_files(self) -> None:
+        """Copy minimal code and dependency references into the delivery bundle."""
+        scripts_dir = self.output_dir / 'scripts'
+        scripts_dir.mkdir(parents=True, exist_ok=True)
+        for script in current_dir.glob('16_*.py'):
+            shutil.copy2(script, scripts_dir / script.name)
+        root_requirements = current_dir.parents[2] / 'requirements.txt'
+        if root_requirements.exists():
+            shutil.copy2(root_requirements, self.output_dir / 'requirements.txt')
+        else:
+            (self.output_dir / 'requirements.txt').write_text(
+                '# See project requirements.txt for the full environment.\n',
+                encoding='utf-8'
+            )
+
     def run_full_pipeline(self) -> Dict[str, Any]:
         """
         运行完整交付流水线
@@ -396,7 +435,8 @@ class FinalDeliveryPipeline:
         print("可以理解、可以验证、可以行动的完整故事。'\n")
 
         # 创建输出目录
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.prepare_support_files()
 
         # 运行所有步骤
         self.step_1_run_analysis_pipeline()

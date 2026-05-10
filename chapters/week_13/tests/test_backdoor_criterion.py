@@ -181,7 +181,7 @@ class TestPathIdentification:
 # =============================================================================
 
 class TestBackdoorCriterion:
-    """测试后店准则的应用"""
+    """测试后门准则的应用"""
 
     def test_backdoor_criterion_definition(self, backdoor_criterion_examples):
         """
@@ -230,7 +230,7 @@ class TestBackdoorCriterion:
 
     def test_backdoor_with_mediator(self, backdoor_criterion_examples):
         """
-        正例：存在中介时的后店准则
+        正例：存在中介时的后门准则
 
         估计总效应时，不要控制中介变量
         """
@@ -345,7 +345,7 @@ class TestComplexBackdoorAnalysis:
         """
         边界：不可观测的混杂变量
 
-        如果调整集中的变量不可观测，后店准则无法应用
+        如果调整集中的变量不可观测，后门准则无法应用
         """
         adjustment_set = complex_causal_dag['adjustment_set']
 

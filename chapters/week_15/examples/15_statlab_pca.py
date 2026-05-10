@@ -288,10 +288,9 @@ def generate_pca_report(results: Dict, output_file: str = 'output/pca_report.md'
     pc1_top = loadings_df['PC1'].abs().sort_values(ascending=False).head(5)
     for feat in pc1_top.index:
         loading = loadings_df.loc[feat, 'PC1']
-        report_lines.append(f"- {feat}: {loading:+.3f}")
+        report_lines.append(f"- {feat}: {loading:+.3f}\n")
 
-    report_lines.append("\n**解释**：第一主成分主要反映...")
-    report_lines.append("（需要根据载荷特征人工解释）\n")
+    report_lines.append("\n**解释**：第一主成分代表这些高载荷特征共同变化的方向，用于概括客户行为的主要差异。载荷绝对值越大，说明该特征越参与定义这个主成分；它不是对某个预测标签的 feature importance。\n")
 
     report_lines.append("### 第二主成分 (PC2)\n")
     report_lines.append("**载荷最高的 5 个特征**：\n\n")
@@ -299,17 +298,16 @@ def generate_pca_report(results: Dict, output_file: str = 'output/pca_report.md'
     pc2_top = loadings_df['PC2'].abs().sort_values(ascending=False).head(5)
     for feat in pc2_top.index:
         loading = loadings_df.loc[feat, 'PC2']
-        report_lines.append(f"- {feat}: {loading:+.3f}")
+        report_lines.append(f"- {feat}: {loading:+.3f}\n")
 
-    report_lines.append("\n**解释**：第二主成分主要反映...")
-    report_lines.append("（需要根据载荷特征人工解释）\n")
+    report_lines.append("\n**解释**：第二主成分与第一主成分正交，描述另一组独立的行为差异，可帮助发现主趋势之外的客户结构。\n")
 
     report_lines.append("## 结论\n")
     report_lines.append(f"通过 PCA 降维，我们用 {results['n_80']} 个主成分")
     report_lines.append(f"保留了 80% 的原始信息（从 {len(results['feature_names'])} 维压缩）。\n")
     report_lines.append("这有助于：\n")
-    report_lines.append("1. **降低计算复杂度**：高维模型训练更快")
-    report_lines.append("2. **去除冗余信息**：特征间的相关性被消除")
+    report_lines.append("1. **降低计算复杂度**：高维模型训练更快\n")
+    report_lines.append("2. **去除冗余信息**：特征间的相关性被重新表达为正交方向\n")
     report_lines.append("3. **可视化数据结构**：2D/3D 散点图揭示潜在模式\n")
 
     report = ''.join(report_lines)
