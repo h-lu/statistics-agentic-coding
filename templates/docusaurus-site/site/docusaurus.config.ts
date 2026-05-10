@@ -16,11 +16,11 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // 站点 URL 配置（部署时根据实际情况修改）
-  url: 'https://statistics-agentic-coding.netlify.app',
-  baseUrl: '/',
+  url: 'https://hblu.top',
+  baseUrl: '/stat/',
 
   // GitHub 配置
-  organizationName: 'Shanghai Institute of Technology',
+  organizationName: 'h-lu',
   projectName: 'statistics-agentic-coding',
 
   // 错误处理配置
@@ -40,7 +40,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: 'https://github.com/wangxq/statistics-agentic-coding/tree/main/templates/docusaurus-site/site/',
+          editUrl: 'https://github.com/h-lu/statistics-agentic-coding/tree/main/templates/docusaurus-site/site/',
           showLastUpdateAuthor: false,
           showLastUpdateTime: false,
           breadcrumbs: true,
@@ -89,7 +89,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://github.com/wangxq/statistics-agentic-coding',
+          href: 'https://github.com/h-lu/statistics-agentic-coding',
           label: 'GitHub',
           position: 'right',
         },
@@ -131,7 +131,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/wangxq/statistics-agentic-coding',
+              href: 'https://github.com/h-lu/statistics-agentic-coding',
             },
           ],
         },
