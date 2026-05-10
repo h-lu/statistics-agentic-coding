@@ -8,9 +8,14 @@
 """
 from __future__ import annotations
 
+import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import sys
+
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -22,7 +27,12 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              classification_report)
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-import seaborn as sns
+
+STARTER_CODE_DIR = Path(__file__).resolve().parents[1] / 'starter_code'
+if str(STARTER_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(STARTER_CODE_DIR))
+
+from week_10 import load_customer_churn_data
 
 # 配置中文字体
 def setup_chinese_font() -> str:
@@ -290,24 +300,37 @@ def main() -> None:
     output_dir = Path(__file__).parent.parent.parent.parent / 'output'
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 加载数据（使用泰坦尼克数据集作为示例）
+    # 加载数据（回到本周 customer_churn 主线）
     print("\n加载数据...")
-    titanic = sns.load_dataset("titanic")
+    df = load_customer_churn_data()
 
     # 准备特征和目标
-    feature_cols = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-    X = titanic[feature_cols].copy()
-    y = titanic['survived']
+    feature_cols = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+        'contract_type',
+    ]
+    X = df[feature_cols].copy()
+    y = df['is_churned']
 
     # 定义特征类型
-    numeric_features = ['age', 'sibsp', 'parch', 'fare']
-    categorical_features = ['pclass', 'sex', 'embarked']
+    numeric_features = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+    ]
+    categorical_features = ['contract_type']
 
     print(f"数据集规模: {X.shape[0]} 行, {X.shape[1]} 列")
     print(f"数值型特征: {numeric_features}")
     print(f"分类型特征: {categorical_features}")
-    print(f"目标变量: survived (0=未生存, 1=生存)")
-    print(f"类别分布: 0: {(y==0).sum()}, 1: {(y==1).sum()}")
+    print("目标变量: is_churned (0=未流失, 1=流失)")
+    print(f"类别分布: 0: {(y == 0).sum()}, 1: {(y == 1).sum()} ({y.mean():.1%} 流失率)")
 
     # 训练并评估
     print("\n训练分类模型...")

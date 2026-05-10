@@ -77,7 +77,7 @@ AI 可以帮你训练 20 个模型，但只有你能回答"选哪个"和"为什�
 
 回顾桥设计（至少 2 个，来自 week_05-10）：
 - [过拟合]（来自 week_09）：在第 3 节，通过"决策树容易过拟合，和回归一样需要诊断"再次使用
-- [ROC-AUC]（来自 week_10）：在第 4-5 节，通过"对比不同模型的 AUC，但要看提升量是否显著"再次使用
+- [ROC-AUC]（来自 week_10）：在第 4-5 节，通过"对比不同模型的 AUC，但要看提升量证据是否足够"再次使用
 - [Pipeline]（来自 week_10）：在第 4-5 节，通过"随机森林也用 Pipeline 防止数据泄漏"再次使用
 - [Bootstrap]（来自 week_08）：在第 4 节，通过"Bagging 本质上是 Bootstrap"再次连接
 - [混淆矩阵与评估指标]（来自 week_10）：在第 5 节，通过"对比不同模型的混淆矩阵和指标"再次使用
@@ -720,7 +720,7 @@ plt.show()
 
 "对。"老潘说，"**曲线挤在一起，说明差距不大**。"
 
-如果两条 ROC 曲线**大面积重叠**（像两条线缠绕在一起），说明在不同阈值下，两个模型的区分能力相近，提升不明显。如果一条曲线**明显压在另一条上方**（不重叠），说明提升显著。
+如果两条 ROC 曲线**大面积重叠**（像两条线缠绕在一起），说明在不同阈值下，两个模型的区分能力相近，提升可能很小。如果一条曲线**整体更高**，只能说明点估计更好；是否有足够统计证据，还要看 paired bootstrap AUC 差值 CI（或 DeLong 检验）。
 
 ### 特征重要性：模型在"看"什么？
 
@@ -768,42 +768,42 @@ plt.show()
 | **训练资源有限** | 训练时间 | 逻辑回归 或 决策树 |
 | **边缘设备部署** | 模型大小 | 逻辑回归 |
 
-### 提升量是否显著？
+### 提升量是否有足够证据？
 
 阿码问："0.02 AUC 的提升量，是真实的还是运气？"
 
-"好问题。"老潘说，"你可以用统计检验判断两个模型的 AUC 是否有显著差异。这和 Week 08 学的置换检验思路一样——我们想知道'观察到的差异是否可能由随机性产生'。"
-
-**快速判断法**：用交叉验证的标准差判断提升是否可靠。
+"好问题。"老潘说，"这时不要只盯着两个 AUC 点估计，也不要看两个模型各自的区间有没有重叠。**更稳妥的做法是：在同一批 bootstrap 索引上，直接估计 `AUC_RF - AUC_LR` 的差值分布。**"
 
 ```python
-from sklearn.model_selection import cross_val_score
+rng = np.random.default_rng(42)
+lr_prob = log_reg_pipe.predict_proba(X_test)[:, 1]
+rf_prob = rf.predict_proba(X_test)[:, 1]
+diff_scores = []
 
-# 用 5 折交叉验证估计 AUC 及其不确定性
-lr_cv = cross_val_score(log_reg_pipe, X, y, cv=5, scoring='roc_auc')
-rf_cv = cross_val_score(rf, X, y, cv=5, scoring='roc_auc')
+while len(diff_scores) < 2000:
+    idx = rng.integers(0, len(y_test), size=len(y_test))
+    y_boot = y_test.iloc[idx]
+    if y_boot.nunique() < 2:
+        continue
 
-print(f"逻辑回归: {lr_cv.mean():.4f} ± {lr_cv.std():.4f}")
-print(f"随机森林: {rf_cv.mean():.4f} ± {rf_cv.std():.4f}")
-print(f"提升量: {(rf_cv.mean() - lr_cv.mean()):.4f}")
+    lr_auc_boot = roc_auc_score(y_boot, lr_prob[idx])
+    rf_auc_boot = roc_auc_score(y_boot, rf_prob[idx])
+    diff_scores.append(rf_auc_boot - lr_auc_boot)
 
-# 简单判断：如果均值差 > 2×max(标准差)，提升较可靠
-se_diff = np.sqrt(lr_cv.std()**2 + rf_cv.std()**2)
-is_significant = (rf_cv.mean() - lr_cv.mean()) > 2 * se_diff
-print(f"提升显著: {'是' if is_significant else '否'}（均值差 > 2×SE）")
+ci_low, ci_high = np.percentile(diff_scores, [2.5, 97.5])
+print(f"AUC 差值 95% CI: [{ci_low:.4f}, {ci_high:.4f}]")
+
+if ci_low > 0:
+    print("差值 CI 完全大于 0：支持随机森林优于逻辑回归")
+else:
+    print("差值 CI 包含 0：当前证据不足以断言提升稳定存在")
 ```
 
-> **注意**：这是一个粗略的经验法则，仅供参考。正式的统计检验应使用 Bootstrap + 置信区间（见 ASSIGNMENT.md 任务 6），或使用 DeLong 检验比较两个 AUC。
-
-小北问："这个方法够准确吗？"
-
-"对大多数场景够用。"老潘说，"交叉验证本身已经多次重采样，标准差能反映 AUC 的波动范围。如果两个模型的置信区间不重叠，提升大概率是真实的。"
-
-**更严谨的方法**（可选）：如果你需要正式的统计检验，可以用 Bootstrap + Mann-Whitney U 检验，详见 `examples/11_bootstrap_test.py`。
+> **正式口径**：本章统一使用 paired bootstrap 的 AUC 差值 CI。若你所在团队已经有现成实现，也可以使用 DeLong 检验；但不要把“ROC 曲线视觉上更高”或“两个单独 CI 不重叠”当成正式判据。
 
 小北追问："为什么不能直接比测试集上的 AUC？"
 
-"因为**单个测试集分数有波动**。"老潘说，"交叉验证让你看到'如果数据划分不同，AUC 会怎么变'。如果两个模型的 AUC 分布完全重叠，那它们本质上差不多；如果分布明显分离，提升才是真实的。"
+"因为**单个测试集分数有波动**。"老潘说，"我们真正关心的是：如果测试集样本略有变化，这个提升还在不在。paired bootstrap 恰好就是在回答这个问题。详见 `examples/11_bootstrap_test.py`。"
 
 ### 模型选择理由
 
@@ -813,11 +813,11 @@ print(f"提升显著: {'是' if is_significant else '否'}（均值差 > 2×SE�
 >
 > - **傻瓜基线 AUC 0.50**：模型比瞎猜好（✓）
 > - **逻辑回归 AUC 0.87**：作为简单模型，已经不错
-> - **随机森林 AUC 0.89**：比逻辑回归提升 0.02 AUC（p < 0.05，显著）
+> - **随机森林 AUC 0.89**：比逻辑回归提升 0.02 AUC；paired bootstrap 差值 CI 若完全大于 0，才说明提升证据更强
 > - **权衡**：随机森林的预测力提升 2.3%（0.02/0.87），但训练时间慢 50 倍、可解释性下降
 > - **结论**：如果业务最关心预测力，选随机森林；如果需要向业务方解释规则，选逻辑回归
 
-"这才是一个完整的分析。"老潘说，"你不仅告诉了读者'哪个模型最好'，还解释了'比基线好多少'、'提升量是否显著'、'复杂度是否值得'。"
+"这才是一个完整的分析。"老潘说，"你不仅告诉了读者'哪个模型最好'，还解释了'比基线好多少'、'提升量证据是否足够'、'复杂度是否值得'。"
 
 阿码若有所思："所以 AutoML 工具如果只给我'最好'的模型，不告诉我基线……"
 
@@ -1019,7 +1019,7 @@ def format_model_comparison_report(results):
     # 4. 模型选择理由（根据提升量自动生成建议）
     md.append("### 模型选择理由\n\n")
     md.append("**基线对比结论**：\n\n")
-    md.append(f"- 所有模型的 AUC 都显著高于傻瓜基线（{dummy_auc:.4f}），说明模型比瞎猜好\n\n")
+    md.append(f"- 所有模型的 AUC 都明显高于傻瓜基线（{dummy_auc:.4f}），说明模型比瞎猜好\n\n")
 
     md.append("**复杂度 vs 提升量权衡**：\n\n")
     improvement = (rf_auc - lr_auc) / lr_auc * 100
@@ -1030,7 +1030,7 @@ def format_model_comparison_report(results):
         md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，提升量中等\n")
         md.append("- 如果预测力是关键，选随机森林；如果需要可解释性，选逻辑回归\n\n")
     else:
-        md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，提升量显著\n")
+        md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，还要结合 paired bootstrap 差值 CI 判断证据强度\n")
         md.append("- 建议选择随机森林\n\n")
 
     md.append("**可解释性考虑**：\n\n")
@@ -1135,7 +1135,7 @@ print("\n报告已保存到 output/model_comparison_report.md")
 | 数据泄漏防护（Pipeline） | 过拟合防护（剪枝、Bagging） |
 | 分类可解释性（系数、混淆矩阵） | 树可解释性（树结构可视化）、特征重要性 |
 
-老潘看到这段改动会说什么？"这才是完整的建模分析。你不仅告诉了读者'哪个模型最好'，还解释了'比基线好多少'、'提升量是否显著'、'复杂度是否值得'。"
+老潘看到这段改动会说什么？"这才是完整的建模分析。你不仅告诉了读者'哪个模型最好'，还解释了'比基线好多少'、'提升量证据是否足够'、'复杂度是否值得'。"
 
 小北问："基线对比真的那么重要吗？"
 
@@ -1197,7 +1197,7 @@ print("\n报告已保存到 output/model_comparison_report.md")
 
 最后，你学会了**基线对比**：与傻瓜基线、逻辑回归基线、单特征树基线对比，评估"更复杂的模型是否值得"。你知道"没有基线对比的模型选择不是分析，是炫技"。
 
-老潘的总结很简洁："**AUC 只是一个数字。更重要的是：这个数字比基线高多少？提升量是否显著？复杂度是否值得？**"
+老潘的总结很简洁："**AUC 只是一个数字。更重要的是：这个数字比基线高多少？提升量证据是否足够？复杂度是否值得？**"
 
 ### 三个模型的核心对比
 

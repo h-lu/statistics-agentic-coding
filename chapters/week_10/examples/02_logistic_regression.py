@@ -6,15 +6,24 @@
 """
 from __future__ import annotations
 
+import os
 import numpy as np
-import pandas as pd
 from pathlib import Path
+import sys
+
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix
-import seaborn as sns
+
+STARTER_CODE_DIR = Path(__file__).resolve().parents[1] / 'starter_code'
+if str(STARTER_CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(STARTER_CODE_DIR))
+
+from week_10 import load_customer_churn_data
 
 # 配置中文字体
 def setup_chinese_font() -> str:
@@ -127,13 +136,19 @@ def train_logistic_regression() -> dict:
     print("逻辑回归实战：预测客户流失")
     print("=" * 60)
 
-    # 使用 seaborn 的 titanic 数据集
-    titanic = sns.load_dataset("titanic")
-    # 简化数据：只保留数值特征，删除缺失值
-    titanic_clean = titanic[['pclass', 'age', 'sibsp', 'parch', 'fare', 'survived']].dropna()
+    df = load_customer_churn_data()
+    feature_names = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+    ]
+    X = df[feature_names].values
+    y = df['is_churned'].values
 
-    X = titanic_clean[['pclass', 'age', 'sibsp', 'parch', 'fare']].values
-    y = titanic_clean['survived'].values
+    print(f"\n数据集规模: {len(df)} 行")
+    print(f"目标变量分布: 未流失 {(y == 0).sum()} / 流失 {(y == 1).sum()} ({y.mean():.1%} 流失率)")
 
     # 划分数据
     X_train, X_test, y_train, y_test = train_test_split(
@@ -159,14 +174,13 @@ def train_logistic_regression() -> dict:
     print(f"    FN={cm[1,0]:3d}  TP={cm[1,1]:3d}")
 
     # 系数解读
-    feature_names = ['pclass', 'age', 'sibsp', 'parch', 'fare']
     print(f"\n逻辑回归系数解读：")
     print(f"{'特征':<10} | {'系数':>10} | {'exp(系数)':>12} | {'解读'}")
     print("-" * 70)
     for name, coef in zip(feature_names, model.coef_[0]):
         exp_coef = np.exp(coef)
         direction = "提高" if coef > 0 else "降低"
-        print(f"{name:<10} | {coef:>10.4f} | {exp_coef:>12.4f} | {direction}生存概率")
+        print(f"{name:<24} | {coef:>10.4f} | {exp_coef:>12.4f} | {direction}流失几率")
     print("-" * 70)
     print(f"截距: {model.intercept_[0]:.4f}")
 
@@ -196,14 +210,14 @@ def visualize_probability_predictions(results: dict) -> None:
     y_test = results['y_test']
 
     # 分别画出正类和负类的概率分布
-    prob_neg = y_prob[y_test == 0]  # 实际未生存的预测概率
-    prob_pos = y_prob[y_test == 1]  # 实际生存的预测概率
+    prob_neg = y_prob[y_test == 0]  # 实际未流失的预测概率
+    prob_pos = y_prob[y_test == 1]  # 实际流失的预测概率
 
-    ax.hist(prob_neg, bins=20, alpha=0.5, label='实际未生存', color='red', edgecolor='black')
-    ax.hist(prob_pos, bins=20, alpha=0.5, label='实际生存', color='green', edgecolor='black')
+    ax.hist(prob_neg, bins=20, alpha=0.5, label='实际未流失', color='green', edgecolor='black')
+    ax.hist(prob_pos, bins=20, alpha=0.5, label='实际流失', color='red', edgecolor='black')
 
     ax.axvline(x=0.5, color='black', linestyle='--', linewidth=2, label='决策边界 (0.5)')
-    ax.set_xlabel('预测生存概率')
+    ax.set_xlabel('预测流失概率')
     ax.set_ylabel('样本数量')
     ax.set_title('逻辑回归概率预测分布')
     ax.legend()

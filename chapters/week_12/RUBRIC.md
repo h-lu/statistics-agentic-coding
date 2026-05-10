@@ -19,7 +19,7 @@
 |--------|------|---------|
 | 正确计算特征重要性 | 5 分 | 5 分：使用 feature_importances_ 或 permutation_importance |
 | 正确使用 SHAP 库 | 8 分 | 4 分：正确初始化 Explainer<br>4 分：正确计算 shap_values |
-| 解释单样本预测 | 4 分 | 4 分：使用 force_plot 或 waterfall_plot 解释单个样本 |
+| 解释单样本预测 | 4 分 | 4 分：优先使用 `waterfall_plot`（`force_plot` 仅作旧版兼容参考）解释单个样本 |
 | 全局 vs 局部可解释性分析 | 3 分 | 3 分：用自己的话解释两者区别 |
 
 **扣分项**：

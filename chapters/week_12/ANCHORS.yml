@@ -14,9 +14,9 @@
   verification: "运行 examples/12_02_shap_values.py 可以对比特征重要性条形图（全局）和 SHAP 汇总图（全局+局部），验证 SHAP 值在不同样本上的差异。"
 
 - id: week_12_shap_additive_property
-  claim: "SHAP 值具有可加性：预测值 = 基线值 + 各特征的 SHAP 值之和。这允许我们将单个预测分解为每个特征的贡献，回答'每个特征对这个预测的贡献是多少'。"
-  evidence: "CHAPTER.md 第 2 节展示了 SHAP 瀑布图，老潘解释'SHAP 告诉你：这个样本的预测概率是 0.72（基线 0.15），其中 days_since_last_purchase=45 贡献了 +0.31，purchase_count=2 贡献了 +0.18，vip_status=True 贡献了 -0.12'。"
-  verification: "运行 examples/12_02_shap_values.py 可以验证 SHAP 值的可加性：基线值 + SHAP 值之和 = 模型预测概率。"
+  claim: "SHAP 值具有可加性：基线值 + 各特征 SHAP 值之和 = explainer 选定的输出空间中的预测值。很多 TreeExplainer 场景下，这个空间是模型输出或 log-odds，而不是天然的概率百分点。"
+  evidence: "CHAPTER.md 第 2 节强调解释单个样本时必须先说明输出空间，并明确指出 '+0.31' 不能直接翻译成 '概率增加 31 个百分点'。"
+  verification: "运行 examples/12_02_shap_values.py 可以查看单样本解释，并验证脚本会先报告当前解释使用的输出空间。"
 
 - id: week_12_data_vs_algorithmic_bias
   claim: "偏见有两个来源：数据偏见（训练数据本身有偏见，如历史上女性获得贷款少导致模型学到'女性=高风险'）和算法偏见（算法放大了数据中的偏见，如对少数群体使用更保守的阈值）。模型忠实地学习数据中的模式，不管这些模式是'规律'还是'偏见'。"
@@ -24,19 +24,19 @@
   verification: "运行 examples/12_03_bias_detection.py 可以按敏感属性分组评估模型，验证如果训练数据有偏见（如某群体的正样本更少），模型预测会反映这种偏见。"
 
 - id: week_12_fairness_accuracy_tradeoff
-  claim: "公平性-准确性权衡：没有'完全公平且完全准确'的模型。强制满足公平性约束（如统计均等）会导致整体准确率下降 2-3%。公平性工程不是'消除偏见'（不可能），而是'管理偏见'（权衡）。"
-  evidence: "CHAPTER.md 第 4 节展示了公平性-准确性的权衡，老潘演示'如果我们强制满足统计均等，模型整体准确率会下降 2-3%'，并总结'公平性不是一个达到/未达到的指标，而是一个有多接近的连续值'。"
-  verification: "运行 examples/12_04_fairness_metrics.py 可以对比原始模型和公平性优化后模型的准确率和分组指标差异，验证权衡关系。"
+  claim: "公平性-准确性权衡：没有'完全公平且完全准确'的模型。强制满足公平性约束（如统计均等）通常会改变整体准确率，但下降幅度取决于数据分布、阈值和后处理方法，不能预设成固定的 2-3%。公平性工程不是'消除偏见'，而是'管理偏见'。"
+  evidence: "CHAPTER.md 第 4 节把固定的 '2-3%' 改为条件化表述，并强调要结合具体实验结果讨论权衡。"
+  verification: "运行 examples/12_04_fairness_metrics.py 可以对比原始模型和公平性优化后模型的准确率与分组指标差异，观察权衡关系。"
 
 - id: week_12_three_fairness_definitions
-  claim: "三种常见的公平性定义相互冲突：（1）统计均等——各群体的预测正率相同（忽略真实风险差异）；（2）机会均等——各群体的真阳性率、假阳性率相同（可能无法同时满足）；（3）校准——各群体的预测概率与真实概率匹配（可能掩盖分配不公）。选择哪个取决于业务场景。"
-  evidence: "CHAPTER.md 第 4 节详细介绍了三种公平性定义及其问题，并给出了场景驱动的选择建议表（信贷审批优先机会均等，医疗筛查优先机会均等，营销定向优先统计均等，风险评估优先校准）。"
-  verification: "运行 examples/12_04_fairness_metrics.py 可以计算三种公平性指标，验证它们在不同场景下的冲突关系。"
+  claim: "常见的公平性定义相互冲突：（1）统计均等——各群体的预测正率相同；（2）机会均等（Equal Opportunity）——各群体真阳性率相同；（3）Equalized Odds——各群体真阳性率、假阳性率都相同；（4）校准——各群体的预测概率与真实概率匹配。选择哪个取决于业务场景。"
+  evidence: "CHAPTER.md 第 4 节明确区分了 Equal Opportunity 和 Equalized Odds，并给出了场景驱动的选择建议。"
+  verification: "运行 examples/12_04_fairness_metrics.py 可以计算统计均等、Equal Opportunity、Equalized Odds、校准等指标，观察它们的冲突关系。"
 
 - id: week_12_non_technical_communication
-  claim: "向非技术读者解释模型时，需要把统计术语翻译成业务语言：AUC = 0.89 翻译为'模型区分流失和非流失客户的能力很强（满分1.0）'，p < 0.05 翻译为'我们有 95% 的把握这个差异不是偶然的'，SHAP 值 = 0.31 翻译为'最近购买天数是流失风险的最大来源（贡献 31% 的预测信号）'。"
-  evidence: "CHAPTER.md 第 5 节提供了'翻译表'，展示了如何把统计术语翻译成业务语言，并给出了改写后的'客户流失预测模型——结论与建议'示例。"
-  verification: "运行 examples/12_statlab_interpretability.py 可以生成面向非技术读者的模型报告，验证业务语言翻译的效果。"
+  claim: "向非技术读者解释模型时，需要把统计术语翻译成准确的业务语言：AUC = 0.89 应译为'排序区分能力较强'，而不是'89% 都判断对了'；p < 0.05 不能译成'95% 把握结论为真'；SHAP 值 = 0.31 也必须先说明输出空间，不能直接译成'贡献 31% 的预测信号'。"
+  evidence: "CHAPTER.md 第 5 节更新了翻译表，并在示例报告里保留业务可读性同时避免过度解释。"
+  verification: "运行 examples/12_statlab_interpretability.py 可以生成面向非技术读者的模型报告，验证业务语言翻译的准确性。"
 
 - id: week_12_group_confusion_matrix_bias_detection
   claim: "按敏感属性分组计算混淆矩阵可以检测偏见：如果女性群体的假阳性（FP）比男性高很多，意味着'女性更容易被错误地预测为流失'。这会导致分配不公——女性会收到更多不必要的营销影响。"

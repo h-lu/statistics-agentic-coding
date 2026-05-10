@@ -16,6 +16,7 @@ def generate_customer_churn_data(n_samples: int = 1000, seed: int = 42) -> pd.Da
     avg_spend = rng.gamma(10, 10, n_samples).round(2)
     days_since_last_purchase = rng.exponential(30, n_samples).round(1)
     membership_days = rng.integers(30, 365, n_samples)
+    age = rng.integers(18, 71, n_samples)
     support_tickets = rng.poisson(1.2, n_samples)
     contract_type = rng.choice(['month_to_month', 'one_year', 'two_year'], n_samples, p=[0.55, 0.30, 0.15])
     logit = (-2.4 - 0.12 * purchase_count - 0.012 * avg_spend
@@ -28,6 +29,7 @@ def generate_customer_churn_data(n_samples: int = 1000, seed: int = 42) -> pd.Da
         'avg_spend': avg_spend,
         'days_since_last_purchase': days_since_last_purchase,
         'membership_days': membership_days,
+        'age': age,
         'support_tickets': support_tickets,
         'contract_type': contract_type,
         'is_churned': is_churned,

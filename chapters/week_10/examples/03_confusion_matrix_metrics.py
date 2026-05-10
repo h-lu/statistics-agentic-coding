@@ -1,7 +1,7 @@
 """
 示例：混淆矩阵与评估指标——准确率、精确率、召回率、F1
 
-运行方式：python3 chapters/week_10/examples/03_confusion_matrix.py
+运行方式：python3 chapters/week_10/examples/03_confusion_matrix_metrics.py
 预期输出：混淆矩阵可视化、各类评估指标计算、类别不平衡时的准确率陷阱
 """
 from __future__ import annotations

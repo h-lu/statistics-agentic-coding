@@ -14,7 +14,6 @@ import matplotlib.font_manager as fm
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
-import seaborn as sns
 
 # 配置中文字体
 def setup_chinese_font() -> str:
@@ -31,38 +30,24 @@ def setup_chinese_font() -> str:
     return 'DejaVu Sans'
 
 
-def load_titanic_data() -> tuple:
-    """加载并准备泰坦尼克数据集"""
+def load_churn_data() -> tuple[pd.DataFrame, pd.Series]:
+    """加载 Week 10/11 共享的客户流失数据。"""
     print("=" * 60)
-    print("加载泰坦尼克数据集")
+    print("加载共享 churn 数据")
     print("=" * 60)
 
-    titanic = sns.load_dataset("titanic")
+    data_path = Path(__file__).resolve().parents[3] / 'data' / 'customer_churn.csv'
+    df = pd.read_csv(data_path)
+    X_raw = df.drop(columns=['is_churned'])
+    X = pd.get_dummies(X_raw, columns=['contract_type'], drop_first=False)
+    y = df['is_churned']
 
-    # 选择特征
-    feature_cols = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-    X = titanic[feature_cols].copy()
-    y = titanic['survived']
+    print(f"数据集规模: {X.shape[0]} 行, {X.shape[1]} 列")
+    print(f"特征列表: {list(X.columns)}")
+    print(f"目标变量: is_churned (0=未流失, 1=已流失)")
+    print(f"类别分布: 0: {(y==0).sum()}, 1: {(y==1).sum()}")
 
-    # 简化：删除缺失值（仅用于示例，生产环境应做更完善的缺失值处理）
-    X_clean = X.dropna()
-    y_clean = y.loc[X_clean.index]
-
-    # 将分类型变量转为数值（为了简化，这里手动编码）
-    X_clean = X_clean.copy()
-    X_clean['sex'] = X_clean['sex'].map({'male': 0, 'female': 1})
-    X_clean['embarked'] = X_clean['embarked'].map({'C': 0, 'Q': 1, 'S': 2})
-    X_clean['pclass'] = X_clean['pclass'].astype(str)
-
-    # 对 pclass 进行 one-hot 编码
-    X_clean = pd.get_dummies(X_clean, columns=['pclass'], drop_first=False)
-
-    print(f"数据集规模: {X_clean.shape[0]} 行, {X_clean.shape[1]} 列")
-    print(f"特征列表: {list(X_clean.columns)}")
-    print(f"目标变量: survived (0=未生存, 1=生存)")
-    print(f"类别分布: 0: {(y_clean==0).sum()}, 1: {(y_clean==1).sum()}")
-
-    return X_clean, y_clean
+    return X, y
 
 
 def train_and_visualize_tree(X: pd.DataFrame, y: pd.Series, max_depth: int = 3) -> dict:
@@ -117,7 +102,7 @@ def train_and_visualize_tree(X: pd.DataFrame, y: pd.Series, max_depth: int = 3) 
 
     plot_tree(tree,
               feature_names=X.columns,
-              class_names=['未生存', '生存'],
+              class_names=['未流失', '已流失'],
               filled=True,
               rounded=True,
               fontsize=10,
@@ -188,6 +173,30 @@ def print_tree_rules(tree: DecisionTreeClassifier, feature_names: list) -> None:
                   f"样本数={tree.tree_.n_node_samples[i]}")
 
 
+def compare_split_criteria(X: pd.DataFrame, y: pd.Series, max_depth: int = 3) -> None:
+    """对比 gini 与 entropy 的分裂结果，支撑课程锚点。"""
+    print("\n" + "=" * 60)
+    print("对比分裂标准：gini vs entropy")
+    print("=" * 60)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+
+    for criterion in ['gini', 'entropy']:
+        tree = DecisionTreeClassifier(
+            criterion=criterion,
+            max_depth=max_depth,
+            min_samples_split=20,
+            min_samples_leaf=10,
+            random_state=42,
+        )
+        tree.fit(X_train, y_train)
+        test_auc = roc_auc_score(y_test, tree.predict_proba(X_test)[:, 1])
+        root_feature = X.columns[tree.tree_.feature[0]]
+        print(f"{criterion:<8} | 测试集 AUC={test_auc:.4f} | 根节点特征={root_feature}")
+
+
 def demonstrate_overfitting() -> None:
     """
     演示决策树的过拟合：对比不同深度的树
@@ -196,7 +205,7 @@ def demonstrate_overfitting() -> None:
     print("演示过拟合：不同深度的决策树对比")
     print("=" * 60)
 
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
 
     depths = [2, 3, 5, 10, None]  # None 表示不限制深度
     results = []
@@ -292,7 +301,7 @@ def demonstrate_pruning() -> None:
     print("演示剪枝：控制过拟合的两种方法")
     print("=" * 60)
 
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
     )
@@ -373,13 +382,16 @@ def main() -> None:
     print("=" * 60)
 
     # 1. 加载数据并训练一棵简单的决策树
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
     results = train_and_visualize_tree(X, y, max_depth=3)
 
-    # 2. 演示过拟合
+    # 2. 对比分裂标准
+    compare_split_criteria(X, y, max_depth=3)
+
+    # 3. 演示过拟合
     demonstrate_overfitting()
 
-    # 3. 演示剪枝
+    # 4. 演示剪枝
     demonstrate_pruning()
 
     print("\n" + "=" * 60)

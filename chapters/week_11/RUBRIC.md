@@ -97,7 +97,7 @@
 |--------|------|---------|
 | 正确实现 Bootstrap | 4 分 | 2 分：有放回抽样<br>2 分：重复足够次数（>=1000） |
 | 计算置信区间 | 3 分 | 3 分：正确计算 95% CI |
-| 判断提升量显著性 | 3 分 | 3 分：基于置信区间重叠判断 |
+| 判断提升量显著性 | 3 分 | 3 分：基于 paired bootstrap 差值 CI 是否包含 0（或等价严谨方法，如 DeLong） |
 
 ---
 
@@ -202,7 +202,8 @@
 - `test_random_forest()`：验证随机森林训练
 - `test_feature_importance()`：验证特征重要性提取
 - `test_baseline_comparison()`：验证基线对比
-- `test_bootstrap_auc()`：验证 Bootstrap 置信区间
+- `test_solution_main_smoke()`：验证参考答案主流程可运行
+- `test_paired_bootstrap_ci_smoke()`：验证 paired bootstrap 差值 CI 的基本行为
 
 评分时可以运行这些测试来验证代码正确性。
 

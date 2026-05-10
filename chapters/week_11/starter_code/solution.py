@@ -14,6 +14,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from pathlib import Path
+from week_11 import generate_customer_churn_data
 
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
@@ -37,6 +38,38 @@ def setup_chinese_font() -> str:
             return font
     plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
     return 'DejaVu Sans'
+
+
+def load_shared_churn_data() -> pd.DataFrame:
+    """加载 Week 10/11 共享的 churn 数据；若缺失则回退到同一 DGP。"""
+    data_path = Path(__file__).resolve().parents[3] / 'data' / 'customer_churn.csv'
+    if data_path.exists():
+        return pd.read_csv(data_path)
+    return generate_customer_churn_data()
+
+
+def prepare_features_and_target(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """将共享 churn 数据转成可直接建模的特征矩阵与目标。"""
+    X_raw = df.drop(columns=['is_churned'])
+    X = pd.get_dummies(X_raw, columns=['contract_type'], drop_first=False)
+    y = df['is_churned']
+    return X, y
+
+
+def explain_feature(feature_name: str) -> str:
+    """返回特征重要性的简短业务解释。"""
+    explanations = {
+        'purchase_count': "购买更频繁的客户通常更稳定，流失风险更低。",
+        'avg_spend': "高消费客户往往价值更高，也可能有更强的留存激励。",
+        'days_since_last_purchase': "长时间未购买通常是流失风险升高的直接信号。",
+        'membership_days': "会员时长更长的客户通常沉淀更深，流失风险更低。",
+        'age': "年龄段可能对应不同的消费周期和留存模式。",
+        'support_tickets': "客服工单较多可能反映体验摩擦，流失风险会上升。",
+        'contract_type_month_to_month': "按月合同缺乏长期绑定，通常更容易流失。",
+        'contract_type_one_year': "一年期合同带来一定绑定，通常更稳定。",
+        'contract_type_two_year': "长期合同客户通常最稳定，流失风险更低。",
+    }
+    return explanations.get(feature_name, "这个特征对模型区分高风险客户有明显帮助。")
 
 
 # ============================================================
@@ -228,14 +261,15 @@ def task4_feature_importance(rf, feature_names):
     }).sort_values('importance', ascending=False).reset_index(drop=True)
 
     print("\n特征重要性排名：")
-    print(importiance_df)
+    print(importance_df)
 
     print("\n【业务解释】")
     for i, row in importance_df.head(3).iterrows():
         print(f"  {i+1}. {row['feature']}: {row['importance']:.4f}")
 
-    print("\n  最重要特征是'距上次购买天数'，这与业务直觉一致：")
-    print("  很久没购买的客户更可能流失。")
+    top_feature = importance_df.iloc[0]['feature']
+    print(f"\n  最重要特征是 '{top_feature}'。")
+    print(f"  {explain_feature(top_feature)}")
 
     # 可视化
     font = setup_chinese_font()
@@ -343,7 +377,11 @@ def task5_baseline_comparison(X_train, X_test, y_train, y_test):
     print(f"  训练时间对比: 随机森林比逻辑回归慢 {time_ratio:.1f} 倍")
 
     print("\n【模型选择建议】")
-    if improvement_pct < 2:
+    if improvement <= 0:
+        print(f"  - 随机森林没有超过逻辑回归（AUC 差值 {improvement:.4f}）")
+        print(f"  - 当前这份数据上，逻辑回归更强，训练时间也没有更差")
+        print(f"  - 建议：优先保留逻辑回归，把随机森林作为补充对照")
+    elif improvement_pct < 2:
         print(f"  - 随机森林只比逻辑回归提升 {improvement_pct:.1f}%，提升量较小")
         print(f"  - 但训练时间慢了 {time_ratio:.1f} 倍")
         print(f"  - 建议：如果需要向业务方解释规则，选逻辑回归；如果追求最高预测力，选随机森林")
@@ -351,7 +389,7 @@ def task5_baseline_comparison(X_train, X_test, y_train, y_test):
         print(f"  - 随机森林比逻辑回归提升 {improvement_pct:.1f}%，提升量中等")
         print(f"  - 建议根据业务场景选择：预测力 vs 可解释性")
     else:
-        print(f"  - 随机森林比逻辑回归提升 {improvement_pct:.1f}%，提升量显著")
+        print(f"  - 随机森林比逻辑回归提升 {improvement_pct:.1f}%，提升量较大")
         print(f"  - 建议选择随机森林")
 
     return results
@@ -363,33 +401,10 @@ def task5_baseline_comparison(X_train, X_test, y_train, y_test):
 
 def generate_sample_data():
     """
-    生成示例数据（用于演示）
-    实际作业中应该使用 data/customer_churn.csv
+    加载共享 churn 数据（用于演示）
+    优先复用 data/customer_churn.csv，缺失时回退到同一套数据生成逻辑
     """
-    np.random.seed(42)
-    n_samples = 1000
-
-    # 生成特征
-    purchase_count = np.random.poisson(5, n_samples)
-    avg_spend = np.random.gamma(10, 10, n_samples)
-    days_since_last_purchase = np.random.exponential(30, n_samples)
-    membership_days = np.random.randint(30, 365, n_samples)
-
-    # 生成目标变量（流失率与特征相关）
-    logit = -3 + 0.1 * purchase_count - 0.02 * avg_spend + 0.05 * days_since_last_purchase - 0.005 * membership_days
-    prob = 1 / (1 + np.exp(-logit))
-    is_churned = (np.random.random(n_samples) < prob).astype(int)
-
-    # 创建 DataFrame
-    df = pd.DataFrame({
-        'purchase_count': purchase_count,
-        'avg_spend': avg_spend,
-        'days_since_last_purchase': days_since_last_purchase,
-        'membership_days': membership_days,
-        'is_churned': is_churned
-    })
-
-    return df
+    return load_shared_churn_data()
 
 
 def main():
@@ -398,20 +413,20 @@ def main():
     print("Week 11 作业参考答案")
     print("=" * 60)
 
-    # 生成示例数据（实际作业中应该加载真实数据）
-    print("\n生成示例数据...")
+    # 加载共享数据（与 Week 10 保持同一条 churn 主线）
+    print("\n加载共享 churn 数据...")
     df = generate_sample_data()
 
     # 准备特征和目标
-    X = df[['purchase_count', 'avg_spend', 'days_since_last_purchase', 'membership_days']]
-    y = df['is_churned']
+    X, y = prepare_features_and_target(df)
 
     # 划分数据
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
     )
 
-    print(f"数据集规模: {X.shape[0]} 行")
+    print(f"数据集规模: {df.shape[0]} 行")
+    print(f"原始特征数: {df.shape[1] - 1}, 编码后特征数: {X.shape[1]}")
     print(f"训练集: {X_train.shape[0]} 行, 测试集: {X_test.shape[0]} 行")
     print(f"正类占比: {y.mean():.2%}")
 

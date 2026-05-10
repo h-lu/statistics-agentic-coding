@@ -15,7 +15,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import BaggingClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, roc_auc_score
-import seaborn as sns
 
 # 配置中文字体
 def setup_chinese_font() -> str:
@@ -32,32 +31,21 @@ def setup_chinese_font() -> str:
     return 'DejaVu Sans'
 
 
-def load_titanic_data() -> tuple:
-    """加载并准备泰坦尼克数据集"""
+def load_churn_data() -> tuple[pd.DataFrame, pd.Series]:
+    """加载 Week 10/11 共享的客户流失数据。"""
     print("=" * 60)
-    print("加载泰坦尼克数据集")
+    print("加载共享 churn 数据")
     print("=" * 60)
 
-    titanic = sns.load_dataset("titanic")
+    data_path = Path(__file__).resolve().parents[3] / 'data' / 'customer_churn.csv'
+    df = pd.read_csv(data_path)
+    X_raw = df.drop(columns=['is_churned'])
+    X = pd.get_dummies(X_raw, columns=['contract_type'], drop_first=False)
+    y = df['is_churned']
 
-    # 选择特征
-    feature_cols = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-    X = titanic[feature_cols].copy()
-    y = titanic['survived']
+    print(f"数据集规模: {X.shape[0]} 行, {X.shape[1]} 列")
 
-    # 简化：删除缺失值
-    X_clean = X.dropna()
-    y_clean = y.loc[X_clean.index]
-
-    # 编码分类型变量
-    X_clean = X_clean.copy()
-    X_clean['sex'] = X_clean['sex'].map({'male': 0, 'female': 1})
-    X_clean['embarked'] = X_clean['embarked'].map({'C': 0, 'Q': 1, 'S': 2})
-    X_clean = pd.get_dummies(X_clean, columns=['pclass'], drop_first=False)
-
-    print(f"数据集规模: {X_clean.shape[0]} 行, {X_clean.shape[1]} 列")
-
-    return X_clean, y_clean
+    return X, y
 
 
 def compare_single_tree_vs_random_forest() -> dict:
@@ -71,7 +59,7 @@ def compare_single_tree_vs_random_forest() -> dict:
     print("对比：单棵决策树 vs 随机森林")
     print("=" * 60)
 
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
@@ -243,7 +231,7 @@ def demonstrate_bootstrap_mechanism() -> None:
     print("Bootstrap 机制演示")
     print("=" * 60)
 
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
 
     n_samples = len(X)
     n_bootstrap = 5
@@ -280,7 +268,7 @@ def visualize_bagging_vs_random_forest() -> None:
     print("Bagging vs 随机森林：特征随机性的作用")
     print("=" * 60)
 
-    X, y = load_titanic_data()
+    X, y = load_churn_data()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y

@@ -257,7 +257,7 @@ def format_model_comparison_report(results: dict) -> str:
     md.append("### 模型选择理由\n\n")
 
     md.append("**基线对比结论**:\n\n")
-    md.append(f"- 所有模型的 AUC 都显著高于傻瓜基线（{dummy_auc:.4f}），说明模型比瞎猜好\n\n")
+    md.append(f"- 所有模型的 AUC 都明显高于傻瓜基线（{dummy_auc:.4f}），说明模型比瞎猜好\n\n")
 
     md.append("**复杂度 vs 提升量权衡**:\n\n")
     improvement = (rf_auc - lr_auc) / lr_auc * 100
@@ -269,7 +269,7 @@ def format_model_comparison_report(results: dict) -> str:
         md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，提升量中等\n")
         md.append("- 如果预测力是关键，选随机森林；如果需要可解释性，选逻辑回归\n\n")
     else:
-        md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，提升量显著\n")
+        md.append(f"- 随机森林比逻辑回归提升 {improvement:.1f}%，还要结合 paired bootstrap 差值 CI 判断证据强度\n")
         md.append("- 建议选择随机森林\n\n")
 
     md.append("**可解释性考虑**:\n\n")

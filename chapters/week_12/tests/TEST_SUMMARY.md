@@ -126,24 +126,21 @@ python3 -m pytest chapters/week_12/tests/ -v -s
 - ✅ 测试框架已建立
 - ✅ Fixtures 已创建
 - ✅ 93 个测试用例已编写
-- ⏳ 部分测试等待 solution.py 的实现完成
-- ✅ 冒烟测试通过
+- ✅ `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest chapters/week_12/tests -q` 通过
+- ✅ 当前结果：`93 passed`
 
-## 待完成事项
+## 说明
 
-1. **solution.py 实现完善**：
-   - `compute_shap_values()` - SHAP 值计算
-   - `demographic_parity_difference()` - 统计均等差异
-   - `equalized_odds_difference()` - 机会均等差异
-   - `evaluate_by_group()` - 分组评估（别名或扩展）
-
-2. **测试验证**：
-   - 在 solution.py 实现完成后重新运行测试
-   - 确保所有测试通过
-
-3. **文档更新**：
-   - 在测试通过后更新测试文档
-   - 添加更多边界情况（如需要）
+1. `solution.py` 已补齐核心接口：
+   - SHAP / 近似局部解释接口
+   - 分组偏见检测与公平性指标
+   - 报告生成与可视化辅助函数
+2. 当前环境未安装 `shap`：
+   - starter 代码会退化为**确定性的近似归因**
+   - 不再返回随机 mock 结果
+3. 若后续引入真实 `shap` 依赖：
+   - 可继续复用同一套测试入口
+   - 但需要明确区分真实 SHAP 与教学近似解释
 
 ## 注意事项
 

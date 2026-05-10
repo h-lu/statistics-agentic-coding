@@ -8,9 +8,13 @@ Week 10 作业参考答案：准确率陷阱——分类模型与评估
 """
 from __future__ import annotations
 
+import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
+
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
@@ -21,7 +25,8 @@ from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, confusion_matrix, roc_curve, roc_auc_score)
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-import seaborn as sns
+
+from week_10 import load_customer_churn_data
 
 # 配置中文字体
 def setup_chinese_font() -> str:
@@ -89,15 +94,28 @@ def question2_logistic_regression_and_confusion_matrix():
     print("第 2 题：逻辑回归与混淆矩阵")
     print("=" * 60)
 
-    # 加载数据
-    titanic = sns.load_dataset("titanic")
-    features = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-    X = titanic[features].copy()
-    y = titanic['survived']
+    df = load_customer_churn_data()
+    features = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+        'contract_type',
+    ]
+    X = df[features].copy()
+    y = df['is_churned']
+    print(f"\n数据集规模: {len(df)} 行，流失率 {y.mean():.1%}")
 
     # 预处理
-    numeric_features = ['age', 'sibsp', 'parch', 'fare']
-    categorical_features = ['pclass', 'sex', 'embarked']
+    numeric_features = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+    ]
+    categorical_features = ['contract_type']
 
     numeric_transformer = Pipeline([
         ('imputer', SimpleImputer(strategy='mean')),
@@ -244,34 +262,56 @@ def question4_data_leakage_and_pipeline():
     print("第 4 题：数据泄漏与 Pipeline")
     print("=" * 60)
 
-    # 加载数据
-    titanic = sns.load_dataset("titanic")
-    features = ['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']
-    X = titanic[features].copy()
-    y = titanic['survived']
+    df = load_customer_churn_data().copy()
+    rng = np.random.default_rng(42)
+    for col in ['avg_spend', 'days_since_last_purchase', 'membership_days']:
+        mask = rng.random(len(df)) < 0.12
+        df.loc[mask, col] = np.nan
+
+    features = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+        'contract_type',
+    ]
+    X = df[features].copy()
+    y = df['is_churned']
 
     # 错误做法：先填充缺失值
     print("\n错误做法：在划分之前填充缺失值（数据泄漏）")
     X_filled = X.copy()
-    numeric_cols = ['age', 'sibsp', 'parch', 'fare']
-    cat_cols = ['pclass', 'sex', 'embarked']
+    numeric_cols = [
+        'purchase_count',
+        'avg_spend',
+        'days_since_last_purchase',
+        'membership_days',
+        'support_tickets',
+    ]
+    cat_cols = ['contract_type']
 
     for col in numeric_cols:
-        X_filled[col] = X_filled[col].fillna(X_filled[col].mean())
+        X_filled[col] = X_filled[col].fillna(X_filled[col].median())
     for col in cat_cols:
         X_filled[col] = X_filled[col].fillna(X_filled[col].mode()[0])
 
-    X_encoded = pd.get_dummies(X_filled, columns=cat_cols, drop_first=True)
+    X_encoded = pd.get_dummies(X_filled, columns=cat_cols, drop_first=False)
+    X_encoded = pd.DataFrame(
+        StandardScaler().fit_transform(X_encoded),
+        columns=X_encoded.columns,
+        index=X_encoded.index,
+    )
 
     model = LogisticRegression(max_iter=1000, random_state=42)
     scores_bad = cross_val_score(model, X_encoded, y, cv=5, scoring='roc_auc')
     print(f"交叉验证 AUC: {scores_bad.mean():.4f} (+/- {scores_bad.std():.4f})")
-    print("问题: 填充缺失值时用了全部数据的统计量，测试集信息泄漏到训练集")
+    print("问题: 预处理先看了全部数据的统计量，验证分数会比真实情况略高")
 
     # 正确做法：使用 Pipeline
     print("\n正确做法：使用 Pipeline（防止数据泄漏）")
     numeric_transformer = Pipeline([
-        ('imputer', SimpleImputer(strategy='mean')),
+        ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
     ])
     categorical_transformer = Pipeline([
@@ -291,8 +331,9 @@ def question4_data_leakage_and_pipeline():
     print("优势: 每一折的预处理都是独立的，只用训练集的统计量")
 
     print(f"\n对比:")
-    print(f"  错误做法 AUC: {scores_bad.mean():.4f} (虚高)")
+    print(f"  错误做法 AUC: {scores_bad.mean():.4f} (略虚高)")
     print(f"  正确做法 AUC: {scores_good.mean():.4f} (真实)")
+    print("\n补充提醒：如果你看到 AUC 异常接近 1.0，更该优先怀疑目标泄漏或未来信息泄漏。")
 
 
 # ========================================
@@ -307,32 +348,23 @@ def question5_imbalanced_data():
     print("第 5 题：类别不平衡与准确率陷阱")
     print("=" * 60)
 
-    # 创建类别不平衡的数据
-    np.random.seed(42)
-    n_samples = 1000
-    n_positive = 200  # 20% 正类
-    n_negative = 800  # 80% 负类
-
-    # 生成数据
-    X_neg = np.random.randn(n_negative, 2) + np.array([0, 0])
-    y_neg = np.zeros(n_negative, dtype=int)
-    X_pos = np.random.randn(n_positive, 2) + np.array([2, 2])
-    y_pos = np.ones(n_positive, dtype=int)
-
-    X = np.vstack([X_neg, X_pos])
-    y = np.hstack([y_neg, y_pos])
+    df = load_customer_churn_data()
+    X = df[['purchase_count', 'avg_spend', 'days_since_last_purchase']]
+    y = df['is_churned']
+    n_positive = int(y.sum())
+    n_negative = int((y == 0).sum())
 
     print(f"\n数据集:")
     print(f"  总样本数: {len(y)}")
-    print(f"  负类: {n_negative} (80%)")
-    print(f"  正类: {n_positive} (20%)")
+    print(f"  负类: {n_negative} ({n_negative / len(y):.1%})")
+    print(f"  正类: {n_positive} ({n_positive / len(y):.1%})")
 
     # 训练模型
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42, stratify=y
     )
 
-    model = LogisticRegression(random_state=42)
+    model = LogisticRegression(max_iter=1000, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
