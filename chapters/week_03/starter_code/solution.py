@@ -265,6 +265,73 @@ def label_encode(df: pd.DataFrame, column: str) -> pd.Series:
 
 
 # =============================================================================
+# 清洗日志与敏感性分析
+# =============================================================================
+
+CLEANING_LOG_FIELDS = [
+    'field',
+    'issue',
+    'action',
+    'reason',
+    'alternatives',
+    'risk',
+]
+
+
+def create_cleaning_decision_log_template() -> pd.DataFrame:
+    """
+    创建清洗决策日志模板。
+
+    返回：
+        包含固定字段的空 DataFrame，便于后续逐行追加清洗决策。
+    """
+    return pd.DataFrame(columns=CLEANING_LOG_FIELDS)
+
+
+def validate_cleaning_decision_log_entry(entry: dict[str, Any]) -> bool:
+    """
+    验证单条清洗决策是否包含必需字段。
+
+    只检查结构，不替代业务判断。
+    """
+    if not isinstance(entry, dict):
+        return False
+
+    for field in CLEANING_LOG_FIELDS:
+        if field not in entry:
+            return False
+        if str(entry[field]).strip() == "":
+            return False
+    return True
+
+
+def compare_missing_value_strategies(series: pd.Series) -> pd.DataFrame:
+    """
+    对比删除、均值填补和中位数填补对关键统计量的影响。
+
+    返回：
+        每种策略对应的样本量、均值、中位数和标准差。
+    """
+    strategies = {
+        'delete': series.dropna(),
+        'mean_fill': series.fillna(series.mean()),
+        'median_fill': series.fillna(series.median()),
+    }
+
+    rows = []
+    for strategy, cleaned in strategies.items():
+        rows.append({
+            'strategy': strategy,
+            'count': int(cleaned.count()),
+            'mean': cleaned.mean(),
+            'median': cleaned.median(),
+            'std': cleaned.std(),
+        })
+
+    return pd.DataFrame(rows).set_index('strategy')
+
+
+# =============================================================================
 # 示例函数
 # =============================================================================
 

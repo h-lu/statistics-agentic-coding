@@ -13,6 +13,26 @@ import seaborn as sns
 from typing import Dict, Any
 
 
+def infer_statistical_type(series: pd.Series) -> str:
+    """
+    推断列的统计学类型。
+
+    说明：
+    - pandas dtype 描述的是存储形式
+    - 统计学类型描述的是分析语义
+    """
+    if pd.api.types.is_numeric_dtype(series):
+        unique_count = series.nunique(dropna=True)
+        if pd.api.types.is_integer_dtype(series) and unique_count <= 10:
+            return "数值型-离散"
+        return "数值型-连续"
+
+    if pd.api.types.is_categorical_dtype(series) and series.cat.ordered:
+        return "分类型-有序"
+
+    return "分类型-名义"
+
+
 def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
     """
     生成数据卡（Markdown 格式）
@@ -34,19 +54,68 @@ def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
 
     # 1. 数据来源
     lines.append("## 数据来源\n")
-    for key, value in metadata.items():
-        lines.append(f"- **{key}**：{value}")
+
+    canonical_metadata_fields = [
+        ("dataset_name", "数据集名称"),
+        ("source", "来源"),
+        ("license_or_terms", "许可证/使用条款"),
+        ("collection_process", "收集过程"),
+        ("unit_of_analysis", "分析单位"),
+        ("row_count", "行数"),
+        ("column_count", "列数"),
+        ("missing_summary", "缺失概览"),
+        ("known_limitations", "已知限制"),
+        ("not_suitable_for", "不适合什么场景"),
+        ("human_review_notes", "人工复核说明"),
+    ]
+
+    def _lookup(key: str, label: str) -> str:
+        value = metadata.get(key)
+        if value is not None:
+            return f"{label}（{key}）: {value}"
+        value = metadata.get(label)
+        if value is not None:
+            return f"{label}：{value}"
+        return "（待补充）"
+
+    metadata_keys = {k for k, _ in canonical_metadata_fields}
+
+    for key, label in canonical_metadata_fields:
+        if key == "row_count":
+            value = len(df)
+        elif key == "column_count":
+            value = len(df.columns)
+        elif key == "missing_summary":
+            missing = df.isna().sum()
+            missing = missing[missing > 0].sort_values(ascending=False)
+            if len(missing) > 0:
+                value = "; ".join(
+                    f"{col}: {count} ({round(count / len(df) * 100, 1)}%)"
+                    for col, count in missing.items()
+                )
+            else:
+                value = "无缺失值"
+        else:
+            value = _lookup(key, label)
+        lines.append(f"- **{label}**：{value}")
+
+    extra_items = [(key, value) for key, value in metadata.items() if key not in metadata_keys]
+    if extra_items:
+        lines.append("- **补充元数据**：")
+        for key, value in extra_items:
+            lines.append(f"  - **{key}**：{value}")
     lines.append("\n")
 
     # 2. 字段字典
     lines.append("## 字段字典\n")
-    lines.append("| 字段名 | 数据类型 | 描述 | 缺失率 |")
-    lines.append("|--------|---------|------|--------|")
+    lines.append("| 字段名 | pandas 类型 | 统计学类型 | 描述 | 缺失率 |")
+    lines.append("|--------|-------------|------------|------|--------|")
 
     for col in df.columns:
         dtype = str(df[col].dtype)
+        stat_type = infer_statistical_type(df[col])
         missing_rate = round(df[col].isna().sum() / len(df) * 100, 1)
-        lines.append(f"| {col} | {dtype} | （待补充） | {missing_rate}% |")
+        lines.append(f"| {col} | {dtype} | {stat_type} | （待补充） | {missing_rate}% |")
     lines.append("\n")
 
     # 3. 规模概览
@@ -182,12 +251,14 @@ def main() -> None:
 
     # 3. 生成数据卡
     metadata = {
-        "数据集名称": "Palmer Penguins",
-        "来源": "seaborn 内置数据集",
-        "原始来源": "Palmer Station, Antarctica LTER",
-        "描述": "南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据",
-        "收集时间": "2007-2009 年",
-        "单位说明": "长度单位为毫米（mm），重量单位为克（g）"
+        "dataset_name": "Palmer Penguins",
+        "source": "seaborn 内置数据集",
+        "license_or_terms": "示例数据，可用于教学；正式报告仍应注明来源与使用限制",
+        "collection_process": "Palmer Station, Antarctica LTER 的企鹅形态测量记录",
+        "unit_of_analysis": "单只企鹅",
+        "known_limitations": "样本来自特定地点和时间，不能直接推广到所有企鹅",
+        "not_suitable_for": "不能直接推断全球企鹅总体分布",
+        "human_review_notes": "字段解释需要人工核实，不要让 AI 编造术语",
     }
 
     data_card = generate_data_card(df, metadata)

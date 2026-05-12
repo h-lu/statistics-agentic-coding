@@ -12,6 +12,7 @@ Student implementation template. Students need to complete the following functio
    - groupby_aggregate(df, group_col, value_col, agg_func)
    - create_pivot_table(df, values, index, columns, aggfunc)
    - compare_group_statistics(df, group_col, value_col)
+   - aggregate_by_year_week(df, date_col, value_col, agg_func)
 
 3. Hypothesis List
    - HypothesisList class
@@ -215,6 +216,36 @@ def compare_group_statistics(
         'mean_difference': mean_diff,
         'group_means': means.to_dict()
     }
+
+
+def aggregate_by_year_week(
+    df: pd.DataFrame,
+    date_col: str = 'date',
+    value_col: str = 'sales',
+    agg_func: str = 'mean'
+) -> pd.DataFrame:
+    """
+    Aggregate values by year-week grouping.
+
+    Args:
+        df: Input data
+        date_col: Date column name
+        value_col: Value column name
+        agg_func: Aggregation function for weekly values
+
+    Returns:
+        DataFrame with year_week and aggregated value
+    """
+    if date_col not in df.columns:
+        raise KeyError(f"Missing date column: {date_col}")
+    if value_col not in df.columns:
+        raise KeyError(f"Missing value column: {value_col}")
+
+    data = df.copy()
+    data[date_col] = pd.to_datetime(data[date_col])
+    data['year_week'] = data[date_col].dt.strftime('%Y-W%W')
+
+    return data.groupby('year_week', as_index=False)[value_col].agg(agg_func)
 
 
 class HypothesisList:

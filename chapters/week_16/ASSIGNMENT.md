@@ -776,6 +776,8 @@ deploy: report
 
 **AI 使用日志模板**：
 
+建议直接复制 `starter_code/ai_usage_log_template.md` 作为起点，先把必填字段填完整，再补充细节说明。
+
 ```markdown
 # AI 使用日志
 

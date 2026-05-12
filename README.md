@@ -38,7 +38,7 @@ make book-check       # 全书一致性检查
 
 所有命令见 `make help`。
 
-`scripts/validate_week.py --mode release` 会在子进程里默认注入 `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` 和 `MPLBACKEND=Agg`，避免宿主机 pytest 插件或图形后端污染校验结果。若你直接运行 `pytest`，也建议显式带上这两个环境变量。
+`scripts/validate_week.py --mode release` 会在子进程里默认注入 `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` 和 `MPLBACKEND=Agg`，避免宿主机 pytest 插件或图形后端污染校验结果。`task` 是 `idle` 的别名，供 hooks 使用；若你直接运行 `pytest`，也建议显式带上这两个环境变量。
 
 ## 一周写作流程
 
@@ -113,7 +113,7 @@ Makefile                   # 快捷命令入口
 
 | Hook | 触发时机 | 作用 |
 |------|---------|------|
-| `TaskCompleted` | agent 标记任务完成时 | 跑 `validate_week.py --mode task` |
+| `TaskCompleted` | agent 标记任务完成时 | 跑 `validate_week.py --mode task`（等价于 `idle`） |
 | `TeammateIdle` | teammate 空闲时 | 跑 `validate_week.py --mode idle` |
 
 hooks 优先使用项目内 `.venv` 运行校验脚本，建议先跑 `make setup`。

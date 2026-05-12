@@ -1,8 +1,26 @@
 """
 示例：逻辑回归与概率预测——从 Sigmoid 函数到对数几率
 
+输入：
+  - 客户流失特征表（数值特征）
+  - 二元标签 is_churned
+
+输出：
+  - Sigmoid 函数图
+  - 概率分布图
+  - 系数与 odds 解读
+
+核心概念：
+  - Sigmoid 将任意实数压缩到 [0, 1]
+  - 逻辑回归输出的是概率而不是硬标签
+  - 对数几率（log-odds）与系数解释
+
+常见错误：
+  - 把概率、几率和对数几率混为一谈
+  - 忘记阈值决定最终分类
+  - 把系数方向解读成概率绝对变化
+
 运行方式：python3 chapters/week_10/examples/02_logistic_regression.py
-预期输出：Sigmoid 函数可视化、逻辑回归训练与概率预测、系数解读
 """
 from __future__ import annotations
 

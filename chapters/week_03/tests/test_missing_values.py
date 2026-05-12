@@ -23,6 +23,9 @@ solution = pytest.importorskip("solution")
 detect_missing_pattern = getattr(solution, 'detect_missing_pattern', None)
 handle_missing_strategy = getattr(solution, 'handle_missing_strategy', None)
 missing_summary = getattr(solution, 'missing_summary', None)
+create_cleaning_decision_log_template = getattr(solution, 'create_cleaning_decision_log_template', None)
+validate_cleaning_decision_log_entry = getattr(solution, 'validate_cleaning_decision_log_entry', None)
+compare_missing_value_strategies = getattr(solution, 'compare_missing_value_strategies', None)
 
 
 # =============================================================================
@@ -299,6 +302,72 @@ class TestMissingSummary:
         elif isinstance(result, dict):
             # 字典应该包含各列的缺失信息
             assert len(result) > 0, "结果不应为空"
+
+
+# =============================================================================
+# Test: 清洗决策日志模板
+# =============================================================================
+
+class TestCleaningDecisionLog:
+    """测试清洗决策日志模板与校验函数"""
+
+    def test_cleaning_log_template_schema(self):
+        """
+        测试清洗决策日志模板字段
+
+        期望：模板包含 field、issue、action、reason、alternatives、risk
+        """
+        if create_cleaning_decision_log_template is None:
+            pytest.skip("create_cleaning_decision_log_template 函数不存在")
+
+        template = create_cleaning_decision_log_template()
+        required_fields = ['field', 'issue', 'action', 'reason', 'alternatives', 'risk']
+
+        assert isinstance(template, pd.DataFrame), "模板应该是 DataFrame"
+        assert list(template.columns) == required_fields, "模板字段顺序应与要求一致"
+
+    def test_cleaning_log_entry_validation(self):
+        """
+        测试清洗决策日志单条记录校验
+
+        期望：完整记录通过，缺字段记录失败
+        """
+        if validate_cleaning_decision_log_entry is None:
+            pytest.skip("validate_cleaning_decision_log_entry 函数不存在")
+
+        valid_entry = {
+            'field': 'sex',
+            'issue': 'missing_values',
+            'action': 'drop_rows',
+            'reason': '缺失率低且类别变量不适合随意填补',
+            'alternatives': 'most_frequent / manual review',
+            'risk': '删除过多样本会影响代表性',
+        }
+        invalid_entry = {
+            'field': 'sex',
+            'issue': 'missing_values',
+            'action': 'drop_rows',
+        }
+
+        assert validate_cleaning_decision_log_entry(valid_entry) is True
+        assert validate_cleaning_decision_log_entry(invalid_entry) is False
+
+    def test_missing_strategy_sensitivity(self, dataframe_with_missing_values: pd.DataFrame):
+        """
+        测试缺失值处理策略的敏感性对比
+
+        期望：删除、均值填补、中位数填补都能返回统计量表
+        """
+        if compare_missing_value_strategies is None:
+            pytest.skip("compare_missing_value_strategies 函数不存在")
+
+        result = compare_missing_value_strategies(dataframe_with_missing_values['age'])
+
+        assert isinstance(result, pd.DataFrame), "应返回 DataFrame"
+        assert {'count', 'mean', 'median', 'std'}.issubset(result.columns), \
+            "应包含关键统计量"
+        assert {'delete', 'mean_fill', 'median_fill'}.issubset(result.index), \
+            "应包含三种策略"
 
 
 # =============================================================================

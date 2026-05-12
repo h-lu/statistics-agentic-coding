@@ -1,8 +1,25 @@
 """
 示例：分类 vs 回归对比——预测类别 vs 预测连续值
 
+输入：
+  - 年龄 age 的一维特征
+  - 二元标签 purchase（0/1）
+
+输出：
+  - 分类与回归的预测差异对比
+  - `classification_vs_regression.png`
+
+核心概念：
+  - 回归预测连续值，分类预测类别
+  - 线性回归可能输出超出 [0, 1] 的值
+  - 逻辑回归通过 Sigmoid 输出概率
+
+常见错误：
+  - 用线性回归硬套二分类问题
+  - 把回归输出当作概率
+  - 只看数值，不解释模型适用边界
+
 运行方式：python3 chapters/week_10/examples/01_classification_vs_regression.py
-预期输出：对比回归和分类的预测结果，展示为什么线性回归不适合分类问题
 """
 from __future__ import annotations
 

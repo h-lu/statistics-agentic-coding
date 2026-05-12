@@ -758,7 +758,7 @@ class TestMarkdownReportTemplate:
         else:
             pytest.skip("render_markdown function not implemented")
 
-    def test_report_contains_sections(self):
+    def test_report_contains_sections(self, sample_statistics):
         """
         正例：报告应包含所有标准章节
 
@@ -770,12 +770,14 @@ class TestMarkdownReportTemplate:
             pytest.skip("solution.py not found")
 
         if hasattr(solution, 'render_markdown'):
-            result = solution.render_markdown({})
+            result = solution.render_markdown({
+                'title': '客户流失分析报告',
+                'statistics': sample_statistics,
+            })
 
             # 检查是否包含标准章节标记
-            has_sections = any(keyword in result for keyword in
-                              ['##', '数据', '统计', '结论', '结果'])
-            assert has_sections or len(result) > 0  # 至少生成一些内容
+            for keyword in ['可复现信息', '描述统计', '客户流失分析报告']:
+                assert keyword in result
         else:
             pytest.skip("render_markdown function not implemented")
 

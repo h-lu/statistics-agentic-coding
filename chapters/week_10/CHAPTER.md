@@ -101,6 +101,7 @@ StatLab 本周推进：
 - 涉及的本周概念：分类 vs 回归、逻辑回归、混淆矩阵与评估指标、ROC 与 AUC、数据泄漏与防御
 - 建议示例文件：examples/99_statlab_classification.py（本周报告生成入口脚本）
 -->
+<!-- code_block_exemption: 本章同时容纳分类评估、数据泄漏和 StatLab 过渡示例，代码块较多但都用于完整演示。 -->
 
 ## 1. 从"预测多少"到"预测哪一类"——分类 vs 回归
 

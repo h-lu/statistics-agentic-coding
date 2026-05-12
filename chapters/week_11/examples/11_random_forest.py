@@ -19,11 +19,26 @@ from sklearn.metrics import accuracy_score, roc_auc_score
 # 配置中文字体
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
+    font_candidates = [
+        Path('/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc'),
+        Path('/usr/share/fonts/google-droid-fonts/DroidSansFallback.ttf'),
+        Path('/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf'),
+        Path('/usr/share/fonts/truetype/droid/DroidSansFallback.ttf'),
+    ]
+    for font_path in font_candidates:
+        if font_path.exists():
+            fm.fontManager.addfont(str(font_path))
+            font_name = fm.FontProperties(fname=str(font_path)).get_name()
+            plt.rcParams['font.family'] = font_name
+            plt.rcParams['font.sans-serif'] = [font_name]
+            plt.rcParams['axes.unicode_minus'] = False
+            return font_name
     chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
                      'PingFang SC', 'Microsoft YaHei']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
+            plt.rcParams['font.family'] = font
             plt.rcParams['font.sans-serif'] = [font]
             plt.rcParams['axes.unicode_minus'] = False
             return font

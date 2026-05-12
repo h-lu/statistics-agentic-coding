@@ -1,8 +1,26 @@
 """
 示例：ROC 曲线与 AUC——全面评估分类器（不依赖单一阈值）
 
+输入：
+  - 合成分类数据
+  - 预测概率或打分
+
+输出：
+  - ROC 曲线图
+  - AUC 数值和对比表
+  - 不同阈值下的 TPR / FPR 变化
+
+核心概念：
+  - ROC 曲线描述 TPR 与 FPR 的权衡
+  - AUC 衡量排序能力，不依赖单一阈值
+  - 阈值变化不等于模型变化
+
+常见错误：
+  - 把 AUC 当成准确率
+  - 把阈值调参误认为模型变好
+  - 忽略类别不平衡对阈值的影响
+
 运行方式：python3 chapters/week_10/examples/04_roc_auc.py
-预期输出：ROC 曲线可视化、AUC 计算与解读、不同阈值下的 TPR/FPR 变化
 """
 from __future__ import annotations
 
