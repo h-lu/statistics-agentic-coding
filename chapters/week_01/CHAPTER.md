@@ -3,7 +3,7 @@
 > "数据不是答案，数据是问题的起点。"
 > —— W. Edwards Deming
 
-2026 年，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。Stack Overflow 2025 年开发者调查显示，84% 的开发者已经在使用或计划使用 AI 工具，GitHub Copilot 的用户数量在一年内增长了 400%，超过 1500 万开发者用它来辅助编码。这很诱人，也很危险。
+2026 年，"让 AI 先跑一遍 EDA" 已经成了很多人的起手式：上传 CSV，几秒钟就能得到一堆图表、相关性矩阵，甚至"初步结论"。Stack Overflow 2025 年开发者调查显示，绝大多数受访者已经在使用或计划使用 AI 工具；GitHub 官方博客也多次强调 Copilot 已经进入数千万开发者的工作流。这很诱人，也很危险。
 
 因为 AI 可以比你更快地算出一个均值、画出一张分布图，却不会替你问：这份数据到底在讲谁？每个字段是什么意思？缺失值是怎么产生的？样本有没有代表性？如果你连"数据的地基"都没看清楚，后面的任何结论——无论 p 值多小、模型多复杂——都可能建在沙滩上。
 
@@ -73,6 +73,7 @@ StatLab 本周推进：
 - 涉及的本周概念：统计三问（识别研究问题类型）、数据类型（字段字典）
 - 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
+<!-- code_block_exemption: 本章同时承担入门讲解、数据卡模板和 StatLab 起步示例，代码块集中用于教学演示。 -->
 
 ## 1. 你到底想回答什么问题？
 
@@ -416,16 +417,21 @@ df = pd.read_csv("data.csv", encoding="utf-8")  # 默认
 
 数据卡（data card）是一份数据的"身份证"，它用人类可读的方式回答：
 
-1. **数据来源**：数据从哪来？谁收集的？什么时候？
-2. **字段字典**：每列是什么意思？单位是什么？
-3. **规模概览**：有多少行？多少列？
-4. **缺失概览**：哪些列有缺失？缺失率多少？
+1. **数据集名称**：这份数据叫什么？
+2. **来源与许可**：数据从哪来？能不能用？有没有使用限制？
+3. **收集过程**：是谁、在什么场景下、怎么收集的？
+4. **单位与样本**：每一行代表什么？一共有多少行、多少列？
+5. **缺失概览**：哪些列有缺失？缺失率多少？
+6. **已知限制**：哪些地方不能过度解读？
+7. **人工复核说明**：哪些字段需要人工确认，而不是直接让 AI 编造？
+
+数据卡最怕两件事：一是把"数据里能看到的事实"和"你从别处查来的来源事实"混在一起，二是把"样本里碰巧看到的样子"误写成"总体就是这样"。所以像 `dataset_name`、`source`、`license_or_terms`、`collection_process` 这类字段，必须和 `row_count`、`column_count`、`missing_summary`、`known_limitations`、`not_suitable_for`、`human_review_notes` 一起写，才算完整。
 
 Google 和 MIT 的研究者提出了"Datasheets for Datasets"框架（Gebru et al., 2018），建议每个数据集都配上一份标准化的文档。到 2026 年，这个实践已经被广泛应用于医疗 AI 和计算机视觉领域。
 
 ### 编写数据卡生成函数
 
-让我们写一个函数，自动生成数据卡：
+让我们写一个函数，自动生成数据卡。下面这个版本会把数据卡里最关键的元数据都列出来，并且把"统计学类型"也补上，避免把看起来像数字的分类变量误当成数值型：
 
 ```python
 # examples/04_data_card.py
@@ -454,19 +460,78 @@ def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
 
     # 1. 数据来源
     lines.append("## 数据来源\n")
-    for key, value in metadata.items():
-        lines.append(f"- **{key}**：{value}")
+
+    canonical_metadata_fields = [
+        ("dataset_name", "数据集名称"),
+        ("source", "来源"),
+        ("license_or_terms", "许可证/使用条款"),
+        ("collection_process", "收集过程"),
+        ("unit_of_analysis", "分析单位"),
+        ("row_count", "行数"),
+        ("column_count", "列数"),
+        ("missing_summary", "缺失概览"),
+        ("known_limitations", "已知限制"),
+        ("not_suitable_for", "不适合什么场景"),
+        ("human_review_notes", "人工复核说明"),
+    ]
+
+    def _lookup(key: str, fallback: str) -> str:
+        value = metadata.get(key)
+        if value is None:
+            value = metadata.get(fallback)
+        if value is None:
+            return "（待补充）"
+        return f"{fallback}（{key}）：{value}" if key in metadata else f"{fallback}：{value}"
+
+    for key, label in canonical_metadata_fields:
+        if key in {"row_count", "column_count"}:
+            value = len(df) if key == "row_count" else len(df.columns)
+        elif key == "missing_summary":
+            missing = df.isna().sum()
+            missing = missing[missing > 0].sort_values(ascending=False)
+            if len(missing) == 0:
+                value = "无缺失值"
+            else:
+                value = "; ".join(
+                    f"{col}: {count} ({round(count / len(df) * 100, 1)}%)"
+                    for col, count in missing.items()
+                )
+        else:
+            value = _lookup(key, label)
+        lines.append(f"- **{label}**：{value}")
+
+    # 额外元数据按原样保留，方便补充特定字段
+    extra_items = [
+        (key, value)
+        for key, value in metadata.items()
+        if key not in {k for k, _ in canonical_metadata_fields}
+    ]
+    if extra_items:
+        lines.append("- **补充元数据**：")
+        for key, value in extra_items:
+            lines.append(f"  - **{key}**：{value}")
     lines.append("\n")
 
     # 2. 字段字典
     lines.append("## 字段字典\n")
-    lines.append("| 字段名 | 数据类型 | 描述 | 缺失率 |")
-    lines.append("|--------|---------|------|--------|")
+    lines.append("| 字段名 | pandas 类型 | 统计学类型 | 描述 | 缺失率 |")
+    lines.append("|--------|-------------|------------|------|--------|")
+
+    def _infer_statistical_type(series: pd.Series) -> str:
+        if pd.api.types.is_numeric_dtype(series):
+            unique_count = series.nunique(dropna=True)
+            if pd.api.types.is_integer_dtype(series) and unique_count <= 10:
+                return "数值型-离散"
+            return "数值型-连续"
+        if pd.api.types.is_categorical_dtype(series) and series.cat.ordered:
+            return "分类型-有序"
+        return "分类型-名义"
 
     for col in df.columns:
         dtype = str(df[col].dtype)
-        missing_rate = (df[col].isna().sum() / len(df) * 100).round(1)
-        lines.append(f"| {col} | {dtype} | （待补充） | {missing_rate}% |")
+        stat_type = _infer_statistical_type(df[col])
+        missing_rate = round(df[col].isna().sum() / len(df) * 100, 1)
+        lines.append(f"| {col} | {dtype} | {stat_type} | （待补充） | {missing_rate}% |")
     lines.append("\n")
 
     # 3. 规模概览
@@ -481,7 +546,7 @@ def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
     missing = missing[missing > 0].sort_values(ascending=False)
     if len(missing) > 0:
         for col, count in missing.items():
-            rate = (count / len(df) * 100).round(1)
+            rate = round(count / len(df) * 100, 1)
             lines.append(f"- **{col}**：{count} ({rate}%)")
     else:
         lines.append("- 无缺失值")
@@ -494,12 +559,14 @@ def generate_data_card(df: pd.DataFrame, metadata: Dict[str, Any]) -> str:
 penguins = sns.load_dataset("penguins")
 
 metadata = {
-    "数据集名称": "Palmer Penguins",
-    "来源": "seaborn 内置数据集",
-    "原始来源": "Palmer Station, Antarctica LTER",
-    "描述": "南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据",
-    "收集时间": "2007-2009 年",
-    "单位说明": "长度单位为毫米（mm），重量单位为克（g）"
+    "dataset_name": "Palmer Penguins",
+    "source": "seaborn 内置数据集",
+    "license_or_terms": "示例数据，可用于教学；正式报告仍应注明来源与使用限制",
+    "collection_process": "Palmer Station, Antarctica LTER 的企鹅形态测量记录",
+    "unit_of_analysis": "单只企鹅",
+    "known_limitations": "样本来自特定地点和时间，不能直接推广到所有企鹅",
+    "not_suitable_for": "不能直接推断全球企鹅总体分布",
+    "human_review_notes": "字段解释需要人工核实，不要让 AI 编造术语"
 }
 
 data_card = generate_data_card(penguins, metadata)
@@ -518,21 +585,26 @@ with open("data_card.md", "w", encoding="utf-8") as f:
 ## 数据来源
 - **数据集名称**：Palmer Penguins
 - **来源**：seaborn 内置数据集
-- **原始来源**：Palmer Station, Antarctica LTER
-- **描述**：南极 Palmer Station 的三种企鹅（Adelie, Chinstrap, Gentoo）的形态测量数据
-- **收集时间**：2007-2009 年
-- **单位说明**：长度单位为毫米（mm），重量单位为克（g）
+- **许可证/使用条款**：示例数据，可用于教学；正式报告仍应注明来源与使用限制
+- **收集过程**：Palmer Station, Antarctica LTER 的企鹅形态测量记录
+- **分析单位**：单只企鹅
+- **行数**：344
+- **列数**：7
+- **缺失概览**：sex: 10 (2.9%); bill_length_mm: 8 (2.3%); bill_depth_mm: 8 (2.3%); flipper_length_mm: 8 (2.3%); body_mass_g: 8 (2.3%)
+- **已知限制**：样本来自特定地点和时间，不能直接推广到所有企鹅
+- **不适合什么场景**：不能直接推断全球企鹅总体分布
+- **人工复核说明**：字段解释需要人工核实，不要让 AI 编造术语
 
 ## 字段字典
-| 字段名 | 数据类型 | 描述 | 缺失率 |
-|--------|---------|------|--------|
-| species | object | （待补充） | 0.0% |
-| island | object | （待补充） | 0.0% |
-| bill_length_mm | float64 | （待补充） | 2.4% |
-| bill_depth_mm | float64 | （待补充） | 2.4% |
-| flipper_length_mm | float64 | （待补充） | 2.4% |
-| body_mass_g | float64 | （待补充） | 2.4% |
-| sex | object | （待补充） | 2.8% |
+| 字段名 | pandas 类型 | 统计学类型 | 描述 | 缺失率 |
+|--------|-------------|------------|------|--------|
+| species | object | 分类型-名义 | （待补充） | 0.0% |
+| island | object | 分类型-名义 | （待补充） | 0.0% |
+| bill_length_mm | float64 | 数值型-连续 | （待补充） | 2.4% |
+| bill_depth_mm | float64 | 数值型-连续 | （待补充） | 2.4% |
+| flipper_length_mm | float64 | 数值型-连续 | （待补充） | 2.4% |
+| body_mass_g | float64 | 数值型-连续 | （待补充） | 2.4% |
+| sex | object | 分类型-名义 | （待补充） | 2.8% |
 
 ## 规模概览
 - **行数**：344

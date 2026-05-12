@@ -1,0 +1,9 @@
+# Optional dependencies for advanced chapters.
+#
+# Install only when you need the SHAP / fairness / Bayesian examples:
+#   python3 -m pip install -r requirements-advanced.txt
+
+shap
+fairlearn
+pymc
+arviz

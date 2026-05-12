@@ -1,8 +1,25 @@
 """
 示例：Pipeline 防止数据泄漏——正确使用交叉验证
 
+输入：
+  - 带缺失值的客户流失特征表
+  - 训练/测试划分前后的预处理流程
+
+输出：
+  - 有无 Pipeline 的交叉验证 AUC 对比
+  - 预处理泄漏与目标泄漏的可视化对比图
+
+核心概念：
+  - 数据泄漏与交叉验证污染
+  - Pipeline / ColumnTransformer 的作用
+  - 为什么任何 fit 都不该偷看验证集
+
+常见错误：
+  - 在划分数据前就 fit 填补器或标准化器
+  - 在全量数据上做特征工程后再交叉验证
+  - 把高分数误读为模型真的更强
+
 运行方式：python3 chapters/week_10/examples/05_pipeline_data_leakage.py
-预期输出：对比有无 Pipeline 的交叉验证结果，展示数据泄漏的影响
 """
 from __future__ import annotations
 

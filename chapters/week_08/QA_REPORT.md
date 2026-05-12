@@ -1,5 +1,10 @@
 # Week 08 QA Report
 
+## 2026-05-12 本次复核
+- 已修复：本轮 release gate 与 `pytest -q` 均通过。
+- 保留：原 QA 结论保持不变。
+- 需人工复核：无。
+
 ## 四维评分
 
 | 维度 | 分数 | 说明 |
@@ -46,8 +51,8 @@
 ## 建议项
 
 - [x] 代码长度优化：CHAPTER.md StatLab 进度小节已精简，完整函数移入 examples/08_statlab_ci.py
-- [ ] 示例文件命名：第3节缺少 03_bootstrap_principle.py（虽有 03_bootstrap_method.py）
-- [ ] 增加一个"认知陷阱"小节，列出对 CI 的常见误解
+- [x] 示例文件命名已统一为 `03_bootstrap_method.py`
+- [x] 已补充“别把置信区间读错了”小节，包含 4 个误解与正确说法
 - [ ] Bootstrap 可视化改进：用热力图展示不同方法的结果差异
 
 ---

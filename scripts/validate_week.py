@@ -10,6 +10,7 @@ Usage:
     python3 scripts/validate_week.py --week week_01 --mode release
     python3 scripts/validate_week.py --week 06 --mode drafting --verbose
     python3 scripts/validate_week.py --week 01 --mode idle
+    python3 scripts/validate_week.py --week 01 --mode task
 """
 from __future__ import annotations
 
@@ -470,12 +471,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a week package against DoD gates.")
     parser.add_argument("--week", required=True, help="Week id (e.g. week_06 or 06)")
     parser.add_argument(
-        "--mode", required=True,
-        choices=["drafting", "idle", "release"],
+        "--mode",
+        required=True,
+        choices=["drafting", "idle", "task", "release"],
         help=(
             "Validation strictness: "
             "drafting (CHAPTER+TERMS for writing stages) | "
-            "idle (all files+QA, no pytest for pre-release) | "
+            "idle/task (all files+QA, no pytest for pre-release) | "
             "release (strictest with pytest+pedagogical)"
         ),
     )
@@ -492,6 +494,8 @@ def main() -> int:
         print(f"error: {e}", file=sys.stderr)
         return 2
 
+    mode = "idle" if args.mode == "task" else args.mode
+
     errors: list[str] = []
     week_dir = root / "chapters" / week
     if not week_dir.is_dir():
@@ -500,31 +504,31 @@ def main() -> int:
         verbose(f"validating {week} (mode={args.mode})")
 
         # --- File existence (mode-aware) ---
-        _check_required_paths(errors, week_dir, root, args.mode)
+        _check_required_paths(errors, week_dir, root, mode)
 
         # --- CHAPTER.md content checks ---
         _check_chapter_dod(errors, week_dir / "CHAPTER.md")
-        _check_chapter_content(errors, week_dir / "CHAPTER.md", args.mode)
+        _check_chapter_content(errors, week_dir / "CHAPTER.md", mode)
 
         # --- Examples (skip for drafting) ---
-        if args.mode != "drafting":
+        if mode != "drafting":
             _check_examples_exist(errors, week_dir, root)
 
         # --- Solution customization (release only) ---
-        if args.mode == "release":
-            _check_solution_customized(errors, week_dir / "starter_code" / "solution.py", args.mode)
+        if mode == "release":
+            _check_solution_customized(errors, week_dir / "starter_code" / "solution.py", mode)
 
         # --- Pedagogical checks (release only) ---
-        _check_statlab_section(errors, week_dir / "CHAPTER.md", args.mode)
-        _check_characters(errors, week_dir / "CHAPTER.md", root, args.mode)
+        _check_statlab_section(errors, week_dir / "CHAPTER.md", mode)
+        _check_characters(errors, week_dir / "CHAPTER.md", root, mode)
         try:
-            _check_concept_budget(errors, root, week, args.mode)
-            _check_review_bridges(errors, week_dir / "CHAPTER.md", root, week, args.mode)
+            _check_concept_budget(errors, root, week, mode)
+            _check_review_bridges(errors, week_dir / "CHAPTER.md", root, week, mode)
         except RuntimeError as e:
             add_error(errors, str(e).strip())
 
         # --- YAML checks (TERMS for all non-drafting; ANCHORS for release only) ---
-        if args.mode == "drafting":
+        if mode == "drafting":
             # In drafting mode, check TERMS.yml only if it exists
             try:
                 if (week_dir / "TERMS.yml").is_file():
@@ -538,19 +542,30 @@ def main() -> int:
                     _check_terms(errors, root, week)
                 else:
                     add_error(errors, f"missing required file: {(week_dir / 'TERMS.yml').relative_to(root)}")
-                if args.mode == "release":
+                if mode == "release":
                     _check_anchors(errors, root, week)
             except RuntimeError as e:
                 add_error(errors, str(e).strip())
 
         # --- QA blocking (idle/release only) ---
-        if args.mode in ("idle", "release"):
+        if mode in ("idle", "release"):
             qa_path = week_dir / "QA_REPORT.md"
             if qa_path.is_file():
                 _check_qa_blocking(errors, qa_path)
 
+        # --- Release-only content gates ---
+        if mode == "release":
+            try:
+                from check_chapter_assets import check_chapter_assets
+                from check_research_cache import check_research_cache
+            except Exception as e:  # pragma: no cover - import path issues are env-specific
+                add_error(errors, f"failed to import release gate helpers: {e}")
+            else:
+                check_chapter_assets(errors, week_dir, root)
+                check_research_cache(errors, week_dir, root)
+
         # --- pytest (release only) ---
-        if args.mode == "release":
+        if mode == "release":
             _run_pytest(errors, root, week)
 
     if errors:

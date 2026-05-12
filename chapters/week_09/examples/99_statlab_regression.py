@@ -38,17 +38,34 @@ from typing import Optional, Union
 
 
 def setup_chinese_font() -> str:
-    """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
+    """配置 Linux 服务器可用的中文字体，返回使用的字体名称。
+
+    注意：本服务器 fontconfig 能看到 Noto CJK SC，但 matplotlib 的
+    fontManager 通常登记为 ``Noto Sans CJK JP``；若只查 SC 名称会回落到
+    DejaVu Sans，导致中文标题变成方框。
+    """
+    font_files = [
+        '/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc',
+        '/usr/share/fonts/google-droid-fonts/DroidSansFallback.ttf',
+    ]
+    for font_file in font_files:
+        if Path(font_file).is_file():
+            fm.fontManager.addfont(font_file)
+            font_name = fm.FontProperties(fname=font_file).get_name()
+            plt.rcParams['font.sans-serif'] = [font_name, 'Droid Sans Fallback', 'DejaVu Sans']
+            plt.rcParams['axes.unicode_minus'] = False
+            return font_name
+
+    chinese_fonts = ['SimHei', 'Noto Sans CJK JP', 'Noto Sans CJK SC',
+                     'Droid Sans Fallback', 'Arial Unicode MS',
                      'PingFang SC', 'Microsoft YaHei']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
-            plt.rcParams['font.sans-serif'] = [font]
+            plt.rcParams['font.sans-serif'] = [font, 'DejaVu Sans']
             plt.rcParams['axes.unicode_minus'] = False
             return font
-    plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
-    return 'DejaVu Sans'
+    raise RuntimeError('未找到可用中文字体；请安装 Noto Sans CJK 或 Droid Sans Fallback')
 
 
 def regression_with_diagnostics(

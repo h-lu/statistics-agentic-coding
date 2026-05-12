@@ -16,6 +16,7 @@ from pathlib import Path
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 
 def setup_output_dir() -> Path:
@@ -25,19 +26,30 @@ def setup_output_dir() -> Path:
     return output_dir
 
 
+def summarize_numeric_column(series: pd.Series) -> dict[str, float]:
+    """汇总单个数值列的统计量。"""
+    data = series.dropna()
+    q25 = data.quantile(0.25)
+    q75 = data.quantile(0.75)
+    return {
+        "count": float(len(data)),
+        "mean": data.mean(),
+        "median": data.median(),
+        "std": data.std(),
+        "min": data.min(),
+        "Q25": q25,
+        "Q75": q75,
+        "max": data.max(),
+    }
+
+
 def generate_summary_stats(df: pd.DataFrame, numeric_cols: list) -> pd.DataFrame:
-    """生成描述统计表"""
-    stats = df[numeric_cols].agg([
-        ("count", "count"),
-        ("mean", "mean"),
-        ("median", "median"),
-        ("std", "std"),
-        ("min", "min"),
-        ("Q25", lambda x: x.quantile(0.25)),
-        ("Q75", lambda x: x.quantile(0.75)),
-        ("max", "max")
-    ]).round(1)
-    return stats
+    """生成描述统计表。"""
+    stats = {
+        col: summarize_numeric_column(df[col])
+        for col in numeric_cols
+    }
+    return pd.DataFrame(stats).round(1)
 
 
 def print_summary_stats(df: pd.DataFrame) -> None:
@@ -92,8 +104,8 @@ def print_summary_stats(df: pd.DataFrame) -> None:
     print("\n" + "="*60)
 
 
-def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
-    """生成一页报告（四合一图）"""
+def plot_distribution_with_stats(df: pd.DataFrame, output_dir: Path) -> Path:
+    """生成分布与统计量对照图。"""
     fig = plt.figure(figsize=(14, 10))
 
     # 1. 摘要统计表（左上）
@@ -169,9 +181,27 @@ def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
     ax4.legend()
 
     plt.tight_layout()
-    plt.savefig(output_dir / "one_page_report.png", dpi=100, facecolor="white")
+    output_path = output_dir / "distribution_with_stats.png"
+    plt.savefig(output_path, dpi=100, facecolor="white")
     plt.close()
-    print(f"\n一页报告图已保存到 {output_dir / 'one_page_report.png'}")
+    print(f"\n分布与统计量对照图已保存到 {output_path}")
+    return output_path
+
+
+def build_one_page_report(df: pd.DataFrame, output_dir: Path) -> dict[str, object]:
+    """构建一页分布报告。"""
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    summary = generate_summary_stats(df, numeric_cols)
+    plot_path = plot_distribution_with_stats(df, output_dir)
+    return {
+        "summary": summary,
+        "plot_path": plot_path,
+    }
+
+
+def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
+    """兼容旧名称：生成一页报告。"""
+    build_one_page_report(df, output_dir)
 
 
 def plot_boxplot_comparison(df: pd.DataFrame, output_dir: Path) -> None:

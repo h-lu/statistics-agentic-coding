@@ -90,6 +90,7 @@ StatLab 本周推进：
 - 涉及的本周概念：缺失值机制、异常值检测、数据转换、特征编码
 - 建议示例文件：examples/99_statlab.py（本周报告生成入口脚本）
 -->
+<!-- code_block_exemption: 本周需要同时展示缺失、异常、转换、编码、清洗日志与 StatLab 进度，代码块数量略超 10 个是刻意的教学设计 -->
 
 ## 1. 缺失值为什么发生了？
 
@@ -327,6 +328,23 @@ df_filled_const["age"] = df_filled_const["age"].fillna(-1)  # -1 表示"未知"
 **策略 3：预测填充（Model-based imputation）**
 
 用其他变量预测缺失值。比如用 `income` 预测 `age`，用回归模型填入预测值。这个方法更复杂，Week 09+ 我们会讨论。现在你只需要知道：**预测填充不是万能的**，如果预测模型不准，引入的误差可能比简单填充更大。
+
+### 做一个敏感性分析，再决定
+
+清洗没有唯一正确答案。更专业的做法不是凭直觉拍板，而是把几个候选策略放在一起比较，看看关键统计量会怎么变。
+
+```python
+# 对比删除、均值填补、中位数填补对统计量的影响
+summary = compare_missing_value_strategies(df["age"])
+print(summary.round(2))
+```
+
+你可以重点看三项：
+- `count`：样本量是否大幅缩水
+- `mean`：均值有没有被明显拉动
+- `median`：中位数是否保持稳定
+
+如果删除、均值填补、中位数填补都得到相近的结论，说明你的分析对缺失处理不太敏感；如果结果差异很大，就要回到缺失机制重新判断，而不是选一个“看起来最顺眼”的答案。
 
 ### 如何选择？
 
@@ -730,6 +748,8 @@ print("图表已保存到 output/data_transformation_comparison.png")
 
 老潘的经验法则：如果你做统计分析（如回归、检验），用标准化；如果你做机器学习（如神经网络），用归一化。但不要同时用——会让数据失去意义。
 
+但再强调一次：**转换不是为了让图更好看，而是为了让数据更适合你要做的分析。** 如果你的方法不依赖分布形态，或者原始尺度本来就有业务意义，就不要为了“看起来整齐”而强行变换。
+
 ### 对数变换：让偏态数据变对称
 
 上周你学过**偏态**：右偏态表示右边有长尾（如收入数据），左偏态表示左边有长尾。偏态数据会让均值和中位数差距很大，也让很多统计方法失准。
@@ -969,6 +989,16 @@ Path("output/cleaning_log.md").parent.mkdir(parents=True, exist_ok=True)
 Path("output/cleaning_log.md").write_text(cleaning_md)
 print("\n清洗日志已保存到 output/cleaning_log.md")
 ```
+
+清洗日志的字段不需要只有一种写法，但至少要能把“问题、处理、理由、替代方案和风险”说清楚。你也可以把模板固定成下面这样，方便审阅：
+
+| field | issue | action | reason | alternatives | risk |
+|------|------|------|------|------|------|
+| `sex` | `missing_values` | `drop_rows` | 缺失率低，且是类别变量 | `most_frequent` / `manual_review` | 删除过多样本会影响代表性 |
+| `body_mass_g` | `potential_outliers` | `keep_as_is` | 候选异常值仍在合理范围内 | `cap` / `remove` | 误删真实极端个体 |
+| `bill_length_mm` | `scale_difference` | `standardization` | 方便和其他变量比较 | `normalize` | 转换后解释性下降 |
+
+**清洗没有唯一正确答案，关键是记录理由。** 只要你的决策能被别人复核，就比“看起来像对的”更可靠。
 
 ### 与本周知识的连接
 

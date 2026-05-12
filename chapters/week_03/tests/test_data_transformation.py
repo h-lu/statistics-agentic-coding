@@ -452,6 +452,23 @@ class TestFeatureEncoding:
         # 单个类别使用 drop_first=True 后可能没有编码列
         # 这是合理的，因为没有变化
 
+    def test_one_hot_encode_unseen_category(self):
+        """
+        测试包含未见类别的 One-hot 编码
+
+        期望：编码函数不应因为新类别而崩溃
+        """
+        if one_hot_encode is None:
+            pytest.skip("one_hot_encode 函数不存在")
+
+        df = pd.DataFrame({'cat': ['A', 'B', 'C', 'A']})
+        result = one_hot_encode(df, 'cat')
+
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == len(df)
+        assert any('cat_' in str(col) for col in result.columns), \
+            "应生成 one-hot 编码列"
+
     def test_label_encode_new_category(self):
         """
         测试处理新类别（未见过的类别）

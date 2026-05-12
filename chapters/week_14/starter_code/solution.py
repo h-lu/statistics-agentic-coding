@@ -112,6 +112,46 @@ def prior_sensitivity_analysis(
     return results
 
 
+# ===== 练习题 4.5：预期损失与阈值 =====
+
+def expected_loss(samples_a: np.ndarray, samples_b: np.ndarray) -> float:
+    """
+    计算贝叶斯 A/B 测试中的预期损失。
+
+    公式：E[max(θ_A - θ_B, 0) | data]
+
+    参数:
+        samples_a: A 方案的后验采样
+        samples_b: B 方案的后验采样
+
+    返回:
+        预期损失的估计值
+    """
+    if len(samples_a) != len(samples_b):
+        raise ValueError("samples_a 和 samples_b 长度必须一致")
+
+    loss = np.maximum(samples_a - samples_b, 0.0)
+    return float(np.mean(loss))
+
+
+def decision_threshold(false_positive_cost: float, false_negative_cost: float) -> float:
+    """
+    根据假阳性/假阴性成本计算决策阈值。
+
+    说明：
+        假阳性成本越高，阈值越高，决策越保守；
+        假阴性成本越高，阈值越低，决策越积极。
+    """
+    if false_positive_cost < 0 or false_negative_cost < 0:
+        raise ValueError("成本不能为负数")
+
+    total = false_positive_cost + false_negative_cost
+    if total == 0:
+        raise ValueError("至少有一个成本必须大于 0")
+
+    return false_positive_cost / total
+
+
 # ===== 练习题 4：判断敏感性 =====
 
 def is_sensitive(results: Dict[str, Dict[str, float]],

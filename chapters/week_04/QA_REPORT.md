@@ -1,5 +1,10 @@
 # QA Report: week_04
 
+## 2026-05-12 本次复核
+- 已修复：本轮 release gate 与 `pytest -q` 均通过。
+- 保留：原 QA 结论保持不变。
+- 需人工复核：无。
+
 **生成日期**：2026-02-20
 **审读人**：Lead agent (consistency-editor + technical-reviewer + student-qa)
 

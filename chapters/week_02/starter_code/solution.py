@@ -15,7 +15,7 @@ Week 02 作业参考实现。
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -72,7 +72,23 @@ def calculate_dispersion(series: pd.Series) -> Dict[str, float]:
     }
 
 
-def generate_descriptive_summary(df: pd.DataFrame) -> Dict[str, any]:
+def summarize_numeric_column(series: pd.Series) -> Dict[str, float]:
+    """
+    汇总单个数值列的描述统计。
+
+    这是 `generate_descriptive_summary()` 和 `build_one_page_report()` 的共享核心。
+    """
+    data = series.dropna()
+    return {
+        **calculate_central_tendency(data),
+        **calculate_dispersion(data),
+        "count": len(data),
+        "min": data.min(),
+        "max": data.max(),
+    }
+
+
+def generate_descriptive_summary(df: pd.DataFrame) -> Dict[str, Any]:
     """
     生成描述统计摘要
 
@@ -86,16 +102,84 @@ def generate_descriptive_summary(df: pd.DataFrame) -> Dict[str, any]:
     summary = {}
 
     for col in numeric_cols:
-        data = df[col].dropna()
-        summary[col] = {
-            **calculate_central_tendency(data),
-            **calculate_dispersion(data),
-            "count": len(data),
-            "min": data.min(),
-            "max": data.max(),
-        }
+        summary[col] = summarize_numeric_column(df[col])
 
     return summary
+
+
+def plot_distribution_with_stats(df: pd.DataFrame, output_dir: Path) -> Path:
+    """
+    绘制分布与统计量对照图。
+
+    返回：
+        生成图片的路径
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+    ax1, ax2, ax3, ax4 = axes.ravel()
+    mass = df["body_mass_g"].dropna()
+    species_stats = df.groupby("species")["body_mass_g"].agg(
+        n="count",
+        mean="mean",
+        median="median",
+        std="std",
+    ).round(1)
+
+    table_data = [
+        [species, int(row["n"]), f"{row['mean']:.0f}", f"{row['median']:.0f}", f"{row['std']:.0f}"]
+        for species, row in species_stats.iterrows()
+    ]
+    ax1.axis("off")
+    table = ax1.table(
+        cellText=table_data,
+        colLabels=["Species", "n", "Mean", "Median", "SD"],
+        cellLoc="center",
+        loc="center",
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 2)
+    ax1.set_title("Summary Statistics by Species", fontweight="bold")
+
+    ax2.hist(mass, bins=20, edgecolor="black", alpha=0.75, color="#4C72B0")
+    ax2.set_xlabel("Body Mass (g)")
+    ax2.set_ylabel("Frequency")
+    ax2.set_title("Body Mass Distribution", fontweight="bold")
+
+    sns.boxplot(data=df, x="species", y="body_mass_g", ax=ax3)
+    ax3.set_xlabel("Species")
+    ax3.set_ylabel("Body Mass (g)")
+    ax3.set_title("Body Mass by Species", fontweight="bold")
+
+    for species in df["species"].dropna().unique():
+        data = df.loc[df["species"] == species, "body_mass_g"].dropna()
+        ax4.hist(data, bins=15, alpha=0.35, label=species, edgecolor="black")
+    ax4.set_xlabel("Body Mass (g)")
+    ax4.set_ylabel("Frequency")
+    ax4.set_title("Distribution by Species", fontweight="bold")
+    ax4.legend()
+
+    output_dir.mkdir(exist_ok=True, parents=True)
+    output_path = output_dir / "distribution_with_stats.png"
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=100, facecolor="white")
+    plt.close()
+    return output_path
+
+
+def build_one_page_report(df: pd.DataFrame, output_dir: Path) -> Dict[str, Any]:
+    """
+    构建一页分布报告。
+
+    返回：
+        包含摘要和图表路径的字典
+    """
+    summary = generate_descriptive_summary(df)
+    plot_path = plot_distribution_with_stats(df, output_dir)
+    return {
+        "summary": summary,
+        "plot_path": plot_path,
+    }
 
 
 def exercise_1_central_tendency() -> None:
