@@ -1,15 +1,17 @@
 /**
- * Java 软件工程课程站点 - 现代简洁设计
+ * 统计学与 Agentic 数据分析课程站点 - 现代简洁设计
  * 设计系统: Minimalism & Swiss Style
- * 字体: Inter
+ * 字体: Inter + 简体中文优先 fallback
  * 配色: Blue primary, clean background, high contrast
  */
 
 /* ============================================
-   字体导入 - Inter (Google Fonts)
+   字体导入 - Inter + Noto Sans SC (Google Fonts)
+   - Inter 覆盖英文/数字
+   - Noto Sans SC 覆盖中文，避免中文落到浏览器不可控 fallback
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
 /* ============================================
    CSS 变量定义
@@ -38,9 +40,19 @@
   --ifm-font-color-secondary: #64748B;
   --ifm-font-color-muted: #94A3B8;
 
-  /* 字体 */
-  --ifm-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --ifm-font-family-monospace: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+  /* 字体
+     中文网页端必须显式提供 CJK fallback；否则 Inter/Segoe UI 在部分环境下会出现中文缺字或字形不稳定。 */
+  --course-font-sans: 'Inter', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    'Droid Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --course-font-heading: 'Inter', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    'Droid Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --course-font-mono: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Noto Sans Mono CJK SC',
+    'Noto Sans Mono CJK TC', 'Noto Sans Mono CJK JP', 'Droid Sans Fallback', monospace;
+  --ifm-font-family-base: var(--course-font-sans);
+  --ifm-font-family-monospace: var(--course-font-mono);
+  --font-heading: var(--course-font-heading);
 
   /* 代码高亮 */
   --ifm-code-font-size: 92%;
@@ -119,10 +131,33 @@ html {
 }
 
 body {
+  font-family: var(--ifm-font-family-base);
   font-feature-settings: 'kern' 1, 'liga' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+}
+
+/* 中文内容、导航、侧边栏、Markdown 正文统一继承 CJK-safe 字体栈 */
+html[lang^='zh'],
+html[lang^='zh'] body,
+.navbar,
+.menu,
+.markdown,
+.theme-doc-markdown,
+.table-of-contents,
+.footer {
+  font-family: var(--ifm-font-family-base);
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar__title,
+.hero__title {
+  font-family: var(--font-heading);
+}
+
+code, pre, kbd, samp {
+  font-family: var(--ifm-font-family-monospace);
 }
 
 /* ============================================

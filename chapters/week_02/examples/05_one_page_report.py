@@ -15,7 +15,71 @@ from pathlib import Path
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import pandas as pd
+
+
+SPECIES_COLORS = {
+    "Adelie": "#2563EB",      # blue
+    "Chinstrap": "#F97316",   # orange
+    "Gentoo": "#10B981",      # emerald
+}
+
+
+def setup_plot_style() -> None:
+    """配置课件友好的可视化风格：中文字体、柔和配色、浅色网格。"""
+    preferred_fonts = [
+        "Noto Sans CJK SC",
+        "Noto Sans SC",
+        "Noto Sans CJK JP",  # many Linux distros expose the CJK TTC under the JP family name
+        "Source Han Sans SC",
+        "Microsoft YaHei",
+        "PingFang SC",
+        "WenQuanYi Micro Hei",
+        "DejaVu Sans",
+    ]
+    available_fonts = {font.name for font in fm.fontManager.ttflist}
+    for font in preferred_fonts:
+        if font in available_fonts:
+            plt.rcParams["font.sans-serif"] = [font, "DejaVu Sans"]
+            break
+    else:
+        plt.rcParams["font.sans-serif"] = ["DejaVu Sans"]
+
+    plt.rcParams.update({
+        "axes.unicode_minus": False,
+        "figure.facecolor": "#F8FAFC",
+        "axes.facecolor": "#FFFFFF",
+        "axes.edgecolor": "#CBD5E1",
+        "axes.labelcolor": "#334155",
+        "axes.titlecolor": "#0F172A",
+        "xtick.color": "#475569",
+        "ytick.color": "#475569",
+        "text.color": "#0F172A",
+        "grid.color": "#E2E8F0",
+        "grid.linewidth": 0.8,
+        "legend.frameon": False,
+        "savefig.facecolor": "#F8FAFC",
+        "savefig.bbox": "tight",
+    })
+    sns.set_theme(style="whitegrid", context="notebook", rc={
+        "font.sans-serif": plt.rcParams["font.sans-serif"],
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    })
+
+
+def style_axis(ax, title: str, subtitle: str | None = None) -> None:
+    """统一单个子图的标题、网格和边框。"""
+    ax.set_title(title, loc="left", fontsize=14, fontweight="bold", pad=12)
+    if subtitle:
+        ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9.5,
+                color="#64748B", va="bottom", ha="left")
+    ax.grid(True, axis="y", alpha=0.75)
+    ax.grid(False, axis="x")
+    for spine in ax.spines.values():
+        spine.set_color("#E2E8F0")
+        spine.set_linewidth(0.8)
 
 
 def setup_output_dir() -> Path:
@@ -94,11 +158,17 @@ def print_summary_stats(df: pd.DataFrame) -> None:
 
 def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
     """生成一页报告（四合一图）"""
-    fig = plt.figure(figsize=(14, 10))
+    setup_plot_style()
+
+    fig, axes = plt.subplots(2, 2, figsize=(15.5, 10.5))
+    fig.subplots_adjust(top=0.86, hspace=0.36, wspace=0.24)
+    fig.suptitle("Palmer Penguins 体重分布一页报告", x=0.06, y=0.97,
+                 ha="left", fontsize=24, fontweight="bold", color="#0F172A")
+    fig.text(0.06, 0.925, "用一张图同时看样本规模、中心位置、离散程度和分布形状",
+             ha="left", fontsize=12.5, color="#64748B")
 
     # 1. 摘要统计表（左上）
-    ax1 = plt.subplot(2, 2, 1)
-    ax1.axis("tight")
+    ax1 = axes[0, 0]
     ax1.axis("off")
 
     # 按物种分组统计
@@ -122,56 +192,69 @@ def plot_one_page_report(df: pd.DataFrame, output_dir: Path) -> None:
 
     table = ax1.table(
         cellText=table_data,
-        colLabels=["Species", "n", "Mean", "Median", "SD"],
+        colLabels=["物种", "样本量", "均值", "中位数", "标准差"],
         cellLoc="center",
-        loc="center"
+        loc="center",
+        colColours=["#E0F2FE"] * 5,
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    table.scale(1, 2)
-    ax1.set_title("Summary Statistics by Species", fontsize=12, fontweight="bold")
+    table.set_fontsize(11)
+    table.scale(1.08, 2.28)
+    for (row, col), cell in table.get_celld().items():
+        cell.set_edgecolor("#CBD5E1")
+        cell.set_linewidth(0.8)
+        if row == 0:
+            cell.set_text_props(weight="bold", color="#0F172A")
+        elif col == 0:
+            cell.set_text_props(weight="bold", color=SPECIES_COLORS.get(table_data[row - 1][0], "#0F172A"))
+            cell.set_facecolor("#F8FAFC")
+        else:
+            cell.set_facecolor("#FFFFFF")
+    style_axis(ax1, "01 摘要统计", "按物种汇总体重：先看 n、均值、中位数与波动")
 
     # 2. 直方图（右上）
-    ax2 = plt.subplot(2, 2, 2)
-    species_colors = {"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}
+    ax2 = axes[0, 1]
     for species in df["species"].unique():
         data = df[df["species"] == species]["body_mass_g"].dropna()
-        ax2.hist(data, bins=15, alpha=0.5, label=species, edgecolor="black",
-                color=species_colors.get(species))
-    ax2.set_xlabel("Body Mass (g)")
-    ax2.set_ylabel("Frequency")
-    ax2.set_title("Distribution by Species", fontsize=12, fontweight="bold")
-    ax2.legend()
+        ax2.hist(data, bins=14, alpha=0.48, label=species, edgecolor="white",
+                 linewidth=1.1, color=SPECIES_COLORS.get(species))
+    ax2.set_xlabel("体重 Body Mass (g)")
+    ax2.set_ylabel("频数 Frequency")
+    style_axis(ax2, "02 分布形状", "颜色区分物种，透明叠加便于比较重叠区域")
+    ax2.legend(title="Species", loc="upper right")
 
     # 3. 箱线图（左下）
-    ax3 = plt.subplot(2, 2, 3)
+    ax3 = axes[1, 0]
     sns.boxplot(data=df, x="species", y="body_mass_g", hue="species", ax=ax3,
-               palette={"Adelie": "steelblue", "Chinstrap": "orange", "Gentoo": "green"}, legend=False)
-    ax3.set_xlabel("Species")
-    ax3.set_ylabel("Body Mass (g)")
-    ax3.set_title("Boxplot: Detecting Outliers", fontsize=12, fontweight="bold")
+                palette=SPECIES_COLORS, width=0.55, linewidth=1.2, fliersize=4,
+                legend=False)
+    sns.stripplot(data=df, x="species", y="body_mass_g", ax=ax3,
+                  color="#0F172A", alpha=0.18, size=2.6, jitter=0.18)
+    ax3.set_xlabel("物种 Species")
+    ax3.set_ylabel("体重 Body Mass (g)")
+    style_axis(ax3, "03 离散程度与异常点", "箱体看 IQR，散点保留原始观测，不只看均值")
 
     # 4. 密度图（右下）
-    ax4 = plt.subplot(2, 2, 4)
+    ax4 = axes[1, 1]
+    from scipy import stats
     for species in df["species"].unique():
         data = df[df["species"] == species]["body_mass_g"].dropna()
-        ax4.hist(data, bins=15, alpha=0.3, density=True, edgecolor="black",
-                color=species_colors.get(species))
-        # 叠加密度曲线
-        from scipy import stats
+        ax4.hist(data, bins=14, alpha=0.14, density=True, edgecolor="white",
+                 color=SPECIES_COLORS.get(species))
         kde = stats.gaussian_kde(data)
         x_min, x_max = data.min() - 500, data.max() + 500
-        x = [x_min + i * (x_max - x_min) / 200 for i in range(200)]
-        ax4.plot(x, kde(x), linewidth=2, label=species, color=species_colors.get(species))
-    ax4.set_xlabel("Body Mass (g)")
-    ax4.set_ylabel("Density")
-    ax4.set_title("Density Plot by Species", fontsize=12, fontweight="bold")
-    ax4.legend()
+        x = [x_min + i * (x_max - x_min) / 220 for i in range(220)]
+        ax4.plot(x, kde(x), linewidth=2.8, label=species, color=SPECIES_COLORS.get(species))
+        ax4.fill_between(x, kde(x), alpha=0.08, color=SPECIES_COLORS.get(species))
+    ax4.set_xlabel("体重 Body Mass (g)")
+    ax4.set_ylabel("密度 Density")
+    style_axis(ax4, "04 平滑密度", "看整体趋势：Gentoo 明显更重，Adelie 与 Chinstrap 有重叠")
+    ax4.legend(title="Species", loc="upper right")
 
-    plt.tight_layout()
-    plt.savefig(output_dir / "one_page_report.png", dpi=100, facecolor="white")
+    output_path = output_dir / "one_page_report.png"
+    plt.savefig(output_path, dpi=160, facecolor="#F8FAFC")
     plt.close()
-    print(f"\n一页报告图已保存到 {output_dir / 'one_page_report.png'}")
+    print(f"\n一页报告图已保存到 {output_path}")
 
 
 def plot_boxplot_comparison(df: pd.DataFrame, output_dir: Path) -> None:
