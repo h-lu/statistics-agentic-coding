@@ -46,8 +46,8 @@ from week_10 import load_customer_churn_data
 # 配置中文字体
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -79,7 +79,7 @@ def visualize_sigmoid() -> None:
     axes[0].plot(z, sigma, 'b-', linewidth=2, label='σ(z) = 1 / (1 + e^(-z))')
     axes[0].axhline(y=0.5, color='r', linestyle='--', alpha=0.5, label='y = 0.5 (决策边界)')
     axes[0].axvline(x=0, color='gray', linestyle='-', alpha=0.3)
-    axes[0].set_xlabel('z (线性组合: a + b₁x₁ + b₂x₂ + ...)')
+    axes[0].set_xlabel('z (线性组合: a + b1*x1 + b2*x2 + ...)')
     axes[0].set_ylabel('σ(z) (概率)')
     axes[0].set_title('Sigmoid 函数：把任何数压缩到 [0, 1]')
     axes[0].legend()
@@ -267,7 +267,7 @@ def main() -> None:
     print("""
     逻辑回归核心要点：
     1. Sigmoid 函数：把任何数压缩到 [0, 1]，输出是概率
-    2. 对数几率 = a + b₁x₁ + b₂x₂ + ... （线性关系）
+    2. 对数几率 = a + b1*x1 + b2*x2 + ... （线性关系）
     3. 系数解读：
        - b > 0：特征增加会提高正类概率
        - b < 0：特征增加会降低正类概率

@@ -26,8 +26,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -39,9 +39,9 @@ def setup_chinese_font() -> str:
 
 
 def bad_example_common_misunderstanding() -> None:
-    """❌ 坏例子：常见误解"""
+    """错误： 坏例子：常见误解"""
     print("=" * 70)
-    print("❌ 常见误解 #1：'真实均值有 95% 概率落在 CI 内'")
+    print("错误： 常见误解 #1：'真实均值有 95% 概率落在 CI 内'")
     print("=" * 70)
 
     np.random.seed(42)
@@ -61,9 +61,9 @@ def bad_example_common_misunderstanding() -> None:
 
 
 def good_example_correct_interpretation() -> None:
-    """✅ 好例子：正确理解"""
+    """通过：好例子：正确理解"""
     print("\n" + "=" * 70)
-    print("✅ 正确理解：'重复抽样的视角'")
+    print("通过：正确理解：'重复抽样的视角'")
     print("=" * 70)
 
     print(f"\n正确解读：")
@@ -219,16 +219,16 @@ def demonstrate_ci_vs_hypothesis_test() -> None:
     else:
         print(f"  - CI 包含 0 → p ≥ 0.05 → 差异不显著")
 
-    print(f"\n✅ CI 比只报告 p 值更有信息量：")
+    print(f"\n通过：CI 比只报告 p 值更有信息量：")
     print(f"  - p 值只告诉你'显著不显著'")
     print(f"  - CI 还告诉你'差异大概有多大'")
     print(f"  - CI 的宽度反映了估计的精确度")
 
 
 def bad_example_frequentist_confusion() -> None:
-    """❌ 坏例子：混淆频率学派与贝叶斯学派"""
+    """错误： 坏例子：混淆频率学派与贝叶斯学派"""
     print("\n" + "=" * 70)
-    print("❌ 常见误解 #2：混淆频率学派 CI 与贝叶斯学派 CI")
+    print("错误： 常见误解 #2：混淆频率学派 CI 与贝叶斯学派 CI")
     print("=" * 70)
 
     print(f"\n问题：能说'95% CI 表示我对参数有 95% 的信念'吗？")
@@ -267,15 +267,15 @@ def main() -> None:
     print("总结")
     print("=" * 70)
     print("\n关键要点：")
-    print("  1. ❌ 错误：'真实均值有 95% 概率落在 CI 内'")
-    print("  2. ✅ 正确：'重复抽样 100 次，约 95 个 CI 会包含真实均值'")
+    print("  1. 错误： 错误：'真实均值有 95% 概率落在 CI 内'")
+    print("  2. 通过：正确：'重复抽样 100 次，约 95 个 CI 会包含真实均值'")
     print("  3. 随机的是区间，不是参数")
     print("  4. CI 与假设检验等价：CI 包含 0 ↔ p ≥ 0.05")
     print("  5. 如果你想表达'信念'，需要贝叶斯方法（Week 14）")
     print("\n在报告中如何写：")
-    print("  - ✅ '均值 3.2，95% CI [2.8, 3.6]'（让读者理解含义）")
-    print("  - ✅ '在重复抽样的情况下，类似区间约 95% 会包含真值'")
-    print("  - ❌ '均值有 95% 概率落在 [2.8, 3.6] 内'")
+    print("  - 通过：'均值 3.2，95% CI [2.8, 3.6]'（让读者理解含义）")
+    print("  - 通过：'在重复抽样的情况下，类似区间约 95% 会包含真值'")
+    print("  - 错误： '均值有 95% 概率落在 [2.8, 3.6] 内'")
     print()
 
 

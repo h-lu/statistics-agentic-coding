@@ -26,8 +26,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -72,9 +72,9 @@ def demonstrate_bootstrap_idea() -> None:
 
 
 def bad_example_small_sample_assumption() -> None:
-    """❌ 坏例子：小样本时盲目相信理论公式"""
+    """错误： 坏例子：小样本时盲目相信理论公式"""
     print("\n" + "=" * 70)
-    print("❌ 坏例子：小样本时盲目相信理论公式")
+    print("错误： 坏例子：小样本时盲目相信理论公式")
     print("=" * 70)
 
     np.random.seed(42)
@@ -97,9 +97,9 @@ def bad_example_small_sample_assumption() -> None:
 
 
 def good_example_bootstrap_ci() -> None:
-    """✅ 好例子：用 Bootstrap 估计 CI"""
+    """通过：好例子：用 Bootstrap 估计 CI"""
     print("\n" + "=" * 70)
-    print("✅ 好例子：用 Bootstrap 估计 CI（不依赖分布假设）")
+    print("通过：好例子：用 Bootstrap 估计 CI（不依赖分布假设）")
     print("=" * 70)
 
     np.random.seed(42)

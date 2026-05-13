@@ -116,9 +116,9 @@ def two_group_test(df: pd.DataFrame, group_col: str, value_col: str,
 
     md += f"**前提假设检查**\n\n"
     md += f"- 正态性（Shapiro-Wilk）：\n"
-    md += f"  - {group_a}: p = {p_norm_a:.4f} {'✅ 可视为正态' if p_norm_a > alpha else '❌ 非正态'}\n"
-    md += f"  - {group_b}: p = {p_norm_b:.4f} {'✅ 可视为正态' if p_norm_b > alpha else '❌ 非正态'}\n"
-    md += f"- 方差齐性（Levene）：p = {p_levene:.4f} {'✅ 方差齐性' if p_levene > alpha else '❌ 方差不齐'}\n\n"
+    md += f"  - {group_a}: p = {p_norm_a:.4f} {'通过：可视为正态' if p_norm_a > alpha else '错误： 非正态'}\n"
+    md += f"  - {group_b}: p = {p_norm_b:.4f} {'通过：可视为正态' if p_norm_b > alpha else '错误： 非正态'}\n"
+    md += f"- 方差齐性（Levene）：p = {p_levene:.4f} {'通过：方差齐性' if p_levene > alpha else '错误： 方差不齐'}\n\n"
 
     md += f"**检验结果**\n\n"
     md += f"- 检验方法：{test_method}\n"
@@ -136,11 +136,11 @@ def two_group_test(df: pd.DataFrame, group_col: str, value_col: str,
     md += f"- 差异均值：{data_a.mean() - data_b.mean():.2f}\n"
     md += f"- 95% CI: [{ci_low:.2f}, {ci_high:.2f}]\n"
     if ci_low > 0:
-        md += f"- ✅ 区间不包含 0，表明 {group_a} 的均值显著高于 {group_b}\n\n"
+        md += f"- 通过：区间不包含 0，表明 {group_a} 的均值显著高于 {group_b}\n\n"
     elif ci_high < 0:
-        md += f"- ✅ 区间不包含 0，表明 {group_b} 的均值显著高于 {group_a}\n\n"
+        md += f"- 通过：区间不包含 0，表明 {group_b} 的均值显著高于 {group_a}\n\n"
     else:
-        md += f"- ⚠️ 区间包含 0，表明差异可能不显著\n\n"
+        md += f"- ⚠ 区间包含 0，表明差异可能不显著\n\n"
 
     return md, None
 
@@ -163,7 +163,7 @@ def generate_hypothesis_test_section(df: pd.DataFrame, tests: list[tuple[str, st
         test_md, error = two_group_test(df, group_col, value_col)
         if error:
             md.append(f"**{value_col} 按 {group_col}**\n\n")
-            md.append(f"⚠️ {error}\n\n")
+            md.append(f"⚠ {error}\n\n")
         else:
             md.append(test_md)
 

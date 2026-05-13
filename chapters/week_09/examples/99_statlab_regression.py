@@ -58,7 +58,7 @@ def setup_chinese_font() -> str:
 
     chinese_fonts = ['SimHei', 'Noto Sans CJK JP', 'Noto Sans CJK SC',
                      'Droid Sans Fallback', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -315,9 +315,9 @@ def format_regression_report(diag_results: dict, confidence: float = 0.95) -> st
     md.append(f"- 统计量：{norm['statistic']:.4f}\n")
     md.append(f"- p 值：{norm['p_value']:.4f}\n")
     if norm['is_normal']:
-        md.append(f"- 结论：p > 0.05，不能拒绝正态性假设 ✅\n\n")
+        md.append(f"- 结论：p > 0.05，不能拒绝正态性假设 通过\n\n")
     else:
-        md.append(f"- 结论：p < 0.05，拒绝正态性假设 ⚠️\n\n")
+        md.append(f"- 结论：p < 0.05，拒绝正态性假设 ⚠\n\n")
 
     # 同方差
     homo = diag_results["homoscedasticity_test"]
@@ -325,9 +325,9 @@ def format_regression_report(diag_results: dict, confidence: float = 0.95) -> st
     md.append(f"- 统计量：{homo['statistic']:.4f}\n")
     md.append(f"- p 值：{homo['p_value']:.4f}\n")
     if homo['is_homoscedastic']:
-        md.append(f"- 结论：p > 0.05，不能拒绝同方差假设 ✅\n\n")
+        md.append(f"- 结论：p > 0.05，不能拒绝同方差假设 通过\n\n")
     else:
-        md.append(f"- 结论：p < 0.05，拒绝同方差假设（存在异方差）⚠️\n\n")
+        md.append(f"- 结论：p < 0.05，拒绝同方差假设（存在异方差）⚠\n\n")
 
     # 4. 高影响点
     md.append("### 高影响点（Cook's 距离）\n\n")
@@ -336,9 +336,9 @@ def format_regression_report(diag_results: dict, confidence: float = 0.95) -> st
     md.append(f"- 高影响点数量：{inf['n_high_influence']}\n")
     if inf['n_high_influence'] > 0:
         md.append(f"- 高影响点索引：{inf['high_influence_indices']}\n")
-        md.append(f"- ⚠️ 建议：检查这些数据点是否为录入错误或极端值\n\n")
+        md.append(f"- ⚠ 建议：检查这些数据点是否为录入错误或极端值\n\n")
     else:
-        md.append(f"- ✅ 未发现高影响点\n\n")
+        md.append(f"- 通过：未发现高影响点\n\n")
 
     # 5. 多重共线性（如果有）
     if diag_results.get("multicollinearity"):
@@ -346,7 +346,7 @@ def format_regression_report(diag_results: dict, confidence: float = 0.95) -> st
         md.append("| 变量 | VIF | 诊断 |\n")
         md.append("|------|-----|------|\n")
         for vif in diag_results["multicollinearity"]:
-            diagnosis = "⚠️ VIF > 10" if vif["is_high_collinear"] else "✅"
+            diagnosis = "⚠ VIF > 10" if vif["is_high_collinear"] else "通过"
             md.append(f"| {vif['variable']} | {vif['vif']:.2f} | {diagnosis} |\n")
         md.append("\n")
 
@@ -365,12 +365,12 @@ def format_regression_report(diag_results: dict, confidence: float = 0.95) -> st
         issues.append("存在多重共线性")
 
     if issues:
-        md.append("**⚠️ 注意**：模型诊断发现以下问题：\n")
+        md.append("**⚠ 注意**：模型诊断发现以下问题：\n")
         for issue in issues:
             md.append(f"- {issue}\n")
         md.append("\n建议在使用模型结论前谨慎处理这些问题。\n\n")
     else:
-        md.append("**✅ 模型诊断通过**：所有假设检验均满足，模型结果可信。\n\n")
+        md.append("**通过：模型诊断通过**：所有假设检验均满足，模型结果可信。\n\n")
 
     return "".join(md)
 

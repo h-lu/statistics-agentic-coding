@@ -33,8 +33,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -139,9 +139,9 @@ def interpret_simple_regression(df: pd.DataFrame) -> None:
 
 
 def bad_example_interpretation() -> None:
-    """❌ 坏例子：错误解读"""
+    """错误： 坏例子：错误解读"""
     print("\n" + "=" * 70)
-    print("❌ 坏例子：错误解读回归系数")
+    print("错误： 坏例子：错误解读回归系数")
     print("=" * 70)
 
     print("\n假设回归结果: sales = 20 + 0.5 × ad_spend")
@@ -160,9 +160,9 @@ def bad_example_interpretation() -> None:
 
 
 def good_example_interpretation() -> None:
-    """✅ 好例子：正确解读"""
+    """通过：好例子：正确解读"""
     print("\n" + "=" * 70)
-    print("✅ 好例子：正确解读回归系数")
+    print("通过：好例子：正确解读回归系数")
     print("=" * 70)
 
     print("\n假设回归结果: sales = 20 + 0.5 × ad_spend (p < 0.001, 95% CI [0.4, 0.6])")
@@ -382,9 +382,9 @@ def summarize_r_squared() -> None:
     print("  - R² ≥ 0.7：模型解释力较强（但也要检查假设）")
 
     print("\nR² 的陷阱：")
-    print("  ❌ R² 高不等于假设满足（需要残差诊断）")
-    print("  ❌ R² 会随特征增加而增加（需要看调整 R²）")
-    print("  ❌ R² 无法判断因果关系（高相关不等于因果）")
+    print("  错误： R² 高不等于假设满足（需要残差诊断）")
+    print("  错误： R² 会随特征增加而增加（需要看调整 R²）")
+    print("  错误： R² 无法判断因果关系（高相关不等于因果）")
 
     print("\n记住：R² 只是参考，不是金标准！")
 
@@ -422,8 +422,8 @@ def main() -> None:
     print("  4. 95% CI：系数的不确定性范围")
     print("  5. R²：模型解释的变异比例（不是模型好坏的唯一标准）")
     print("\n在报告中：")
-    print("  ❌ '系数是 0.5，p < 0.05'")
-    print("  ✅ '广告投入每增加 1 万元，销售额平均增加 0.5 万元")
+    print("  错误： '系数是 0.5，p < 0.05'")
+    print("  通过：'广告投入每增加 1 万元，销售额平均增加 0.5 万元")
     print("      （95% CI: [0.40, 0.60], t = 8.5, p < 0.001）'")
     print()
 

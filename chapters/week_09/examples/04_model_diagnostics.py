@@ -34,8 +34,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -138,7 +138,7 @@ def print_diagnostics(diag: dict, title: str) -> None:
         max_idx = np.argmax(diag['cooks_d'])
         print(f"   最大 Cook's 距离: {diag['cooks_d'][max_idx]:.4f} (索引 {max_idx})")
     else:
-        print("   ✅ 未发现高影响点")
+        print("   通过：未发现高影响点")
 
     # 标准化残差
     print(f"\n2. 标准化残差（异常值）：")
@@ -148,7 +148,7 @@ def print_diagnostics(diag: dict, title: str) -> None:
         print(f"   异常值索引: {diag['outliers'].tolist()}")
         print(f"   最大标准化残差: {diag['standardized_residuals'][diag['outliers'][0]]:.2f}")
     else:
-        print("   ✅ 未发现异常值")
+        print("   通过：未发现异常值")
 
     # 杠杆值
     print(f"\n3. 杠杆值（高杠杆点）：")
@@ -157,7 +157,7 @@ def print_diagnostics(diag: dict, title: str) -> None:
     if len(diag['high_leverage']) > 0:
         print(f"   高杠杆点索引: {diag['high_leverage'].tolist()}")
     else:
-        print("   ✅ 未发现高杠杆点")
+        print("   通过：未发现高杠杆点")
 
     # Breusch-Pagan 检验
     print(f"\n4. Breusch-Pagan 检验（异方差）：")
@@ -165,15 +165,15 @@ def print_diagnostics(diag: dict, title: str) -> None:
     print(f"   p 值: {diag['bp_p']:.4f}")
 
     if diag['bp_p'] > 0.05:
-        print("   ✅ p > 0.05，不能拒绝等方差假设")
+        print("   通过：p > 0.05，不能拒绝等方差假设")
     else:
-        print("   ⚠️ p < 0.05，拒绝等方差假设（存在异方差）")
+        print("   ⚠ p < 0.05，拒绝等方差假设（存在异方差）")
 
 
 def bad_example_delete_points() -> None:
-    """❌ 坏例子：直接删除高影响点"""
+    """错误： 坏例子：直接删除高影响点"""
     print("\n" + "=" * 70)
-    print("❌ 坏例子：看到高影响点就删除")
+    print("错误： 坏例子：看到高影响点就删除")
     print("=" * 70)
 
     print("\n场景：发现 Cook's 距离大于阈值的点")
@@ -193,9 +193,9 @@ def bad_example_delete_points() -> None:
 
 
 def good_example_handle_points() -> None:
-    """✅ 好例子：正确处理高影响点"""
+    """通过：好例子：正确处理高影响点"""
     print("\n" + "=" * 70)
-    print("✅ 好例子：正确处理高影响点")
+    print("通过：好例子：正确处理高影响点")
     print("=" * 70)
 
     print("\n场景：发现 Cook's 距离大于阈值的点")

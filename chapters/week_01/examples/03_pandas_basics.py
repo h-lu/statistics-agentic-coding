@@ -84,10 +84,10 @@ def demo_common_errors() -> None:
     # 错误 1：路径问题
     print("1. 路径问题（FileNotFoundError）")
     print("-" * 70)
-    print("   ❌ 错误：路径写死")
+    print("   错误： 错误：路径写死")
     print('   df = pd.read_csv("/Users/xiaobei/Desktop/data.csv")')
     print()
-    print("   ✅ 正确：使用相对路径或 pathlib")
+    print("   通过：正确：使用相对路径或 pathlib")
     print('   df = pd.read_csv("data/data.csv")')
     print('   df = pd.read_csv(Path("data") / "data.csv")')
     print()

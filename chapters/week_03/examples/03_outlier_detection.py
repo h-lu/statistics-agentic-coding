@@ -30,8 +30,8 @@ from scipy import stats
 
 def setup_chinese_font() -> str:
     """配置中文字体"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -328,7 +328,7 @@ def compare_methods_on_synthetic_data() -> None:
     print(f"Z-score 规则：检测到 {zscore_result['n_outliers']} 个异常值")
 
     if iqr_result['n_outliers'] != zscore_result['n_outliers']:
-        print("\n⚠️  两种方法检测结果不同！")
+        print("\n⚠  两种方法检测结果不同！")
         print("  → IQR 规则更稳健，不依赖分布假设")
         print("  → Z-score 假设正态分布，偏态数据时不准确")
 

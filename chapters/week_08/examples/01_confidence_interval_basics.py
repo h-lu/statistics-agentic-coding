@@ -26,8 +26,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -64,9 +64,9 @@ def format_estimate(mean: float, ci_low: float, ci_high: float) -> str:
 
 
 def bad_example_only_point() -> None:
-    """❌ 坏例子：只报告点估计"""
+    """错误： 坏例子：只报告点估计"""
     print("=" * 60)
-    print("❌ 坏例子：只报告点估计")
+    print("错误： 坏例子：只报告点估计")
     print("=" * 60)
 
     np.random.seed(42)
@@ -82,9 +82,9 @@ def bad_example_only_point() -> None:
 
 
 def good_example_with_ci() -> None:
-    """✅ 好例子：报告点估计 + 置信区间"""
+    """通过：好例子：报告点估计 + 置信区间"""
     print("\n" + "=" * 60)
-    print("✅ 好例子：报告点估计 + 置信区间")
+    print("通过：好例子：报告点估计 + 置信区间")
     print("=" * 60)
 
     np.random.seed(42)
@@ -244,8 +244,8 @@ def main() -> None:
     print("  3. CI 宽度由标准误决定：SE = SD / √n")
     print("  4. 样本量越大，CI 越窄（估计越精确）")
     print("\n在报告中：")
-    print("  ❌ '用户平均消费 3.2 元'")
-    print("  ✅ '用户平均消费 3.2 元 [95% CI: 2.8, 3.6]'")
+    print("  错误： '用户平均消费 3.2 元'")
+    print("  通过：'用户平均消费 3.2 元 [95% CI: 2.8, 3.6]'")
     print()
 
 

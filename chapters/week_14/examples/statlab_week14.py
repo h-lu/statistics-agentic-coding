@@ -302,7 +302,7 @@ class BayesianReportGenerator:
         if output_path:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(report, encoding='utf-8')
-            print(f"✅ 贝叶斯报告已保存到: {output_path}")
+            print(f"通过：贝叶斯报告已保存到: {output_path}")
 
         return report
 

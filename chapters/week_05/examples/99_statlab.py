@@ -642,11 +642,11 @@ def generate_group_uncertainty_section(df: pd.DataFrame,
 
             if not result["contains_zero"]:
                 if result['estimate'] > 0:
-                    md.append(f"- ✅ 置信区间不包含 0，表明 {species_a} 的均值显著高于 {species_b}\n\n")
+                    md.append(f"- 通过：置信区间不包含 0，表明 {species_a} 的均值显著高于 {species_b}\n\n")
                 else:
-                    md.append(f"- ✅ 置信区间不包含 0，表明 {species_b} 的均值显著高于 {species_a}\n\n")
+                    md.append(f"- 通过：置信区间不包含 0，表明 {species_b} 的均值显著高于 {species_a}\n\n")
             else:
-                md.append(f"- ⚠️ 置信区间包含 0，表明差异可能不显著（需要正式检验）\n\n")
+                md.append(f"- ⚠ 置信区间包含 0，表明差异可能不显著（需要正式检验）\n\n")
 
     return "".join(md)
 

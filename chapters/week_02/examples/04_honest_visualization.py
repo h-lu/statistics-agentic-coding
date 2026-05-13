@@ -40,14 +40,14 @@ def plot_y_axis_comparison(penguins: pd.DataFrame, output_dir: Path) -> None:
     axes[0].bar(mean_mass["species"], mean_mass["body_mass_g"], color=bar_colors)
     axes[0].set_ylim(3000, 5500)  # 截断 Y 轴
     axes[0].set_ylabel("Body Mass (g)")
-    axes[0].set_title("❌ Misleading: Truncated Y-axis")
+    axes[0].set_title("错误： Misleading: Truncated Y-axis")
     axes[0].set_xlabel("Species")
 
     # 右图：完整 Y 轴（诚实）
     axes[1].bar(mean_mass["species"], mean_mass["body_mass_g"], color=bar_colors)
     axes[1].set_ylim(0, 6000)  # 从 0 开始
     axes[1].set_ylabel("Body Mass (g)")
-    axes[1].set_title("✅ Honest: Full Y-axis (from 0)")
+    axes[1].set_title("正确： Honest: Full Y-axis (from 0)")
     axes[1].set_xlabel("Species")
 
     # 标注实际数值
@@ -89,13 +89,13 @@ def plot_area_trap(output_dir: Path) -> None:
 
     # 左图：饼图（面积感知）
     axes[0].pie(values, labels=categories, autopct="%1.0f%%", colors=["steelblue", "orange"])
-    axes[0].set_title("❌ Pie Chart: Area perception (10% difference)")
+    axes[0].set_title("错误： Pie Chart: Area perception (10% difference)")
 
     # 右图：柱状图（高度感知）
     axes[1].bar(categories, values, color=["steelblue", "orange"])
     axes[1].set_ylim(0, 120)
     axes[1].set_ylabel("Value")
-    axes[1].set_title("✅ Bar Chart: Height perception (10% difference)")
+    axes[1].set_title("正确： Bar Chart: Height perception (10% difference)")
 
     # 标注实际数值
     for i, v in enumerate(values):

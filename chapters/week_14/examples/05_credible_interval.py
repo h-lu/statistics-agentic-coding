@@ -31,8 +31,8 @@ from pathlib import Path
 def setup_chinese_font() -> str:
     """配置中文字体"""
     import matplotlib.font_manager as fm
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -146,7 +146,7 @@ class IntervalComparison:
         print(f"  95% 置信区间（正态近似）：[{ci_freq_approx[0]:.4f}, {ci_freq_approx[1]:.4f}]")
         print(f"  95% 置信区间（精确）：      [{ci_freq_exact[0]:.4f}, {ci_freq_exact[1]:.4f}]")
         print(f"\n  解释：如果重复抽样 100 次，约 95 个区间会包含真实参数。")
-        print(f"       ⚠️  不能说：\"参数有 95% 的概率在这个区间里\"")
+        print(f"       ⚠  不能说：\"参数有 95% 的概率在这个区间里\"")
 
         # 贝叶斯学派
         ci_bayes = self.bayesian_ci()
@@ -156,7 +156,7 @@ class IntervalComparison:
         print(f"  后验均值：{post_mean:.4f}")
         print(f"  95% 可信区间：[{ci_bayes[0]:.4f}, {ci_bayes[1]:.4f}]")
         print(f"\n  解释：给定数据，参数有 95% 的概率在这个区间里。")
-        print(f"       ✅ 可以说：\"参数有 95% 的概率在这个区间里\"")
+        print(f"       通过：可以说：\"参数有 95% 的概率在这个区间里\"")
 
         # 对比
         print("\n### 关键区别")
@@ -257,9 +257,9 @@ class IntervalComparison:
             "频率学派：\n\n"
             "\"如果我们重复抽样 100 次，\n"
             "约 95 个区间会包含真实参数\"\n\n"
-            "⚠️  问题是：我们只有一次抽样\n"
-            "⚠️  不能说：\"参数有 95% 的概率在这个区间里\"\n"
-            "⚠️  只能说：\"这个区间是 95% 置信水平下构造的\""
+            "⚠  问题是：我们只有一次抽样\n"
+            "⚠  不能说：\"参数有 95% 的概率在这个区间里\"\n"
+            "⚠  只能说：\"这个区间是 95% 置信水平下构造的\""
         )
 
         # 贝叶斯学派解释
@@ -267,9 +267,9 @@ class IntervalComparison:
             "贝叶斯学派：\n\n"
             "\"给定数据，\n"
             "参数有 95% 的概率在这个区间里\"\n\n"
-            "✅ 直接回答了我们要问的问题\n"
-            "✅ 可以说：\"参数有 95% 的概率在 [a, b] 之间\"\n"
-            "✅ 符合直觉和业务需求"
+            "通过：直接回答了我们要问的问题\n"
+            "通过：可以说：\"参数有 95% 的概率在 [a, b] 之间\"\n"
+            "通过：符合直觉和业务需求"
         )
 
         ax.text(0.25, 0.5, freq_text, transform=ax.transAxes,
@@ -313,10 +313,10 @@ def main() -> None:
     print("\n### 生成图表")
     print("-" * 40)
     comparison.plot_comparison(output_dir / '05_interval_comparison.png')
-    print("✅ 图片已保存: images/05_interval_comparison.png")
+    print("通过：图片已保存: images/05_interval_comparison.png")
 
     comparison.plot_interpretation_difference(output_dir / '05_interpretation_diff.png')
-    print("✅ 图片已保存: images/05_interpretation_diff.png")
+    print("通过：图片已保存: images/05_interpretation_diff.png")
 
     print("\n### 业务场景对比")
     print("-" * 40)

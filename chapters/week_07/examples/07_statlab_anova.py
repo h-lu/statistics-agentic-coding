@@ -140,10 +140,10 @@ def one_way_anova(
     md += f"**前提假设检查**\n\n"
     md += f"- 正态性检验：\n"
     for g, p in norm_results.items():
-        status = "✅" if p > alpha else "❌"
+        status = "通过" if p > alpha else "错误："
         md += f"  - {g}: p = {p:.4f} {status}\n"
     md += f"- 方差齐性（Levene）：p = {p_levene:.4f} "
-    md += f"{'✅' if p_levene > alpha else '❌'}\n"
+    md += f"{'通过' if p_levene > alpha else '错误：'}\n"
     md += f"- **检验方法**：{test_method}\n\n"
 
     md += f"**ANOVA 结果**\n\n"
@@ -213,7 +213,7 @@ def generate_anova_section(
         anova_md, error = one_way_anova(df, group_col, value_col)
         if error:
             md.append(f"### {value_col} 按 {group_col}\n\n")
-            md.append(f"⚠️ {error}\n\n")
+            md.append(f"⚠ {error}\n\n")
         else:
             md.append(anova_md)
 

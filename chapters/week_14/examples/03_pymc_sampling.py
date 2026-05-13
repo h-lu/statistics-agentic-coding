@@ -31,15 +31,15 @@ try:
     PYMC_AVAILABLE = True
 except ImportError:
     PYMC_AVAILABLE = False
-    print("⚠️  PyMC/ArviZ 未安装，将使用 SciPy 模拟后验分布")
+    print("⚠  PyMC/ArviZ 未安装，将使用 SciPy 模拟后验分布")
     print("   安装命令: pip install pymc arviz")
 
 
 def setup_chinese_font() -> str:
     """配置中文字体"""
     import matplotlib.font_manager as fm
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -292,14 +292,14 @@ def main() -> None:
             print(f"\n参数：{var}")
             print(f"  R-hat: {metrics['rhat']:.4f}", end='')
             if metrics['rhat'] < 1.05:
-                print(" ✅ (收敛良好，< 1.05)")
+                print(" 通过：(收敛良好，< 1.05)")
             else:
-                print(" ⚠️  (可能未收敛，建议增加采样量)")
+                print(" ⚠  (可能未收敛，建议增加采样量)")
             print(f"  ESS: {metrics['ess']:.0f}", end='')
             if metrics['ess'] > 400:
-                print(" ✅ (有效样本量充足)")
+                print(" 通过：(有效样本量充足)")
             else:
-                print(" ⚠️  (有效样本量不足)")
+                print(" ⚠  (有效样本量不足)")
 
         # 后验统计
         print("\n### 后验分布统计")
@@ -315,10 +315,10 @@ def main() -> None:
         print("\n### 生成图表")
         print("-" * 40)
         sampler.plot_trace(output_dir / '03_mcmc_trace.png')
-        print(f"✅ 迹图已保存: images/03_mcmc_trace.png")
+        print(f"通过：迹图已保存: images/03_mcmc_trace.png")
 
         sampler.plot_posterior(output_dir / '03_mcmc_posterior.png')
-        print(f"✅ 后验分布图已保存: images/03_mcmc_posterior.png")
+        print(f"通过：后验分布图已保存: images/03_mcmc_posterior.png")
 
     else:
         # 使用 SciPy 降级方案
@@ -333,7 +333,7 @@ def main() -> None:
 
         plot_scipy_posterior(result['samples'], result['mean'],
                             output_dir / '03_scipy_posterior.png')
-        print(f"\n✅ 图片已保存: images/03_scipy_posterior.png")
+        print(f"\n通过：图片已保存: images/03_scipy_posterior.png")
 
     print("\n### 关键概念回顾")
     print("-" * 40)

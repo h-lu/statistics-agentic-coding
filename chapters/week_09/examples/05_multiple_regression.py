@@ -2,7 +2,7 @@
 示例：多元回归与多重共线性——从"简单回归"到"多元回归"。
 
 本例演示多元回归的核心概念：
-- 多元回归方程：y = a + b₁x₁ + b₂x₂ + ... + bₖxₖ
+- 多元回归方程：y = a + b1*x1 + b2*x2 + ... + bₖxₖ
 - 控制其他变量后：多元回归系数的含义
 - 多重共线性：自变量之间高度相关的问题
 - VIF（方差膨胀因子）：检测多重共线性
@@ -34,8 +34,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -121,9 +121,9 @@ def simple_vs_multiple_regression(df: pd.DataFrame) -> None:
 
 
 def bad_example_multicollinearity(df: pd.DataFrame) -> None:
-    """❌ 坏例子：忽略多重共线性"""
+    """错误： 坏例子：忽略多重共线性"""
     print("\n" + "=" * 70)
-    print("❌ 坏例子：忽略多重共线性")
+    print("错误： 坏例子：忽略多重共线性")
     print("=" * 70)
 
     # 拟合包含高度相关变量的模型
@@ -156,9 +156,9 @@ def bad_example_multicollinearity(df: pd.DataFrame) -> None:
 
 
 def good_example_check_vif(df: pd.DataFrame) -> None:
-    """✅ 好例子：检查 VIF 并处理多重共线性"""
+    """通过：好例子：检查 VIF 并处理多重共线性"""
     print("\n" + "=" * 70)
-    print("✅ 好例子：检查 VIF 并处理多重共线性")
+    print("通过：好例子：检查 VIF 并处理多重共线性")
     print("=" * 70)
 
     # 计算相关矩阵
@@ -196,7 +196,7 @@ def good_example_check_vif(df: pd.DataFrame) -> None:
                 'variable': X_df.columns[i-1],
                 'VIF': vif,
                 'sqrt_VIF': np.sqrt(vif),
-                'diagnosis': '⚠️ 严重' if vif > 10 else '⚠️ 中等' if vif > 5 else '✅'
+                'diagnosis': '⚠ 严重' if vif > 10 else '⚠ 中等' if vif > 5 else '通过'
             })
         return pd.DataFrame(vif_data)
 
@@ -421,8 +421,8 @@ def main() -> None:
     print("  - 解释优先：选调整 R² 高、系数显著的简单模型")
     print("  - 简洁原则：在拟合相近时，选更简单的模型")
     print("\n在报告中：")
-    print("  ❌ 只报告 R² 和系数")
-    print("  ✅ 报告调整 R²、VIF、系数显著性检验")
+    print("  错误： 只报告 R² 和系数")
+    print("  通过：报告调整 R²、VIF、系数显著性检验")
     print()
 
 

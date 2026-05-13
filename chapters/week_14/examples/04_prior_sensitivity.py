@@ -28,8 +28,8 @@ from typing import Dict, List, Tuple
 def setup_chinese_font() -> str:
     """配置中文字体"""
     import matplotlib.font_manager as fm
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -140,10 +140,10 @@ class PriorSensitivityAnalyzer:
         mean_range = max(means) - min(means)
 
         if mean_range < threshold:
-            return (f"✅ 结论对先验不敏感（差异 < {threshold:.1%}），"
+            return (f"通过：结论对先验不敏感（差异 < {threshold:.1%}），"
                    f"当前数据（n={self.n}）足够强，能覆盖先验差异。")
         else:
-            return (f"⚠️  结论对先验敏感（差异 = {mean_range:.1%}），"
+            return (f"⚠  结论对先验敏感（差异 = {mean_range:.1%}），"
                    f"建议收集更多数据以稳健估计。")
 
     def print_comparison_table(self, results: List[PosteriorResult]) -> None:
@@ -263,7 +263,7 @@ def large_data_example() -> None:
     # 绘图
     output_dir = Path(__file__).parent.parent / 'images'
     analyzer.plot_sensitivity(results, output_dir / '04_sensitivity_large_n.png')
-    print(f"\n✅ 图片已保存: images/04_sensitivity_large_n.png")
+    print(f"\n通过：图片已保存: images/04_sensitivity_large_n.png")
 
 
 def small_data_example() -> None:
@@ -291,7 +291,7 @@ def small_data_example() -> None:
     # 绘图
     output_dir = Path(__file__).parent.parent / 'images'
     analyzer.plot_sensitivity(results, output_dir / '04_sensitivity_small_n.png')
-    print(f"\n✅ 图片已保存: images/04_sensitivity_small_n.png")
+    print(f"\n通过：图片已保存: images/04_sensitivity_small_n.png")
 
     print("\n🔍 关键洞察：")
     print(f"   数据少时（n={n}），不同先验的后验均值差异显著。")
@@ -353,7 +353,7 @@ def plot_data_vs_prior_sensitivity() -> None:
     plt.savefig(output_dir / '04_data_vs_sensitivity.png', dpi=150,
                bbox_inches='tight', facecolor='white', edgecolor='none')
     plt.close()
-    print(f"\n✅ 图片已保存: images/04_data_vs_sensitivity.png")
+    print(f"\n通过：图片已保存: images/04_data_vs_sensitivity.png")
 
 
 def main() -> None:

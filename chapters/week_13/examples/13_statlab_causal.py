@@ -49,8 +49,8 @@ RANDOM_STATE = 42
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -442,9 +442,9 @@ def generate_causal_inference_report(
 
     md.append("| 问题 | 能回答吗？ | 原因 |\n")
     md.append("|------|-----------|------|\n")
-    md.append(f"| 优惠券和流失率相关吗？ | ✅ 能 | 观察数据可以回答 |\n")
-    md.append(f"| 发放优惠券会降低流失率吗？ | ⚠️ 部分能 | 需要更强的因果识别策略（如 RCT）|\n")
-    md.append(f"| 如果不发放优惠券，流失率会怎样？ | ❌ 不能 | 需要反事实推断（更高层级）|\n\n")
+    md.append(f"| 优惠券和流失率相关吗？ | 通过：能 | 观察数据可以回答 |\n")
+    md.append(f"| 发放优惠券会降低流失率吗？ | ⚠ 部分能 | 需要更强的因果识别策略（如 RCT）|\n")
+    md.append(f"| 如果不发放优惠券，流失率会怎样？ | 错误： 不能 | 需要反事实推断（更高层级）|\n\n")
 
     # 6. 建议的因果识别策略
     md.append("## 6. 建议的因果识别策略\n\n")

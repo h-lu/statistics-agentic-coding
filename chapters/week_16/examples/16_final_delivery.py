@@ -291,7 +291,7 @@ class FinalDeliveryPipeline:
             )
 
             if critical_failed > 0:
-                print(f"\n⚠️  警告：{critical_failed} 个关键检查项未通过")
+                print(f"\n⚠  警告：{critical_failed} 个关键检查项未通过")
             else:
                 print("\n✓ 所有关键检查项通过")
 
@@ -402,7 +402,7 @@ class FinalDeliveryPipeline:
         if all_complete:
             print("\n✓ 所有必需的交付物已就绪")
         else:
-            print("\n⚠️  部分必需交付物缺失")
+            print("\n⚠  部分必需交付物缺失")
 
         return manifest_path
 

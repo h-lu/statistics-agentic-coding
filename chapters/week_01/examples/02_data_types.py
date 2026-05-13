@@ -32,8 +32,8 @@ def main() -> None:
     print(f"   sex（性别）    : {penguins['sex'].unique().tolist()}")
     print()
 
-    # 3. ❌ 错误示范：把分类型当成数值型
-    print("3. ❌ 错误示范：把分类型当成数值型")
+    # 3. 错误： 错误示范：把分类型当成数值型
+    print("3. 错误： 错误示范：把分类型当成数值型")
     print("-" * 70)
     print("   假设我们把 species 映射成数字（Adelie=0, Chinstrap=1, Gentoo=2），")
     print("   然后计算'平均物种'——这是没有意义的！")
@@ -50,8 +50,8 @@ def main() -> None:
     print("   （你不能说'这个企鹅是 0.92 种的 Adelie'）")
     print()
 
-    # 4. ✅ 正确做法：把分类型转成 category 类型
-    print("4. ✅ 正确做法：使用 category 类型")
+    # 4. 通过：正确做法：把分类型转成 category 类型
+    print("4. 通过：正确做法：使用 category 类型")
     print("-" * 70)
     print("   把分类型数据转成 category 类型有两个好处：")
     print("   a) 节省内存（存储重复字符串时更高效）")

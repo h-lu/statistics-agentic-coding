@@ -103,9 +103,9 @@ def generate_report(data_df: pd.DataFrame, output_path: str = "output/report.md"
 ## StatLab 进度记录
 
 ### Week 01
-- ✅ 选择数据集：Palmer Penguins
-- ✅ 生成数据卡（来源、字典、规模、缺失概览）
-- ✅ 建立可复现报告流水线
+- 通过：选择数据集：Palmer Penguins
+- 通过：生成数据卡（来源、字典、规模、缺失概览）
+- 通过：建立可复现报告流水线
 """
 
     # 3. 写入文件

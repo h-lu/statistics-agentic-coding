@@ -419,7 +419,7 @@ class ReportAuditor:
         lines.append(f"- **关键失败**：{critical_failed}\n")
 
         if critical_failed > 0:
-            lines.append(f"\n⚠️ **警告**：有 {critical_failed} 个关键检查项未通过，建议修复后再交付。\n")
+            lines.append(f"\n⚠ **警告**：有 {critical_failed} 个关键检查项未通过，建议修复后再交付。\n")
         elif passed_checks == total_checks:
             lines.append("\n✓ **所有检查项通过**，报告可以交付。\n")
         else:
@@ -432,7 +432,7 @@ class ReportAuditor:
             lines.append(f"## {cat_data['name']}\n\n")
 
             for check in cat_data["checks"]:
-                status_icon = "✅" if check["passed"] else "❌"
+                status_icon = "通过" if check["passed"] else "错误："
                 severity_badge = f"`{check['severity'].upper()}`" if not check["passed"] else ""
 
                 lines.append(f"### {status_icon} {check['name']} {severity_badge}\n\n")

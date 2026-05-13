@@ -33,8 +33,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -136,25 +136,25 @@ def print_assumption_check(results: dict) -> None:
     print("\nI（Independence）独立性假设：")
     print(f"  Durbin-Watson 统计量 = {results['dw']:.4f}")
     if 1.5 <= results['dw'] <= 2.5:
-        print("  → DW ≈ 2，独立性假设满足 ✅")
+        print("  → DW ≈ 2，独立性假设满足 通过")
     else:
-        print("  → DW 偏离 2，可能存在自相关 ⚠️")
+        print("  → DW 偏离 2，可能存在自相关 ⚠")
 
     # N: 正态性
     print("\nN（Normal）正态性假设：")
     print(f"  Shapiro-Wilk 检验: W = {results['shapiro_stat']:.4f}, p = {results['shapiro_p']:.4f}")
     if results['shapiro_p'] > 0.05:
-        print("  → p > 0.05，不能拒绝正态性假设 ✅")
+        print("  → p > 0.05，不能拒绝正态性假设 通过")
     else:
-        print("  → p < 0.05，拒绝正态性假设 ⚠️")
+        print("  → p < 0.05，拒绝正态性假设 ⚠")
 
     # E: 等方差
     print("\nE（Equal variance）等方差假设：")
     print(f"  Breusch-Pagan 检验: BP = {results['bp_stat']:.4f}, p = {results['bp_p']:.4f}")
     if results['bp_p'] > 0.05:
-        print("  → p > 0.05，不能拒绝等方差假设 ✅")
+        print("  → p > 0.05，不能拒绝等方差假设 通过")
     else:
-        print("  → p < 0.05，拒绝等方差假设（存在异方差）⚠️")
+        print("  → p < 0.05，拒绝等方差假设（存在异方差）⚠")
 
 
 def plot_residuals_vs_fitted(results_list: list[dict]) -> None:
@@ -187,11 +187,11 @@ def plot_residuals_vs_fitted(results_list: list[dict]) -> None:
 
         # 判断文本
         if '好模型' in results['title']:
-            judgment = '✅ 假设满足：残差随机分布'
+            judgment = '通过：假设满足：残差随机分布'
         elif '非线性' in results['title']:
-            judgment = '⚠️ 违反线性：残差有U型模式'
+            judgment = '⚠ 违反线性：残差有U型模式'
         else:  # 异方差
-            judgment = '⚠️ 违反等方差：残差宽度变化'
+            judgment = '⚠ 违反等方差：残差宽度变化'
 
         ax.text(0.5, 0.95, judgment, transform=ax.transAxes,
                 fontsize=11, ha='center', va='top',
@@ -229,9 +229,9 @@ def plot_qq_plots(results_list: list[dict]) -> None:
         # 判断文本
         shapiro_p = results['shapiro_p']
         if shapiro_p > 0.05:
-            judgment = f'✅ 正态性: p = {shapiro_p:.3f} > 0.05'
+            judgment = f'通过：正态性: p = {shapiro_p:.3f} > 0.05'
         else:
-            judgment = f'⚠️ 非正态: p = {shapiro_p:.3f} < 0.05'
+            judgment = f'⚠ 非正态: p = {shapiro_p:.3f} < 0.05'
 
         ax.text(0.5, 0.05, judgment, transform=ax.transAxes,
                 fontsize=10, ha='center', va='bottom',
@@ -252,9 +252,9 @@ def plot_qq_plots(results_list: list[dict]) -> None:
 
 
 def bad_example_no_assumption_check() -> None:
-    """❌ 坏例子：不做假设检查"""
+    """错误： 坏例子：不做假设检查"""
     print("\n" + "=" * 70)
-    print("❌ 坏例子：不做假设检查")
+    print("错误： 坏例子：不做假设检查")
     print("=" * 70)
 
     print("\n报告：")
@@ -272,19 +272,19 @@ def bad_example_no_assumption_check() -> None:
 
 
 def good_example_with_assumption_check() -> None:
-    """✅ 好例子：做假设检查"""
+    """通过：好例子：做假设检查"""
     print("\n" + "=" * 70)
-    print("✅ 好例子：做假设检查")
+    print("通过：好例子：做假设检查")
     print("=" * 70)
 
     print("\n报告：")
     print("  '广告投入对销售额有显著影响（β = 0.5, p < 0.001, R² = 0.75）。'")
     print("")
     print("  模型诊断：")
-    print("  - 残差 vs 拟合值图显示残差随机分布，线性假设满足 ✅")
-    print("  - QQ 图显示残差近似正态，Shapiro-Wilk p = 0.23 > 0.05 ✅")
-    print("  - Breusch-Pagan 检验 p = 0.45 > 0.05，等方差假设满足 ✅")
-    print("  - Durbin-Watson = 1.98，独立性假设满足 ✅")
+    print("  - 残差 vs 拟合值图显示残差随机分布，线性假设满足 通过")
+    print("  - QQ 图显示残差近似正态，Shapiro-Wilk p = 0.23 > 0.05 通过")
+    print("  - Breusch-Pagan 检验 p = 0.45 > 0.05，等方差假设满足 通过")
+    print("  - Durbin-Watson = 1.98，独立性假设满足 通过")
     print("")
     print("  结论：模型假设满足，回归结果可信。'")
 
@@ -360,8 +360,8 @@ def main() -> None:
     print("  '先画图，再做检验。图比检验更直观。'")
     print("  '小偏差可以容忍，严重违反要处理。'")
     print("\n在报告中：")
-    print("  ❌ 只报告 R² 和系数")
-    print("  ✅ 报告系数 + 假设检验结果 + 诊断图表")
+    print("  错误： 只报告 R² 和系数")
+    print("  通过：报告系数 + 假设检验结果 + 诊断图表")
     print()
 
 

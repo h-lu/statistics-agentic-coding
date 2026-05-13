@@ -25,8 +25,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -223,10 +223,10 @@ def main() -> None:
     print("=== 前提假设检查 ===")
     print("正态性（Shapiro-Wilk）：")
     for group, p_val in result['normality'].items():
-        status = "✅ 可视为正态" if p_val > result['alpha'] else "❌ 非正态"
+        status = "通过：可视为正态" if p_val > result['alpha'] else "错误： 非正态"
         print(f"  - {group}: p = {p_val:.4f} {status}")
     print(f"方差齐性（Levene）：p = {result['levene_p']:.4f} "
-          f"{'✅ 方差齐性' if result['levene_p'] > result['alpha'] else '❌ 方差不齐'}")
+          f"{'通过：方差齐性' if result['levene_p'] > result['alpha'] else '错误： 方差不齐'}")
     print()
 
     print("=== ANOVA 结果 ===")

@@ -28,8 +28,8 @@ import matplotlib.font_manager as fm
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -155,10 +155,10 @@ def diagnose_missing_mechanism(df: pd.DataFrame, var: str) -> None:
 
     # 4. 高缺失率警告（MNAR 指标）
     if missing_rate > 0.3:
-        print(f"\n⚠️  警告：缺失率超过30%，可能是MNAR（非随机缺失）")
+        print(f"\n⚠  警告：缺失率超过30%，可能是MNAR（非随机缺失）")
         print("   建议：深入调查缺失原因，考虑是否需要删除整列或使用高级填充方法")
     elif missing_rate > 0.1:
-        print(f"\n⚠️  注意：缺失率在10%-30%之间，可能是MAR（随机缺失）")
+        print(f"\n⚠  注意：缺失率在10%-30%之间，可能是MAR（随机缺失）")
         print("   建议：检查缺失是否与其他变量相关")
     else:
         print(f"\n✓ 缺失率较低（<10%），可能是MCAR或轻微MAR")
@@ -221,7 +221,7 @@ def demonstrate_on_real_data() -> None:
         species_missing_rates = penguins.groupby('species')['sex'].apply(lambda x: x.isna().mean() * 100)
         max_diff = species_missing_rates.max() - species_missing_rates.min()
         if max_diff > 5:
-            print(f"\n⚠️  不同物种的缺失率差异达 {max_diff:.1f}%，可能是 MAR（与物种相关）")
+            print(f"\n⚠  不同物种的缺失率差异达 {max_diff:.1f}%，可能是 MAR（与物种相关）")
 
 
 # =============================================================================

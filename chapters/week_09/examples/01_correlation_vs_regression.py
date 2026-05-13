@@ -28,8 +28,8 @@ from pathlib import Path
 
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -75,9 +75,9 @@ def correlation_example(x: np.ndarray, y: np.ndarray) -> None:
     print("  - |r| 接近 1：关系很强")
 
     print("\n但相关系数的局限：")
-    print("  - ❌ 不能告诉你'广告投入增加 1 万元，销售会增加多少'")
-    print("  - ❌ 不能直接用于预测")
-    print("  - ❌ 不能判断因果关系")
+    print("  - 错误： 不能告诉你'广告投入增加 1 万元，销售会增加多少'")
+    print("  - 错误： 不能直接用于预测")
+    print("  - 错误： 不能判断因果关系")
 
 
 def regression_example(x: np.ndarray, y: np.ndarray) -> dict:
@@ -121,9 +121,9 @@ def regression_example(x: np.ndarray, y: np.ndarray) -> dict:
     print("  - R² = 0.56：模型解释了销售额 56% 的变异")
 
     print("\n回归的优势：")
-    print("  - ✅ 量化关系：知道'增加多少'")
-    print("  - ✅ 可以预测：给定 x，预测 y")
-    print("  - ✅ 可以推断：检验系数是否显著")
+    print("  - 通过：量化关系：知道'增加多少'")
+    print("  - 通过：可以预测：给定 x，预测 y")
+    print("  - 通过：可以推断：检验系数是否显著")
 
     return {
         'intercept': intercept,
@@ -134,9 +134,9 @@ def regression_example(x: np.ndarray, y: np.ndarray) -> dict:
 
 
 def bad_example_correlation_only(x: np.ndarray, y: np.ndarray) -> None:
-    """❌ 坏例子：只报告相关系数"""
+    """错误： 坏例子：只报告相关系数"""
     print("\n" + "=" * 60)
-    print("❌ 坏例子：只报告相关系数")
+    print("错误： 坏例子：只报告相关系数")
     print("=" * 60)
 
     r, _ = stats.pearsonr(x, y)
@@ -149,9 +149,9 @@ def bad_example_correlation_only(x: np.ndarray, y: np.ndarray) -> None:
 
 
 def good_example_with_regression(x: np.ndarray, y: np.ndarray, reg_result: dict) -> None:
-    """✅ 好例子：相关 + 回归"""
+    """通过：好例子：相关 + 回归"""
     print("\n" + "=" * 60)
-    print("✅ 好例子：相关 + 回归")
+    print("通过：好例子：相关 + 回归")
     print("=" * 60)
 
     r, _ = stats.pearsonr(x, y)
@@ -228,11 +228,11 @@ def compare_correlation_regression() -> None:
 
     print("\n决策者问：'如果广告投入增加 10 万元，销售额会增加多少？'\n")
 
-    print("❌ 用相关回答：")
+    print("错误： 用相关回答：")
     print("  '广告投入和销售额的相关系数是 0.75，说明关系很强。'")
     print("  → 决策者：'我要的是数字，不是形容词！'\n")
 
-    print("✅ 用回归回答：")
+    print("通过：用回归回答：")
     print("  '根据回归分析，广告投入每增加 1 万元，")
     print("   销售额平均增加 0.5 万元。")
     print("   因此增加 10 万元广告，销售额预计增加 5 万元。'")
@@ -276,8 +276,8 @@ def main() -> None:
     print("  4. R²：模型解释的方差比例（0 到 1）")
     print("  5. 相关 + 回归配合使用才是正道")
     print("\n在报告中：")
-    print("  ❌ '相关系数是 0.75'")
-    print("  ✅ '广告投入和销售额呈强正相关（r = 0.75）；")
+    print("  错误： '相关系数是 0.75'")
+    print("  通过：'广告投入和销售额呈强正相关（r = 0.75）；")
     print("      回归分析显示，广告投入每增加 1 万元，")
     print("      销售额平均增加 0.5 万元（95% CI: [0.4, 0.6]，p < 0.001）'")
     print()

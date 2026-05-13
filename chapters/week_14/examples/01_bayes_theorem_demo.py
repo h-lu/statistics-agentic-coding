@@ -22,8 +22,8 @@ from pathlib import Path
 def setup_chinese_font() -> str:
     """配置中文字体，返回使用的字体名称"""
     import matplotlib.font_manager as fm
-    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Arial Unicode MS',
-                     'PingFang SC', 'Microsoft YaHei']
+    chinese_fonts = ['SimHei', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Arial Unicode MS',
+                     'PingFang SC', 'Microsoft YaHei', 'Droid Sans Fallback', 'Droid Sans Fallback']
     available = [f.name for f in fm.fontManager.ttflist]
     for font in chinese_fonts:
         if font in available:
@@ -204,10 +204,10 @@ def main() -> None:
 
     misunderstanding = common_misunderstanding(prior_disease, sensitivity, false_positive)
 
-    print(f"\n❌ 错误理解：\"检测阳性，所以我有 {sensitivity:.1%} 的概率患病\"")
+    print(f"\n错误： 错误理解：\"检测阳性，所以我有 {sensitivity:.1%} 的概率患病\"")
     print(f"   问题：混淆了 P(阳性|患病) 和 P(患病|阳性)")
 
-    print(f"\n✅ 正确理解：")
+    print(f"\n通过：正确理解：")
     print(f"   P(患病|阳性) = {misunderstanding['正确理解（贝叶斯后验）']:.1%}")
     print(f"   （用贝叶斯定理正确计算）")
 

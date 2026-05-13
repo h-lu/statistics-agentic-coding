@@ -271,7 +271,7 @@ class PresentationGenerator:
 
             # 演讲者备注
             if slide.get('speaker_notes'):
-                lines.append("**🗣️ 演讲者备注**：\n\n")
+                lines.append("**🗣 演讲者备注**：\n\n")
                 lines.append(f"{slide['speaker_notes']}\n\n")
                 lines.append("---\n\n")
 
@@ -336,7 +336,7 @@ class PresentationGenerator:
                 html_parts.append(f'                <p><img src="{slide["visual"]}" style="max-height: 400px;"></p>\n')
 
             if slide.get('speaker_notes'):
-                html_parts.append(f'                <p class="speaker-notes">🗣️ {slide["speaker_notes"]}</p>\n')
+                html_parts.append(f'                <p class="speaker-notes">🗣 {slide["speaker_notes"]}</p>\n')
 
             html_parts.append('            </section>\n')
 

@@ -242,7 +242,7 @@ def demonstrate_discovery_outliers() -> pd.DataFrame:
     print(outliers.head())
     print()
 
-    print("⚠️  不要直接删除这些异常值！")
+    print("⚠  不要直接删除这些异常值！")
     print("  → 它们可能代表一个不同的群体（如 B2B vs B2C）")
     print("  → 应该单独分组分析，而不是混在一起")
     print("  → 或者用对数变换压缩尺度")
