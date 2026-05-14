@@ -485,8 +485,10 @@ class ContentGenerator:
         
         if chapter_path.exists():
             content = chapter_path.read_text(encoding='utf-8')
-            # 移除原有的 frontmatter
-            content = self._escape_mdx_content(self._remove_frontmatter(content))
+            # 移除原有的 frontmatter，并把 chapters/week_XX/interactive/*.html
+            # 重写到 Docusaurus static 发布路径，避免 /stat/docs/... 下的相对链接失效。
+            content = self._rewrite_interactive_links(self._remove_frontmatter(content), week.number)
+            content = self._escape_mdx_content(content)
             lines.append(content)
         else:
             lines.extend([
@@ -498,6 +500,17 @@ class ContentGenerator:
         
         return '\n'.join(lines)
     
+    def _rewrite_interactive_links(self, content: str, week_number: int) -> str:
+        """把交互页相对链接改为最终 /stat/ 站点可访问路径。"""
+        def repl(match: re.Match) -> str:
+            prefix = match.group(1)
+            filename = match.group(2)
+            suffix = match.group(3) or ''
+            return f'{prefix}/stat/interactives/week_{week_number:02d}/{filename}{suffix})'
+
+        pattern = r'(\[[^\]]*\]\()\.?/?interactive/([^)#?]+\.html?)([#?][^)]*)?\)'
+        return re.sub(pattern, repl, content)
+
     def generate_assignment(self, week: WeekInfo) -> str:
         """生成作业页面 assignment.mdx"""
         assignment_path = self.chapters_dir / f'week_{week.number:02d}' / 'ASSIGNMENT.md'
@@ -1620,8 +1633,9 @@ class SiteBuilder:
                 self._write_file(week_dir / 'anchors.mdx', self.content_generator.generate_anchors(week))
                 self._write_file(week_dir / 'terms.mdx', self.content_generator.generate_terms(week))
 
-                # 复制图片目录
+                # 复制静态资源目录
                 self._copy_week_images(week.number)
+                self._copy_week_interactives(week.number)
     
     def _generate_global_pages(self) -> None:
         """生成全局页面"""
@@ -1679,6 +1693,36 @@ class SiteBuilder:
 
         if copied_count > 0:
             self.logger.debug(f"  复制了 {copied_count} 张图片到 {target_images_dir}")
+
+    def _copy_week_interactives(self, week_number: int) -> None:
+        """复制每周的交互式 HTML 到 static，最终路径为 /stat/interactives/week_XX/*.html。"""
+        source_interactive_dir = self.chapters_dir / f'week_{week_number:02d}' / 'interactive'
+        target_interactive_dir = self.site_dir / 'static' / 'interactives' / f'week_{week_number:02d}'
+
+        if not source_interactive_dir.exists():
+            self.logger.debug(f"  交互目录不存在，跳过: {source_interactive_dir}")
+            return
+
+        target_interactive_dir.mkdir(parents=True, exist_ok=True)
+
+        allowed_extensions = {'.html', '.css', '.js', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'}
+        copied_count = 0
+
+        for source_file in sorted(source_interactive_dir.rglob('*')):
+            if not source_file.is_file() or source_file.suffix.lower() not in allowed_extensions:
+                continue
+            rel_path = source_file.relative_to(source_interactive_dir)
+            target_file = target_interactive_dir / rel_path
+            target_file.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                shutil.copy2(source_file, target_file)
+                copied_count += 1
+                self.logger.debug(f"  复制交互资源: week_{week_number:02d}/{rel_path}")
+            except Exception as e:
+                self.logger.warning(f"  复制交互资源失败: {source_file} -> {target_file}: {e}")
+
+        if copied_count > 0:
+            self.logger.debug(f"  复制了 {copied_count} 个交互资源到 {target_interactive_dir}")
 
 
 # =============================================================================

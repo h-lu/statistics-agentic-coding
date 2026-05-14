@@ -47,6 +47,18 @@ AI 可以帮你训练 20 个模型，但只有你能回答"选哪个"和"为什�
 
 ---
 
+## 课堂交互工作台
+
+本周配套一个单页实验室：
+
+> [在线打开 Tree Model Studio：树模型研究工作台](/stat/interactives/week_11/tree_model_studio.html)
+
+站点发布后路径：`https://hblu.top/stat/interactives/week_11/tree_model_studio.html`。本地或仓库源码路径：`chapters/week_11/interactive/tree_model_studio.html`。
+
+它把本周 6 个关键问题放在同一个研究工作台里：决策边界、分裂与剪枝、单棵树不稳定、随机森林投票、Baseline 对战、特征重要性陷阱。课堂上建议按模块推进；学生课后可以切到“学生实验”模式，自己调参数复现结论。
+
+---
+
 <!--
 贯穿案例：从"单棵决策树"到"随机森林 vs 基线对比"
 
