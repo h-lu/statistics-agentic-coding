@@ -3,89 +3,114 @@ import ExecutionEnvironment from '@docusaurus/ExecutionEnvironment';
 // Mermaid 客户端渲染模块
 // 使用 mermaid v10+ 的 mermaid.run() API
 
+let mermaidModulePromise = null;
+let initialized = false;
+
 export function onInitialRouteRender() {
   if (!ExecutionEnvironment.canUseDOM) return;
 
-  // 动态加载 mermaid
-  import('mermaid').then((mermaid) => {
-    mermaid.default.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose',
-      flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-      },
-    });
-
-    console.log('[Mermaid] Initialized');
-
-    // 先处理代码块，清理 HTML 实体
-    processMermaidBlocks();
-
-    // 然后运行 mermaid
-    setTimeout(() => {
-      mermaid.default.run({
-        querySelector: '.mermaid-code',
-        postRenderCallback: function(id) {
-          console.log('[Mermaid] Rendered:', id);
-        }
-      });
-    }, 300);
-  }).catch(err => {
-    console.error('[Mermaid] Failed to load:', err);
-  });
+  renderMermaidBlocks();
 }
 
 export function onRouteDidUpdate() {
   if (!ExecutionEnvironment.canUseDOM) return;
 
-  import('mermaid').then((mermaid) => {
-    processMermaidBlocks();
-    setTimeout(() => {
-      mermaid.default.run({
-        querySelector: '.mermaid-code',
-      });
-    }, 300);
-  }).catch(err => {
-    console.error('[Mermaid] Failed to load:', err);
-  });
+  renderMermaidBlocks();
 }
 
-// 预处理 mermaid 代码块
-function processMermaidBlocks() {
-  const blocks = document.querySelectorAll('.language-mermaid');
-  console.log('[Mermaid] Found blocks:', blocks.length);
+function getMermaidModule() {
+  if (!mermaidModulePromise) {
+    mermaidModulePromise = import('mermaid');
+  }
+  return mermaidModulePromise;
+}
 
-  blocks.forEach((block, index) => {
-    if (block.hasAttribute('data-mermaid-processed')) return;
+function initializeMermaid(mermaid) {
+  if (initialized) return;
 
-    // 获取纯文本内容
-    let code = block.textContent || '';
-
-    // 解码 HTML 实体
-    code = decodeHtmlEntities(code);
-
-    // 创建新的 pre 元素供 mermaid 处理
-    const pre = document.createElement('pre');
-    pre.className = 'mermaid-code';
-    pre.setAttribute('data-mermaid-processed', 'true');
-    pre.textContent = code;
-
-    // 找到容器并替换
-    const container = block.closest('.codeBlockContainer_Ckt0') ||
-                      block.closest('.codeBlockContent_biex') ||
-                      block.closest('[class*="codeBlockContainer"]') ||
-                      block.parentElement;
-
-    if (container) {
-      container.replaceWith(pre);
-    } else {
-      block.replaceWith(pre);
-    }
-
-    console.log(`[Mermaid] Processed block ${index}`);
+  mermaid.default.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+    },
   });
+
+  initialized = true;
+}
+
+function renderMermaidBlocks() {
+  getMermaidModule()
+    .then((mermaid) => {
+      initializeMermaid(mermaid);
+
+      const nodes = collectMermaidNodes();
+      if (nodes.length === 0) return;
+
+      window.setTimeout(() => {
+        mermaid.default.run({ nodes }).catch((err) => {
+          console.error('[Mermaid] Render failed:', err);
+        });
+      }, 0);
+    })
+    .catch((err) => {
+      console.error('[Mermaid] Failed to load:', err);
+    });
+}
+
+// 预处理 mermaid 代码块。Docusaurus 默认会把 ```mermaid 输出成普通 Prism
+// 代码块；这里在浏览器端替换成 Mermaid 可渲染节点。
+function collectMermaidNodes() {
+  const codeBlocks = Array.from(
+    document.querySelectorAll('pre code.language-mermaid, pre.language-mermaid, code.language-mermaid, .language-mermaid')
+  );
+  const nodes = [];
+  const seenContainers = new Set();
+
+  codeBlocks.forEach((block) => {
+    const container =
+      block.closest('[data-mermaid-container="true"]') ||
+      block.closest('[class*="codeBlockContainer"]') ||
+      block.closest('pre') ||
+      block;
+
+    if (seenContainers.has(container) || container.hasAttribute('data-mermaid-rendered')) {
+      return;
+    }
+    seenContainers.add(container);
+
+    let code = extractCodeText(block);
+    code = decodeHtmlEntities(code);
+    if (!code) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mermaid-diagram';
+    wrapper.setAttribute('data-mermaid-container', 'true');
+    wrapper.setAttribute('data-mermaid-rendered', 'true');
+
+    const diagram = document.createElement('div');
+    diagram.className = 'mermaid';
+    diagram.textContent = code;
+
+    wrapper.appendChild(diagram);
+    container.replaceWith(wrapper);
+    nodes.push(diagram);
+  });
+
+  return nodes;
+}
+
+function extractCodeText(block) {
+  const lineNodes = block.querySelectorAll?.('.token-line');
+  if (lineNodes?.length) {
+    return Array.from(lineNodes)
+      .map((line) => line.textContent || '')
+      .join('\n');
+  }
+
+  return block.textContent || '';
 }
 
 // 解码 HTML 实体

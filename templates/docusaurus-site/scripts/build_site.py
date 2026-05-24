@@ -102,10 +102,11 @@ class TOCParser:
     
     # 阶段映射
     PHASE_MAP = {
-        '阶段一': ('phase-1', '思维奠基'),
-        '阶段二': ('phase-2', '系统化工程'),
-        '阶段三': ('phase-3', 'AI 时代的工程'),
-        '阶段四': ('phase-4', '综合实战'),
+        '阶段一': ('phase-1', '数据探索基础'),
+        '阶段二': ('phase-2', '统计推断'),
+        '阶段三': ('phase-3', '预测建模'),
+        '阶段四': ('phase-4', '高级专题'),
+        '阶段五': ('phase-5', '综合实战'),
     }
     
     def __init__(self, chapters_dir: Path, logger: logging.Logger):
@@ -210,7 +211,8 @@ class TOCParser:
                 '阶段一': range(1, 5),
                 '阶段二': range(5, 9),
                 '阶段三': range(9, 13),
-                '阶段四': range(13, 17),
+                '阶段四': range(13, 16),
+                '阶段五': range(16, 17),
             }
             
             for week_num in week_ranges.get(phase_key, range(1, 5)):
@@ -809,10 +811,11 @@ class ContentGenerator:
                 '',
                 '## 课程结构',
                 '',
-                '- **阶段一：思维奠基**（Week 01-04）',
-                '- **阶段二：系统化工程**（Week 05-08）',
-                '- **阶段三：AI 时代的工程**（Week 09-12）',
-                '- **阶段四：综合实战**（Week 13-16）',
+                '- **阶段一：数据探索基础**（Week 01-04）',
+                '- **阶段二：统计推断**（Week 05-08）',
+                '- **阶段三：预测建模**（Week 09-12）',
+                '- **阶段四：高级专题**（Week 13-15）',
+                '- **阶段五：综合实战**（Week 16）',
                 '',
             ])
         
@@ -1350,6 +1353,8 @@ class ContentGenerator:
             return 'phase-3'
         elif '阶段四' in phase_label:
             return 'phase-4'
+        elif '阶段五' in phase_label:
+            return 'phase-5'
         return 'phase-unknown'
     
     def _truncate_text(self, text: str, max_length: int) -> str:

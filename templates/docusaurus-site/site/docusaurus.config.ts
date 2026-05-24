@@ -177,6 +177,14 @@ const config: Config = {
         explicitSearchResultPath: true,
       },
     ],
+    function mermaidClientPlugin() {
+      return {
+        name: 'statistics-mermaid-client',
+        getClientModules() {
+          return [require.resolve('./src/clientModules/mermaid.js')];
+        },
+      };
+    },
   ],
 
   // 主题配置
@@ -188,7 +196,7 @@ const config: Config = {
       href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
       type: 'text/css',
       integrity:
-        'sha384-n8MVd4RsNIU0KOVEMeaPoAbtnPgS4evuCX/hMUXkrpvrVRodckMBkRVCTRBeL1fs',
+        'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV',
       crossorigin: 'anonymous',
     },
   ],
